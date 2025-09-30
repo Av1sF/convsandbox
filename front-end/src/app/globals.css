@@ -1,6 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-
 @import "tailwindcss";
+
 
 @theme inline {
   /* White */
@@ -13,22 +12,10 @@
   --color-secondary: #90b4ce; 
   /* Orange */
   --color-tertiary: #ef4565;
-  
-  --font-manrope: "Manrope", sans-serif;
-  --font-worksans: "Work Sans", sans-serif;
+  --font-main: var(--font-manrope); 
 }
 
-/* :root {
-  --background: #ffffff;
-  --foreground: #171717;
-} */
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
 
 body {
   background: var(--colour-main);
