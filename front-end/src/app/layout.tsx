@@ -13,8 +13,11 @@ const manrope = Manrope({
   variable: "--font-manrope",
 
 })
-const worksans = Work_Sans({ subsets: ["latin"]});
+const worksans = Work_Sans({
+  subsets: ['latin'],
+  variable: "--font-worksans",
 
+})
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en"
-    className={`${manrope.variable}`}>
+    className={`${manrope.variable} ${worksans.variable}`}>
       <body className='p-4 font-main'>{children}</body>
     </html>
   );
