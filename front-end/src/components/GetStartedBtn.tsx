@@ -1,30 +1,86 @@
 import '../app/globals.css';
+import { TfiLayersAlt } from "react-icons/tfi";
+
 type BtnProps = {
+    // start point 
   x: number;
-  y: number;
+  y: number; 
+    // max width and height 
+  height: number;
+  width: number; 
   onClick?: () => void;
 };
 
 export default function GetStartedBtn (props: BtnProps) {
     const label = "Get Started!";
+    
+    const svg_x_start = props.width / 5;
+    const svg_y_start =1.3 * props.height / 3;
+
+    const icon_x = svg_x_start + 220;
+    const icon_y = svg_y_start  + 16; 
   return (
     <>
         <g
-            transform={`translate(${props.x}, ${props.y})`}
-            style={{ cursor: "pointer" }}
-            // onClick={onClick}
+        transform={`translate(${props.x}, ${props.y})`}
+        style={{ cursor: "pointer" }}
+        // onClick={onClick}
         >
-            <text 
-                x = {props.x}
-                y = {props.y}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="fill-stroke "
-            >
-                {label}
-            </text>
+        {/* first label above rectangle, aligned left */}
+        <text
+            x={svg_x_start}
+            y={svg_y_start - 20} // 10px above the rect
+            textAnchor="start" // align to left edge
+            dominantBaseline="auto" // align baseline
+            className="fill-stroke font-main"
+        >
+            {label}
+        </text>
 
+        {/* pill background */}
+        <rect
+            x={svg_x_start}
+            y={svg_y_start}
+            width={260}
+            height={50}
+            rx={25}
+            className="fill-white stroke-secondary hover:fill-gray-100 transition-colors"
+        />
+
+        {/* plus icon */}
+        <circle
+            cx={svg_x_start + 25}
+            cy={svg_y_start + 25}
+            r={15}
+            className="fill-blue-200"
+        />
+        <text
+            x={svg_x_start + 25}
+            y={svg_y_start + 26}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="20"
+            className="fill-stroke font-bold"
+        >
+            +
+        </text>
+
+        {/* add label */}
+        <text
+            x={svg_x_start + 50}
+            y={svg_y_start + 29}
+            fontSize="14"
+            className="fill-stroke font-secondary pointer-events-none"
+        >
+            add convolutional layer
+        </text>
+
+        {/* right-hand icon */}
+        <g transform={`translate(${icon_x}, ${icon_y})`} className="fill-stroke">
+            <TfiLayersAlt />
         </g>
+        </g>
+
     </>
   )
 }

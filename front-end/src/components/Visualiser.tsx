@@ -14,10 +14,8 @@ export default function Visualiser() {
       className="w-full h-[80vh] rounded-md border border-secondary"
       ref={svgRef}
     >
-      <text x={200} y={200}>
-        {w} {h}
-      </text>
-      <GetStartedBtn x={w/4} y={h/4} />
+
+      <GetStartedBtn x={0} y={0} width={w/4} height={h}/>
     </VisualiserCanvas>
   );
 }
