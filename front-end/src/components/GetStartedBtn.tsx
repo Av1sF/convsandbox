@@ -8,25 +8,26 @@ type BtnProps = {
     // max width and height 
   height: number;
   width: number; 
-  onClick?: () => void;
+  onClick: () => void;
+  showLabel: boolean; 
 };
 
 // TODO think about button move and box thing 
 
 export default function GetStartedBtn (props: BtnProps) {
-    const label = "Get Started!";
+    const label = props.showLabel ? "Get Started!" : "Add...";
     
-    const svg_x_start = props.width / 5;
+    const svg_x_start = props.width / 5 - 20;
     const svg_y_start = 1.3 * props.height / 3;
 
-    const icon_x = svg_x_start + 220;
+    const icon_x = svg_x_start + 196;
     const icon_y = svg_y_start  + 16; 
   return (
     <>
         <g
         transform={`translate(${props.x}, ${props.y})`}
         style={{ cursor: "pointer" }}
-        // onClick={onClick}
+        onClick={props.onClick}
         >
         {/* first label above rectangle, aligned left */}
         <text
@@ -43,7 +44,7 @@ export default function GetStartedBtn (props: BtnProps) {
         <rect
             x={svg_x_start}
             y={svg_y_start}
-            width={260}
+            width={230}
             height={50}
             rx={25}
             className="fill-bg stroke-text hover:fill-gray-100 transition-colors"
@@ -69,9 +70,9 @@ export default function GetStartedBtn (props: BtnProps) {
 
         {/* add label */}
         <text
-            x={svg_x_start + 50}
+            x={svg_x_start + 48}
             y={svg_y_start + 29}
-            fontSize="14"
+            fontSize="13"
             className="fill-text-muted font-secondary pointer-events-none"
         >
             add convolutional layer
