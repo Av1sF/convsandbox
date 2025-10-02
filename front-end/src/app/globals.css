@@ -2,18 +2,22 @@
 
 
 @theme inline {
-  /* White */
-  --color-main: #fffffe;
-  /* Navy */
-  --color-stroke: #094067; 
-  /* Cyan */
-  --color-highlight: #3da9fc; 
-  /* Gray */
-  --color-secondary: #90b4ce; 
-  /* Orange */
-  --color-tertiary: #ef4565;
-  --font-main: var(--font-manrope); 
-  --font-secondary: var(--font-worksans);
+  /* Base / background */
+  --color-bg: #fffffe;              /* white background */
+  --color-bg-alt: #d8eefe;          /* light background (baby blue) */
+
+  /* Text & strokes */
+  --color-text: #094067;            /* primary text (navy) */
+  --color-text-muted: #5f6c7b;      /* subdued/dark gray text */
+  --color-stroke: #90b4ce;          /* secondary (light gray-blue) stroke */
+
+  /* Accents */
+  --color-accent: #3da9fc;          /* highlight (cyan/blue) */
+  --color-accent-warm: #ef4565;     /* tertiary accent (warm coral/orange) */
+
+  /* Fonts */
+  --font-sans: var(--font-manrope); 
+  --font-alt: var(--font-worksans);
 }
 
 
