@@ -1,4 +1,4 @@
-import Visualiser from "@/components/Visualiser";
+import Visualiser from "@/components/Visualiser/Visualiser";
 
 export default function Home() {
   return (

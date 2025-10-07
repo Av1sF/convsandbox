@@ -1,7 +1,7 @@
 'use client'
 import React, { useRef, useState } from "react";
 import VisualiserCanvas from "./VisualiserCanvas";
-import GetStartedBtn from "./GetStartedBtn";
+import VisualiserMenuBtn from "./VisualiserMenuBtn";
 import { useElementSize } from "@/hooks/useElementSize";
 
 export default function Visualiser() {
@@ -14,7 +14,7 @@ export default function Visualiser() {
   // Has user started visualiser 
   const [started, setStarted] = useState<boolean>(false); 
 
-  const handleAddLayer = () => {
+  const handleMenuAction = (action: string) => {
     // Number of layers help decide how far to move button 
     if (!started) {
         setStarted(true);
@@ -23,6 +23,9 @@ export default function Visualiser() {
       setNumLayers(prev => prev + 1);
     }
 
+    if (action == "add-conv-layer") {
+      console.log("add-conv-layer")
+    }
   };
 
   return (
@@ -47,12 +50,12 @@ export default function Visualiser() {
 
         {/* Only render the button if fewer than 5 layers exist */}
         {numLayers < 5 && (
-          <GetStartedBtn
+          <VisualiserMenuBtn
             x={(w / 5) * numLayers}
             y={0}
             width={w / 5}
             height={h}
-            onClick={handleAddLayer}
+            onAction={handleMenuAction}
             showLabel={!started}
           />
         )}
