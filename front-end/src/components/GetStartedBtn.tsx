@@ -22,6 +22,7 @@ export default function GetStartedBtn (props: BtnProps) {
 
     const icon_x = svg_x_start + 196;
     const icon_y = svg_y_start  + 16; 
+    const short_icon_x = icon_x - 30;
   return (
     <>
         <g
@@ -44,7 +45,7 @@ export default function GetStartedBtn (props: BtnProps) {
         <rect
             x={svg_x_start}
             y={svg_y_start}
-            width={230}
+            width={props.showLabel? 230: 200}
             height={50}
             rx={25}
             className="fill-bg stroke-text hover:fill-gray-100 transition-colors"
@@ -75,11 +76,12 @@ export default function GetStartedBtn (props: BtnProps) {
             fontSize="13"
             className="fill-text-muted font-secondary pointer-events-none"
         >
-            add convolutional layer
+            {/* add convolutional layer */}
+            {props.showLabel? "add convolutional layer": "convolutional layer"}
         </text>
 
         {/* right-hand icon */}
-        <g transform={`translate(${icon_x}, ${icon_y})`} className="fill-text">
+        <g transform={`translate(${props.showLabel? icon_x: short_icon_x}, ${icon_y})`} className="fill-text">
             <TfiLayersAlt />
         </g>
         </g>

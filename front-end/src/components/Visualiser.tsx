@@ -15,12 +15,14 @@ export default function Visualiser() {
   const [started, setStarted] = useState<boolean>(false); 
 
   const handleAddLayer = () => {
+    // Number of layers help decide how far to move button 
     if (!started) {
-      setStarted(true); 
-    }
+        setStarted(true);
+    } 
     if (numLayers < 5) {
       setNumLayers(prev => prev + 1);
     }
+
   };
 
   return (
