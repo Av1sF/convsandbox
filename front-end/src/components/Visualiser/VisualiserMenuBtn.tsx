@@ -14,6 +14,12 @@ type BtnProps = {
 };
 
 export default function VisualiserMenuBtn(props: BtnProps) {
+      // TODO: current TEMP placeholder
+    // call pop up menu and draw convolutional layer
+    // or just do the second part first (maybe use d3.get.add so you can contain)
+    // layer generation within LayerBtn
+    // or make a set of utils for conv
+
   const label = props.showLabel ? "Get Started!" : "Add...";
 
   const svgXstart = props.width / 5 - 20;
@@ -22,12 +28,8 @@ export default function VisualiserMenuBtn(props: BtnProps) {
   // Individual button click handlers (add more later )
   const handleAddConvLayer = (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    // TODO: current TEMP placeholder
-    // call pop up menu and draw convolutional layer
-    // or just do the second part first (maybe use d3.get.add so you can contain)
-    // layer generation within LayerBtn
-    // or make a set of utils for conv
+    // Trigger header pop-up 
+    // wwhich then draws it... 
     props.onAction("add-conv-layer");
   };
 
