@@ -4,6 +4,7 @@ import VisualiserCanvas from "./VisualiserCanvas";
 import VisualiserMenuBtn from "./VisualiserMenuBtn";
 import { useElementSize } from "@/hooks/useElementSize";
 import * as d3 from "d3";
+import { drawConvLayer } from "@/utils/drawConvLayer";
 
 export default function Visualiser() {
   const maxLayers = 5;
@@ -13,7 +14,8 @@ export default function Visualiser() {
   // --- State ---
   const [numLayers, setNumLayers] = useState<number>(0);
   const [started, setStarted] = useState<boolean>(false);
-  const [action, setAction] = useState<string | null>(null);
+  const initialAction = ""; 
+  const [action, setAction] = useState(initialAction);
   const [layers, setLayers] = useState<{ type: string }[]>([]);
 
   // --- Handle user clicking menu button ---
@@ -28,21 +30,22 @@ export default function Visualiser() {
   };
 
   // --- Use D3 to draw on layer creation ---
-  useEffect(() => {
+  if ((action != initialAction) ) {
     if (!action || layers.length === 0) return;
 
     const svg = d3.select(svgRef.current);
     const root = svg.select(".d3-root");
+    
 
     const latestLayerIndex = layers.length - 1;
     const latestLayer = layers[latestLayerIndex];
-    const xOffset = (w / maxLayers) * latestLayerIndex;
+    const layerxOffset = (w / maxLayers) * latestLayerIndex;
 
     // Create a new <g> for this layer (React already created <g> placeholders, but D3 can append into root)
     const layerGroup = root
       .append("g")
       .attr("class", `layer-${latestLayerIndex}`)
-      .attr("transform", `translate(${xOffset}, 0)`);
+      .attr("transform", `translate(${layerxOffset}, 0)`);
 
     // Background
     layerGroup
@@ -53,42 +56,28 @@ export default function Visualiser() {
 
     // --- D3 animation for convolutional layer ---
     if (latestLayer.type === "add-conv-layer") {
-      // How much each square shifts diagonally
-      const totalSquares = 5;
-      const xOffset = 20;
-      const squareSize = w / maxLayers - (totalSquares*xOffset) - 15;
-      const yOffset = squareSize*(0.7) ; 
+      drawConvLayer(
+        w, 
+        h, 
+        1, 
+        24, 
+        2, 
+        maxLayers,
+        layerGroup,
+      )
+    };
 
-      const startX = w / (2 * maxLayers) - squareSize / 2 - xOffset;
-      const startY = h / 2 - squareSize;
-
-      for (let j = 0; j < totalSquares; j++) {
-        layerGroup
-          .append("rect")
-          .attr("x", startX + j * xOffset)
-          .attr("y", startY + j * yOffset)
-          .attr("width", squareSize)
-          .attr("height", squareSize)
-          .attr("rx", 1)
-          .attr("class", "fill-bg stroke-stroke")
-          .style("opacity", 0)
-          .transition()
-          .duration(400)
-          .delay(j * 150)
-          .style("opacity", 1);
-      }
-    }
 
     // reset action after handling
-    setAction(null);
-  }, [action, layers, w, h]);
+    setAction("");
+  };
 
   return (
-    <div className="w-full h-[80vh] rounded-md border border-bg-alt overflow-auto md:overflow-visible">
+    <div className="w-full h-[90vh] rounded-md border border-bg-alt overflow-auto">
       <VisualiserCanvas
         id="canvas"
         ref={svgRef}
-        className="md:w-full md:h-full w-[1183px] h-[840px] d3-root"
+        className=" w-[1183px] h-[500px] d3-root"
       >
         {/* Only render the button if fewer than max layers exist */}
         {numLayers < maxLayers && (
@@ -102,6 +91,7 @@ export default function Visualiser() {
           />
         )}
       </VisualiserCanvas>
+
     </div>
   );
-}
+};
