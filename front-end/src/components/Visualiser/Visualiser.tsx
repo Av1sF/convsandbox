@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import VisualiserCanvas from "./VisualiserCanvas";
 import VisualiserMenuBtn from "./VisualiserMenuBtn";
 import { useElementSize } from "@/hooks/useElementSize";
@@ -9,7 +9,9 @@ import { drawConvLayer } from "@/utils/drawConvLayer";
 export default function Visualiser() {
   const maxLayers = 5;
   const svgRef = useRef<SVGSVGElement>(null!);
-  const { width: w, height: h } = useElementSize(svgRef);
+  // let { width: w, height: h } = useElementSize(svgRef);
+  const w = 1183;
+  const h = 500; 
 
   // --- State ---
   const [numLayers, setNumLayers] = useState<number>(0);
@@ -39,7 +41,7 @@ export default function Visualiser() {
 
     const latestLayerIndex = layers.length - 1;
     const latestLayer = layers[latestLayerIndex];
-    const layerxOffset = (w / maxLayers) * latestLayerIndex;
+    const layerxOffset = (w / maxLayers) * latestLayerIndex; 
 
     // Create a new <g> for this layer (React already created <g> placeholders, but D3 can append into root)
     const layerGroup = root
@@ -60,10 +62,11 @@ export default function Visualiser() {
         w, 
         h, 
         1, 
-        24, 
-        2, 
+        25, 
+        25, 
         maxLayers,
         layerGroup,
+        layerxOffset
       )
     };
 
@@ -73,11 +76,11 @@ export default function Visualiser() {
   };
 
   return (
-    <div className="w-full h-[90vh] rounded-md border border-bg-alt overflow-auto">
+    <div className="w-full md:w-[1183px] md:h-[90vh] h-[500px] rounded-md border border-bg-alt overflow-auto md:overflow-hidden">
       <VisualiserCanvas
         id="canvas"
         ref={svgRef}
-        className=" w-[1183px] h-[500px] d3-root"
+        className={"w-[1183px] h-[500px] d3-root"}
       >
         {/* Only render the button if fewer than max layers exist */}
         {numLayers < maxLayers && (
