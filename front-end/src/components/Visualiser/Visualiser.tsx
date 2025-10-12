@@ -61,9 +61,9 @@ export default function Visualiser() {
       drawConvLayer(
         w, 
         h, 
-        1, 
-        25, 
-        25, 
+        4, // Depth
+        25, // Width
+        25, // Height 
         maxLayers,
         layerGroup,
         layerxOffset

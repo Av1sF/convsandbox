@@ -28,7 +28,7 @@ export const drawConvLayer = (
   var yOffset = Math.trunc(rectHeight * 0.25);
   // // Check if valid 
   // if (numDepth > 1){
-    let totalConvHeight = rectHeight * numDepth + (numDepth - 1)*yOffset;
+    let totalConvHeight = rectHeight + (numDepth - 1)*yOffset;
   //   let maxHeight =  (canvasH - 20);
   //   if (totalConvHeight > maxHeight) {
   //     yOffset = Math.trunc((maxHeight - numDepth * rectWidth) / (numDepth - 1))
@@ -42,12 +42,9 @@ export const drawConvLayer = (
   //   }
   // }
   
-  console.log(totalConvWidth)
-  let startX = canvasW / (2 * maxLayers) - 0.5 * rectWidth;
-  startX = ((canvasW / (2 * (maxLayers))) - (0.5*totalConvWidth))
-  console.log(startX);
+  const startX = ((canvasW / (2 * (maxLayers))) - (0.5*totalConvWidth))
   
-  const startY = canvasH / 2 - 0.5 * rectHeight;
+  const startY = ((canvasH / 2) - (0.5*totalConvHeight))
 
   // Draw n number of rectangles/squares
   for (let j = 0; j < numDepth; j++) {
