@@ -16,7 +16,6 @@ export const drawConvLayer = (
   numRows: number,
   maxLayers: number,
   layerGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
-  xLayerOffset: number, 
 ) => {
   const rectWidth = Math.trunc((numColumns / 25) * 150);
   const rectHeight = Math.trunc((numRows / 25) * 150);
@@ -24,27 +23,29 @@ export const drawConvLayer = (
   const cellWidth = rectWidth / numColumns;
   const cellHeight = rectHeight / numRows;
 
-  var xOffset = Math.trunc(rectWidth * 0.10);
-  var yOffset = Math.trunc(rectHeight * 0.25);
-  // // Check if valid 
-  // if (numDepth > 1){
-    let totalConvHeight = rectHeight + (numDepth - 1)*yOffset;
-  //   let maxHeight =  (canvasH - 20);
-  //   if (totalConvHeight > maxHeight) {
-  //     yOffset = Math.trunc((maxHeight - numDepth * rectWidth) / (numDepth - 1))
+  var xOffset; 
+  var yOffset; 
+  if (numColumns <= 5) {
+    xOffset = rectWidth * 0.8;
+  } else if (5 < numColumns && numColumns <= 10) {
+    xOffset = Math.trunc(rectWidth * 0.4);
+  } else {
+    xOffset = Math.trunc(rectWidth * 0.1);
+  }
 
-  //   }
+  if (numColumns <= 5) {
+    yOffset = rectHeight * 0.6;
+  } else if (numRows <= 10) {
+    yOffset = Math.trunc(rectHeight * 0.4);
+  } else {
+    yOffset = Math.trunc(rectHeight * 0.2);
+  }
 
-    let totalConvWidth = rectWidth + (numDepth - 1)*xOffset;
-  //   let maxWidth =  (canvasW - 20);
-  //   if (totalConvWidth > maxWidth) {
-  //     xOffset = Math.trunc((maxWidth - numDepth * rectWidth) / (numDepth - 1))
-  //   }
-  // }
-  
-  const startX = ((canvasW / (2 * (maxLayers))) - (0.5*totalConvWidth))
-  
-  const startY = ((canvasH / 2) - (0.5*totalConvHeight))
+  let totalConvHeight = rectHeight + (numDepth - 1) * yOffset;
+  let totalConvWidth = rectWidth + (numDepth - 1) * xOffset;
+
+  const startX = canvasW / (2 * maxLayers) - 0.5 * totalConvWidth;
+  const startY = canvasH / 2 - 0.5 * totalConvHeight;
 
   // Draw n number of rectangles/squares
   for (let j = 0; j < numDepth; j++) {
@@ -61,44 +62,44 @@ export const drawConvLayer = (
       .delay(j * 150)
       .style("opacity", 1);
 
-    // // Vertical grid lines
-    // if (numColumns > 1) {
-    //   for (let i = 1; i < numColumns; i++) {
-    //     const x = startX + i * cellWidth;
-    //     layerGroup
-    //       .append("line")
-    //       .attr("x1", x)
-    //       .attr("y1", startY)
-    //       .attr("x2", x)
-    //       .attr("y2", startY + rectHeight)
-    //       .attr("class", "stroke-stroke")
-    //       .attr("stroke-width", i % 5 === 0 ? 1.5 : 0.5)
-    //       .attr("opacity", 0)
-    //       .transition()
-    //       .duration(400)
-    //       .delay(i * 20)
-    //       .attr("opacity", 1);
-    //   }
-    // }
+    // Vertical grid lines
+    if (numColumns > 1) {
+      for (let i = 1; i < numColumns; i++) {
+        const x = startX + i * cellWidth;
+        layerGroup
+          .append("line")
+          .attr("x1", x + j * xOffset)
+          .attr("y1", startY + j * yOffset)
+          .attr("x2", x+ j * xOffset)
+          .attr("y2", startY + rectHeight+ j * yOffset)
+          .attr("class", "stroke-stroke")
+          .attr("stroke-width", i % 5 === 0 ? 1.5 : 0.5)
+          .attr("opacity", 0)
+          .transition()
+          .duration(400)
+          .delay(i * 20)
+          .attr("opacity", 1);
+      }
+    }
 
-    // // Horizontal grid lines
-    // if (numRows > 1) {
-    //   for (let j = 1; j < numRows; j++) {
-    //     const y = startY + j * cellHeight;
-    //     layerGroup
-    //       .append("line")
-    //       .attr("x1", startX)
-    //       .attr("y1", y)
-    //       .attr("x2", startX + rectWidth)
-    //       .attr("y2", y)
-    //       .attr("class", "stroke-stroke")
-    //       .attr("stroke-width", j % 5 === 0 ? 1.5 : 0.5)
-    //       .attr("opacity", 0)
-    //       .transition()
-    //       .duration(400)
-    //       .delay(j * 20)
-    //       .attr("opacity", 1);
-    //   }
-    // }
+    // Horizontal grid lines
+    if (numRows > 1) {
+      for (let i = 1; i < numRows; i++) {
+        const y = startY + i * cellHeight;
+        layerGroup
+          .append("line")
+          .attr("x1", startX+ j * xOffset)
+          .attr("y1", y+ j * yOffset)
+          .attr("x2", startX + rectWidth+ j * xOffset)
+          .attr("y2", y+ j * yOffset)
+          .attr("class", "stroke-stroke")
+          .attr("stroke-width", i % 5 === 0 ? 1.5 : 0.5)
+          .attr("opacity", 0)
+          .transition()
+          .duration(400)
+          .delay(i * 20)
+          .attr("opacity", 1);
+      }
+    }
   }
 };
