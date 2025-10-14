@@ -15,7 +15,7 @@ export const drawConvLayer = (
   numColumns: number,
   numRows: number,
   maxLayers: number,
-  layerGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
+  layerGroup: d3.Selection<SVGGElement, unknown, null, undefined>
 ) => {
   const rectWidth = Math.trunc((numColumns / 25) * 150);
   const rectHeight = Math.trunc((numRows / 25) * 150);
@@ -23,8 +23,8 @@ export const drawConvLayer = (
   const cellWidth = rectWidth / numColumns;
   const cellHeight = rectHeight / numRows;
 
-  var xOffset; 
-  var yOffset; 
+  var xOffset;
+  var yOffset;
   if (numColumns <= 5) {
     xOffset = rectWidth * 0.8;
   } else if (5 < numColumns && numColumns <= 10) {
@@ -70,8 +70,8 @@ export const drawConvLayer = (
           .append("line")
           .attr("x1", x + j * xOffset)
           .attr("y1", startY + j * yOffset)
-          .attr("x2", x+ j * xOffset)
-          .attr("y2", startY + rectHeight+ j * yOffset)
+          .attr("x2", x + j * xOffset)
+          .attr("y2", startY + rectHeight + j * yOffset)
           .attr("class", "stroke-stroke")
           .attr("stroke-width", i % 5 === 0 ? 1.5 : 0.5)
           .attr("opacity", 0)
@@ -88,10 +88,10 @@ export const drawConvLayer = (
         const y = startY + i * cellHeight;
         layerGroup
           .append("line")
-          .attr("x1", startX+ j * xOffset)
-          .attr("y1", y+ j * yOffset)
-          .attr("x2", startX + rectWidth+ j * xOffset)
-          .attr("y2", y+ j * yOffset)
+          .attr("x1", startX + j * xOffset)
+          .attr("y1", y + j * yOffset)
+          .attr("x2", startX + rectWidth + j * xOffset)
+          .attr("y2", y + j * yOffset)
           .attr("class", "stroke-stroke")
           .attr("stroke-width", i % 5 === 0 ? 1.5 : 0.5)
           .attr("opacity", 0)
