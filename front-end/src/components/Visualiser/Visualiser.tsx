@@ -6,7 +6,6 @@ import * as d3 from "d3";
 import { drawConvLayer } from "@/utils/drawConvLayer";
 import ConvLayerModal, { ConvParams } from "./Layers/ConvLayerModal";
 
-// TODO --> Add equations -> Kernals formula
 // Draw lines between layers
 const MAXLAYERS = 5;
 const W = 1183;
