@@ -1,7 +1,8 @@
 import { useState, useEffect, RefObject } from "react";
 
 export const useElementSize = (ref: RefObject<HTMLElement | SVGSVGElement>) => {
-  const [size, setSize] = useState({ width: 0, height: 0 });
+  const initialSize = { width: 0, height: 0 }
+  const [size, setSize] = useState(initialSize);
 
   useEffect(() => {
     if (!ref.current) return;

@@ -1,14 +1,14 @@
-'use client'
-import React, { useRef, useEffect, forwardRef } from "react"; 
-import * as d3 from "d3"
+"use client";
+import React, { useRef, useEffect, forwardRef } from "react";
+import * as d3 from "d3";
 
 type CanvasProps = {
-  width?: number; 
+  width?: number;
   height?: number;
-  className?: string; 
+  className?: string;
   children?: React.ReactNode;
-  id: string; 
-}
+  id: string;
+};
 
 const VisualiserCanvas = forwardRef<SVGSVGElement, CanvasProps>(
   ({ className = "", children }, ref) => {
