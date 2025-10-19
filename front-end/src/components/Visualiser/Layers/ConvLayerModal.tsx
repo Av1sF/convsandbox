@@ -1,6 +1,14 @@
 import { MathJax } from "better-react-mathjax";
 import { useState } from "react";
 
+const MAX_WIDTH = 25;
+const MAX_HEIGHT = 25;
+const MAX_DEPTH = 5;
+const MAX_FILTERS = MAX_DEPTH;
+const MAX_FILTER_SIZE = 11;
+const MAX_PADDING = 10;
+const MAX_STRIDE = 8;
+
 // -- Props --
 export interface ConvParams {
   width: number;
@@ -32,14 +40,6 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
   var [outputHeight, setOutputHeight] = useState<number>(25);
   var [outputDepth, setOutputDepth] = useState<number>(5);
 
-  const MAX_WIDTH = 25;
-  const MAX_HEIGHT = 25;
-  const MAX_DEPTH = 5;
-  const MAX_FILTERS = MAX_DEPTH;
-  const MAX_FILTER_SIZE = 11;
-  const MAX_PADDING = 10;
-  const MAX_STRIDE = 8;
-
   // -- State initialisation --
   const [stride, setStride] = useState<number>(1);
   const [numFilters, setNumFilters] = useState<number>(1);
@@ -48,8 +48,23 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
 
   // -- Event handlers --
   const handleSubmit = (e: React.FormEvent) => {
+    let output: ConvParams = {
+      width: outputWidth,
+      height: outputHeight,
+      depth: outputDepth,
+    };
     e.preventDefault();
-    onConfirm({ width: outputWidth, height: outputHeight, depth: outputDepth });
+
+    if (!isOutputValid) return;
+
+    if (hasStarted && prevDims) {
+      output.stride = stride;
+      output.filterSize = filterSize;
+      output.numFilters = numFilters;
+      output.padding = padding;
+    }
+
+    onConfirm(output);
   };
 
   const handleOutputWidthChange = (value: number) => {
@@ -79,7 +94,17 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
       (prevDims.height - filterSize + 2 * padding) / (stride + 1)
     );
     outputDepth = numFilters;
+    console.log("output changed!");
   }
+
+  var isOutputValid =
+    outputWidth > 0 &&
+    outputDepth > 0 &&
+    outputHeight > 0 &&
+    outputWidth <= MAX_WIDTH &&
+    outputDepth <= MAX_DEPTH &&
+    outputHeight <= MAX_HEIGHT;
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 backdrop-blur-[1px] overflow-y-auto p-4">
@@ -133,7 +158,11 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
           <h2 className="text-xl font-semibold mb-2 text-text">
             Set Convolution Layer Parameters
           </h2>
-
+          {!isOutputValid && (
+            <p className="text-accent-warm text-sm">
+              ⚠️ One or more values exceed the allowed limits.
+            </p>
+          )}
           {/* User defines kernel - Appears after user creates first layer */}
           {hasStarted && prevDims && (
             <>
@@ -284,9 +313,14 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
               Cancel
             </button>
             <button
-              type="submit"
-              className="px-4 py-2 bg-accent text-bg rounded-lg hover:bg-blue-700 transition"
-            >
+            type="submit"
+            disabled={!isOutputValid}
+            className={`px-4 py-2 rounded-md text-white transition ${
+              isOutputValid
+                ? "bg-accent hover:bg-blue-700"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+          >
               Confirm
             </button>
           </div>

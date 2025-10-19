@@ -8,12 +8,12 @@ import ConvLayerModal, { ConvParams } from "./Layers/ConvLayerModal";
 
 // TODO --> Add equations -> Kernals formula
 // Draw lines between layers
+const MAXLAYERS = 5;
+const W = 1183;
+const H = 500;
 
 export default function Visualiser() {
   // -- Constants --
-  const maxLayers = 5;
-  const w = 1183;
-  const h = 500;
   const svgRef = useRef<SVGSVGElement>(null!);
   const svg = d3.select(svgRef.current);
   const root = svg.select(".d3-root");
@@ -60,7 +60,7 @@ export default function Visualiser() {
   const handleConvConfirm = (params: ConvParams) => {
     setShowConvModal(false);
 
-    if (numLayers < maxLayers) {
+    if (numLayers < MAXLAYERS) {
       setNumLayers((prev) => prev + 1);
       setLayers((prev) => [...prev, { type: "add-conv-layer", params }]);
     }
@@ -70,23 +70,23 @@ export default function Visualiser() {
   };
 
   // -- Render Logic --
-  if (action != initialAction && showConvModal == false) {
+  if (action != initialAction && showConvModal == false && started) {
     if (layers.length === 0) return;
 
     const latestLayerIndex = layers.length - 1;
     const latestLayer = layers[latestLayerIndex];
-    const layerxOffset = (w / maxLayers) * latestLayerIndex;
+    const layerxOffset = (W / MAXLAYERS) * latestLayerIndex;
 
-    // Layer Group 
+    // Layer Group
     const existingGroup = root.select(`.layer-${latestLayerIndex}`);
     let layerGroup;
 
     if (!existingGroup.empty()) {
-      // Layer already exists no need to re-render 
-      // Used in the case user cancels on layer creation 
+      // Layer already exists no need to re-render
+      // Used in the case user cancels on layer creation
       layerGroup = existingGroup;
     } else {
-      // Create layer group 
+      // Create layer group
       layerGroup = root
         .append("g")
         .attr("class", `layer-${latestLayerIndex}`)
@@ -95,14 +95,36 @@ export default function Visualiser() {
       // Draw Convolutional Layer
       if (latestLayer.type === "add-conv-layer" && latestLayer.params) {
         drawConvLayer(
-          w,
-          h,
+          W,
+          H,
           latestLayer.params.depth,
           latestLayer.params.width,
           latestLayer.params.height,
-          maxLayers,
+          MAXLAYERS,
           layerGroup
         );
+
+        // Maybe move into drawConvLayer 
+        // But maybe not incase I want to add INITIAL conv layer for eg. 
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.15)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(`Convolutional Layer`);
+
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.85)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(
+            `${latestLayer.params.height} x ${latestLayer.params.width} x ${latestLayer.params.depth}`
+          );
 
         setPrevLayerDims({
           width: latestLayer.params.width,
@@ -124,12 +146,12 @@ export default function Visualiser() {
         className={"w-[1183px] h-[500px] d3-root"}
       >
         {/* Only render the button if fewer than max layers exist */}
-        {numLayers < maxLayers && (
+        {numLayers < MAXLAYERS && (
           <VisualiserMenuBtn
-            x={(w / maxLayers) * numLayers}
+            x={(W / MAXLAYERS) * numLayers}
             y={0}
-            width={w / maxLayers}
-            height={h}
+            width={W / MAXLAYERS}
+            height={H}
             onAction={handleMenuAction}
             showLabel={!started}
           />
