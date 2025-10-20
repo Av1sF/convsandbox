@@ -11,6 +11,11 @@ const MAXLAYERS = 5;
 const W = 1183;
 const H = 500;
 
+export type validLayerTypes = {
+  conv: boolean;
+  activation: boolean;
+};
+
 export default function Visualiser() {
   // -- Constants --
   const svgRef = useRef<SVGSVGElement>(null!);
@@ -37,9 +42,14 @@ export default function Visualiser() {
         width: number;
         height: number;
         depth: number;
+        type?: string;
       }
     | undefined
   >(undefined);
+  const [allowedLayerTypes, setAllowedLayerTypes] = useState<validLayerTypes>({
+    conv: true,
+    activation: false,
+  });
 
   // -- Event handlers --
 
@@ -53,7 +63,11 @@ export default function Visualiser() {
     }
 
     if (actionType === "add-activation") {
-      return; 
+      if (numLayers < MAXLAYERS) {
+        setNumLayers((prev) => prev + 1);
+        setLayers((prev) => [...prev, { type: "add-activation" }]);
+      }
+      return;
     }
     // Handle other actions...
   };
@@ -68,7 +82,9 @@ export default function Visualiser() {
     }
 
     // Viz only officially starts iff first layer is created
-    if (!started) setStarted(true);
+    if (!started) {
+      setStarted(true);
+    }
   };
 
   // -- Render Logic --
@@ -106,8 +122,8 @@ export default function Visualiser() {
           layerGroup
         );
 
-        // Maybe move into drawConvLayer 
-        // But maybe not incase I want to add INITIAL conv layer for eg. 
+        // Maybe move into drawConvLayer
+        // But maybe not incase I want to add INITIAL conv layer for eg.
         layerGroup
           .append("text")
           .attr("x", W / (2 * MAXLAYERS))
@@ -133,6 +149,55 @@ export default function Visualiser() {
           height: latestLayer.params.height,
           depth: latestLayer.params.depth,
         });
+
+        setAllowedLayerTypes({
+          ...allowedLayerTypes,
+          conv: true,
+          activation: true,
+        });
+      }
+
+      if (latestLayer.type === "add-activation" && prevLayerDims) {
+        drawConvLayer(
+          W,
+          H,
+          prevLayerDims.depth,
+          prevLayerDims.width,
+          prevLayerDims.height,
+          MAXLAYERS,
+          layerGroup
+        );
+
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.15)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(`Activation Layer`);
+
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.85)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(
+            `${prevLayerDims.height} x ${prevLayerDims.width} x ${prevLayerDims.depth}`
+          );
+
+        setPrevLayerDims({
+          width: prevLayerDims.width,
+          height: prevLayerDims.height,
+          depth: prevLayerDims.depth,
+        });
+
+        setAllowedLayerTypes({
+          ...allowedLayerTypes,
+          activation: false,
+        });
       }
     }
 
@@ -156,6 +221,7 @@ export default function Visualiser() {
             height={H}
             onAction={handleMenuAction}
             showLabel={!started}
+            validLayerTypes={allowedLayerTypes}
           />
         )}
       </VisualiserCanvas>

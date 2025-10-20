@@ -94,7 +94,6 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
       (prevDims.height - filterSize + 2 * padding) / (stride + 1)
     );
     outputDepth = numFilters;
-    console.log("output changed!");
   }
 
   var isOutputValid =

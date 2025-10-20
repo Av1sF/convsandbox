@@ -2,6 +2,7 @@ import "../../app/globals.css";
 import { TfiLayersAlt } from "react-icons/tfi";
 import ConvLayerBtn from "./Layers/ConvLayerBtn";
 import ActivationLayerBtn from "./Layers/ActivationLayerBtn";
+import { validLayerTypes } from "./Visualiser";
 
 type BtnProps = {
   // start point
@@ -12,10 +13,10 @@ type BtnProps = {
   width: number;
   onAction: (action: string) => void;
   showLabel: boolean;
+  validLayerTypes: validLayerTypes;
 };
 
 export default function VisualiserMenuBtn(props: BtnProps) {
-
   const label = props.showLabel ? "Get Started!" : "Add...";
 
   const svgXstart = props.width / 5 - 20;
@@ -24,9 +25,12 @@ export default function VisualiserMenuBtn(props: BtnProps) {
   // Individual button click handlers (add more later )
   const handleAddConvLayer = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Trigger header pop-up 
-    // wwhich then draws it... 
     props.onAction("add-conv-layer");
+  };
+
+  const handleAddActivationLayer = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    props.onAction("add-activation");
   };
 
   return (
@@ -43,21 +47,22 @@ export default function VisualiserMenuBtn(props: BtnProps) {
           {label}
         </text>
 
-        <ConvLayerBtn
-          onClick={handleAddConvLayer}
-          x={svgXstart}
-          y={svgYstart}
-          showLabel={props.showLabel}
-        />
+        {props.validLayerTypes.conv && (
+          <ConvLayerBtn
+            onClick={handleAddConvLayer}
+            x={svgXstart}
+            y={svgYstart}
+            showLabel={props.showLabel}
+          />
+        )}
 
-        {
-          !props.showLabel && 
+        {!props.showLabel && props.validLayerTypes.activation && (
           <ActivationLayerBtn
-          onClick={handleAddConvLayer}
-          x={svgXstart}
-          y={svgYstart + 60}
-        />
-        }
+            onClick={handleAddActivationLayer}
+            x={svgXstart}
+            y={svgYstart + 60}
+          />
+        )}
       </g>
     </>
   );
