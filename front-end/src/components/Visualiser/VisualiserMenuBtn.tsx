@@ -1,6 +1,7 @@
 import "../../app/globals.css";
 import { TfiLayersAlt } from "react-icons/tfi";
 import ConvLayerBtn from "./Layers/ConvLayerBtn";
+import ActivationLayerBtn from "./Layers/ActivationLayerBtn";
 
 type BtnProps = {
   // start point
@@ -48,6 +49,15 @@ export default function VisualiserMenuBtn(props: BtnProps) {
           y={svgYstart}
           showLabel={props.showLabel}
         />
+
+        {
+          !props.showLabel && 
+          <ActivationLayerBtn
+          onClick={handleAddConvLayer}
+          x={svgXstart}
+          y={svgYstart + 60}
+        />
+        }
       </g>
     </>
   );

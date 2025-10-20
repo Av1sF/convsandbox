@@ -52,6 +52,9 @@ export default function Visualiser() {
       return;
     }
 
+    if (actionType === "add-activation") {
+      return; 
+    }
     // Handle other actions...
   };
 
