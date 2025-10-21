@@ -8,7 +8,7 @@ export interface BtnProps {
 }
 
 export default function ConvLayerBtn(props: BtnProps) {
-  const icon_x = props.x + 196;
+  const icon_x = props.x + 187;
   const icon_y = props.y + 16;
   const short_icon_x = icon_x - 30;
   return (
@@ -19,7 +19,7 @@ export default function ConvLayerBtn(props: BtnProps) {
         <rect
           x={props.x}
           y={props.y}
-          width={props.showLabel ? 230 : 200}
+          width={props.showLabel ? 230 : 185}
           height={50}
           rx={25}
           className="fill-bg stroke-text hover:fill-gray-100 transition-colors"
@@ -51,7 +51,7 @@ export default function ConvLayerBtn(props: BtnProps) {
           className="fill-text-muted font-secondary pointer-events-none"
         >
           {/* add convolutional layer */}
-          {props.showLabel ? "add convolutional layer" : "convolutional layer"}
+          {props.showLabel ? "add convolutional layer" : "convolution layer"}
         </text>
 
         {/* right-hand icon */}

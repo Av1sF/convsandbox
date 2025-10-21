@@ -17,8 +17,8 @@ export const drawConvLayer = (
   maxLayers: number,
   layerGroup: d3.Selection<SVGGElement, unknown, null, undefined>
 ) => {
-  const rectWidth = Math.trunc((numColumns / 25) * 150);
-  const rectHeight = Math.trunc((numRows / 25) * 150);
+  const rectWidth = Math.trunc((numColumns / 25) * (0.63*canvasW/maxLayers));
+  const rectHeight = Math.trunc((numRows / 25) * (0.63*canvasW/maxLayers));
 
   const cellWidth = rectWidth / numColumns;
   const cellHeight = rectHeight / numRows;

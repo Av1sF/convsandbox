@@ -7,7 +7,7 @@ export interface BtnProps {
 }
 
 export default function ActivationLayerBtn(props: BtnProps) {
-  const icon_x = props.x + 166;
+  const icon_x = props.x + 144;
   const icon_y = props.y + 16;
   return (
     <>
@@ -17,7 +17,7 @@ export default function ActivationLayerBtn(props: BtnProps) {
         <rect
           x={props.x}
           y={props.y}
-          width={200}
+          width={170}
           height={50}
           rx={25}
           className="fill-bg stroke-text hover:fill-gray-100 transition-colors"

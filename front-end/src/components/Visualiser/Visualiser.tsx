@@ -14,7 +14,7 @@ import ActivationSelectModal, {
 } from "./Layers/ActivationSelectModal";
 
 // Draw lines between layers
-const MAXLAYERS = 5;
+const MAXLAYERS = 6;
 const W = 1183;
 const H = 500;
 
@@ -234,11 +234,11 @@ export default function Visualiser() {
   }
 
   return (
-    <div className="w-full md:w-[1183px] md:h-[90vh] h-[500px] rounded-md border border-bg-alt overflow-auto md:overflow-hidden">
+    <div className={`w-full md:w-[${W}px] md:h-[90vh] h-[${H}px] rounded-md border border-bg-alt overflow-auto md:overflow-hidden`}>
       <VisualiserCanvas
         id="canvas"
         ref={svgRef}
-        className={"w-[1183px] h-[500px] d3-root"}
+        className={`w-[${W}px] h-[${H}px] d3-root`}
       >
         {/* Only render the button if fewer than max layers exist */}
         {numLayers < MAXLAYERS && (

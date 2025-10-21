@@ -19,7 +19,7 @@ type BtnProps = {
 export default function VisualiserMenuBtn(props: BtnProps) {
   const label = props.showLabel ? "Get Started!" : "Add...";
 
-  const svgXstart = props.width / 5 - 20;
+  const svgXstart = props.width / 6 - 24;
   const svgYstart = (1.3 * props.height) / 3;
 
   // Individual button click handlers (add more later )
