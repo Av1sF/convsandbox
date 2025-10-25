@@ -8,9 +8,9 @@ export interface BtnProps {
 }
 
 export default function ConvLayerBtn(props: BtnProps) {
-  const icon_x = props.x + 187;
+  const icon_x = props.x + 197;
   const icon_y = props.y + 16;
-  const short_icon_x = icon_x - 30;
+  const short_icon_x = icon_x - 40;
   return (
     <>
       {/* Convolutivonal Layer Button */}
