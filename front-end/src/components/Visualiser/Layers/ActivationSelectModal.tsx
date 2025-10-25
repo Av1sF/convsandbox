@@ -1,14 +1,6 @@
+import { ActivationType } from "@/app/types";
 import { MathJax } from "better-react-mathjax";
 import React from "react";
-
-export type ActivationType = "Tanh" | "Sigmoid" | "ReLU" | "Leaky ReLU";
-
-export function isActivationType(value: any): value is ActivationType {
-  return (
-    typeof value === "string" &&
-    ["Tanh", "Sigmoid", "ReLU", "Leaky ReLU"].includes(value)
-  );
-}
 
 interface ActivationSelectModalProps {
   onClose: () => void;

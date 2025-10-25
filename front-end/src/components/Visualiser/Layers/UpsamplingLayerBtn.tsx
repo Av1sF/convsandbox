@@ -1,8 +1,8 @@
 import { LayerSelectionBtnProps } from "@/app/types";
-import { LuChartSpline } from "react-icons/lu";
+import { BsBoxArrowUpRight } from "react-icons/bs";
 
-export default function ActivationLayerBtn(props: LayerSelectionBtnProps) {
-  const icon_x = props.x + 144;
+export default function UpsamplingLayerBtn(props: LayerSelectionBtnProps) {
+  const icon_x = props.x + 155;
   const icon_y = props.y + 16;
   return (
     <>
@@ -12,7 +12,7 @@ export default function ActivationLayerBtn(props: LayerSelectionBtnProps) {
         <rect
           x={props.x}
           y={props.y}
-          width={170}
+          width={180}
           height={50}
           rx={25}
           className="fill-bg stroke-text hover:fill-gray-100 transition-colors"
@@ -44,7 +44,7 @@ export default function ActivationLayerBtn(props: LayerSelectionBtnProps) {
           className="fill-text-muted font-secondary pointer-events-none"
         >
           {/* add activation layer */}
-          activation layer
+          upsampling layer
         </text>
 
         {/* right-hand icon */}
@@ -54,7 +54,7 @@ export default function ActivationLayerBtn(props: LayerSelectionBtnProps) {
           }, ${icon_y})`}
           className="fill-text"
         >
-          <LuChartSpline />
+          <BsBoxArrowUpRight />
         </g>
       </g>
     </>

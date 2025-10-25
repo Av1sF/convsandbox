@@ -1,13 +1,7 @@
+import { ConvLayerSelectionBtnProps } from "@/app/types";
 import { TfiLayersAlt } from "react-icons/tfi";
 
-export interface BtnProps {
-  onClick: (e: React.MouseEvent) => void;
-  x: number;
-  y: number;
-  showLabel: boolean;
-}
-
-export default function ConvLayerBtn(props: BtnProps) {
+export default function ConvLayerBtn(props: ConvLayerSelectionBtnProps) {
   const icon_x = props.x + 197;
   const icon_y = props.y + 16;
   const short_icon_x = icon_x - 40;

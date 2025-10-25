@@ -1,3 +1,4 @@
+import { ConvParams } from "@/app/types";
 import { MathJax } from "better-react-mathjax";
 import { useState } from "react";
 
@@ -10,35 +11,11 @@ const MAX_PADDING = 10;
 const MAX_STRIDE = 8;
 
 // -- Props --
-export interface ConvParams {
-  width: number;
-  height: number;
-  depth: number;
-  stride?: number;
-  numFilters?: number;
-  padding?: number;
-  filterSize?: number;
-}
-
 interface ConvModalProps {
   onClose: () => void;
   onConfirm: (params: ConvParams) => void;
   hasStarted: boolean;
   prevDims?: { width: number; height: number; depth: number };
-}
-
-export function isConvParams(obj: any): obj is ConvParams {
-  return (
-    obj &&
-    typeof obj === "object" &&
-    typeof obj.width === "number" &&
-    typeof obj.height === "number" &&
-    typeof obj.depth === "number" &&
-    (obj.stride === undefined || typeof obj.stride === "number") &&
-    (obj.numFilters === undefined || typeof obj.numFilters === "number") &&
-    (obj.padding === undefined || typeof obj.padding === "number") &&
-    (obj.filterSize === undefined || typeof obj.filterSize === "number")
-  );
 }
 
 // -- Main Component --

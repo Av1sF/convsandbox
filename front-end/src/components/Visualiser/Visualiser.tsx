@@ -4,31 +4,15 @@ import VisualiserCanvas from "./VisualiserCanvas";
 import VisualiserMenuBtn from "./VisualiserMenuBtn";
 import * as d3 from "d3";
 import { drawConvLayer } from "@/utils/drawConvLayer";
-import ConvLayerModal, {
-  ConvParams,
-  isConvParams,
-} from "./Layers/ConvLayerModal";
-import ActivationSelectModal, {
-  ActivationType,
-  isActivationType,
-} from "./Layers/ActivationSelectModal";
+import ConvLayerModal from "./Layers/ConvLayerModal";
+import ActivationSelectModal from "./Layers/ActivationSelectModal";
+import { ActivationType, ConvParams, layerActionType, LayerDims, validLayerTypes } from "@/app/types";
+import { isActivationType, isConvParams } from "@/utils/typeGuards";
 
 // Draw lines between layers
 const MAXLAYERS = 6;
 const W = 1183;
 const H = 500;
-
-export type validLayerTypes = {
-  conv: boolean;
-  activation: boolean;
-};
-
-type LayerDims = {
-  width: number;
-  height: number;
-  depth: number;
-  type?: string;
-};
 
 export default function Visualiser() {
   // -- Constants --
@@ -38,7 +22,7 @@ export default function Visualiser() {
 
   // -- State initialisation --
   const initialLayers: {
-    type: string;
+    type: layerActionType;
     params?: ConvParams | ActivationType | undefined;
   }[] = [];
   const initialAction = "";
@@ -61,22 +45,26 @@ export default function Visualiser() {
   const [allowedLayerTypes, setAllowedLayerTypes] = useState<validLayerTypes>({
     conv: true,
     activation: false,
+    upsample: false, 
   });
 
   // -- Event handlers --
 
   // Visualiser Menu handler
-  const handleMenuAction = (actionType: string) => {
+  const handleMenuAction = (actionType: layerActionType) => {
     setAction(actionType);
 
-    if (actionType === "add-conv-layer") {
-      setShowConvModal(true);
-      return;
-    }
+    switch(actionType) {
+      case "add-conv-layer":
+        setShowConvModal(true);
+        return;
 
-    if (actionType === "add-activation") {
-      setShowActivationModal(true);
-      return;
+      case "add-activation":
+        setShowActivationModal(true);
+        return;
+
+      case "add-upsampling":
+        return; 
     }
     // Handle other actions...
   };

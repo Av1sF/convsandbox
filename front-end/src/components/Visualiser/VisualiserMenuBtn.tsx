@@ -1,26 +1,15 @@
 import "../../app/globals.css";
-import { TfiLayersAlt } from "react-icons/tfi";
 import ConvLayerBtn from "./Layers/ConvLayerBtn";
 import ActivationLayerBtn from "./Layers/ActivationLayerBtn";
-import { validLayerTypes } from "./Visualiser";
+import UpsamplingLayerBtn from "./Layers/UpsamplingLayerBtn";
+import { VisualiserMenuBtnProps } from "@/app/types";
 
-type BtnProps = {
-  // start point
-  x: number;
-  y: number;
-  // max width and height
-  height: number;
-  width: number;
-  onAction: (action: string) => void;
-  showLabel: boolean;
-  validLayerTypes: validLayerTypes;
-};
-
-export default function VisualiserMenuBtn(props: BtnProps) {
+export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
   const label = props.showLabel ? "Get Started!" : "Add...";
 
   const svgXstart = props.width / 6 - 24;
   const svgYstart = (1.3 * props.height) / 3;
+  const buttonYoffset = 60
 
   // Individual button click handlers (add more later )
   const handleAddConvLayer = (e: React.MouseEvent) => {
@@ -31,6 +20,11 @@ export default function VisualiserMenuBtn(props: BtnProps) {
   const handleAddActivationLayer = (e: React.MouseEvent) => {
     e.stopPropagation();
     props.onAction("add-activation");
+  };
+
+  const handleAddUpsamplingLayer = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    props.onAction("add-upsampling");
   };
 
   return (
@@ -60,7 +54,15 @@ export default function VisualiserMenuBtn(props: BtnProps) {
           <ActivationLayerBtn
             onClick={handleAddActivationLayer}
             x={svgXstart}
-            y={svgYstart + 60}
+            y={svgYstart + buttonYoffset}
+          />
+        )}
+
+        {!props.showLabel && props.validLayerTypes.activation && (
+          <UpsamplingLayerBtn
+            onClick={handleAddUpsamplingLayer}
+            x={svgXstart}
+            y={svgYstart + buttonYoffset * 2}
           />
         )}
       </g>
