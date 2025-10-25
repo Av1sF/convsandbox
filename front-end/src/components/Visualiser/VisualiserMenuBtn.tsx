@@ -2,7 +2,7 @@ import "../../app/globals.css";
 import ConvLayerBtn from "./Layers/ConvLayerBtn";
 import ActivationLayerBtn from "./Layers/ActivationLayerBtn";
 import UpsamplingLayerBtn from "./Layers/UpsamplingLayerBtn";
-import { VisualiserMenuBtnProps } from "@/app/types";
+import { VisualiserMenuBtnProps } from "@/utils/types";
 
 export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
   const label = props.showLabel ? "Get Started!" : "Add...";

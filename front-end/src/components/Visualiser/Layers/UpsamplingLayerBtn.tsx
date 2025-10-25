@@ -1,4 +1,4 @@
-import { LayerSelectionBtnProps } from "@/app/types";
+import { LayerSelectionBtnProps } from "@/utils/types";
 import { BsBoxArrowUpRight } from "react-icons/bs";
 
 export default function UpsamplingLayerBtn(props: LayerSelectionBtnProps) {

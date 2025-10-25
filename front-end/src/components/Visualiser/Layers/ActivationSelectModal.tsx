@@ -1,4 +1,4 @@
-import { ActivationType } from "@/app/types";
+import { ActivationType } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import React from "react";
 

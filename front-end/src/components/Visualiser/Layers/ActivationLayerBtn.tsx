@@ -1,4 +1,4 @@
-import { LayerSelectionBtnProps } from "@/app/types";
+import { LayerSelectionBtnProps } from "@/utils/types";
 import { LuChartSpline } from "react-icons/lu";
 
 export default function ActivationLayerBtn(props: LayerSelectionBtnProps) {

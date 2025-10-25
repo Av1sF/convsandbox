@@ -45,4 +45,4 @@ export interface ConvParams {
 
 export type ActivationType = "Tanh" | "Sigmoid" | "ReLU" | "Leaky ReLU";
 
-export type layerActionType = "add-conv-layer"  | "add-activation" | "add-upsampling"
+export type layerActionType = "add-conv-layer"  | "add-activation" | "add-upsampling" | "";

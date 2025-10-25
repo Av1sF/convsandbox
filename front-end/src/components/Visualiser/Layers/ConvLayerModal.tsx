@@ -1,4 +1,4 @@
-import { ConvParams } from "@/app/types";
+import { ConvParams } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import { useState } from "react";
 

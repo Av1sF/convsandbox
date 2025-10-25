@@ -1,4 +1,4 @@
-import { ConvLayerSelectionBtnProps } from "@/app/types";
+import { ConvLayerSelectionBtnProps } from "@/utils/types";
 import { TfiLayersAlt } from "react-icons/tfi";
 
 export default function ConvLayerBtn(props: ConvLayerSelectionBtnProps) {

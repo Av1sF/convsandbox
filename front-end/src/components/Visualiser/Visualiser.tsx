@@ -1,12 +1,12 @@
 "use client";
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import VisualiserCanvas from "./VisualiserCanvas";
 import VisualiserMenuBtn from "./VisualiserMenuBtn";
 import * as d3 from "d3";
 import { drawConvLayer } from "@/utils/drawConvLayer";
 import ConvLayerModal from "./Layers/ConvLayerModal";
 import ActivationSelectModal from "./Layers/ActivationSelectModal";
-import { ActivationType, ConvParams, layerActionType, LayerDims, validLayerTypes } from "@/app/types";
+import { ActivationType, ConvParams, layerActionType, LayerDims, validLayerTypes } from "@/utils/types";
 import { isActivationType, isConvParams } from "@/utils/typeGuards";
 
 // Draw lines between layers
@@ -28,7 +28,7 @@ export default function Visualiser() {
   const initialAction = "";
 
   const [started, setStarted] = useState<boolean>(false);
-  const [action, setAction] = useState(initialAction);
+  const [action, setAction] = useState<layerActionType>(initialAction);
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [activationType, setActivationType] = useState<ActivationType | null>(
     null

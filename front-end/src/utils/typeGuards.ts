@@ -1,4 +1,4 @@
-import { ActivationType, ConvParams } from "@/app/types";
+import { ActivationType, ConvParams } from "@/utils/types";
 
 export function isConvParams(obj: any): obj is ConvParams {
   return (
