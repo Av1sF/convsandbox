@@ -27,6 +27,20 @@ interface ConvModalProps {
   prevDims?: { width: number; height: number; depth: number };
 }
 
+export function isConvParams(obj: any): obj is ConvParams {
+  return (
+    obj &&
+    typeof obj === "object" &&
+    typeof obj.width === "number" &&
+    typeof obj.height === "number" &&
+    typeof obj.depth === "number" &&
+    (obj.stride === undefined || typeof obj.stride === "number") &&
+    (obj.numFilters === undefined || typeof obj.numFilters === "number") &&
+    (obj.padding === undefined || typeof obj.padding === "number") &&
+    (obj.filterSize === undefined || typeof obj.filterSize === "number")
+  );
+}
+
 // -- Main Component --
 const ConvLayerModal: React.FC<ConvModalProps> = ({
   onClose,
@@ -94,7 +108,6 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
       (prevDims.height - filterSize + 2 * padding) / (stride + 1)
     );
     outputDepth = numFilters;
-    console.log("output changed!");
   }
 
   var isOutputValid =
@@ -104,7 +117,6 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
     outputWidth <= MAX_WIDTH &&
     outputDepth <= MAX_DEPTH &&
     outputHeight <= MAX_HEIGHT;
-
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 backdrop-blur-[1px] overflow-y-auto p-4">
@@ -313,14 +325,14 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
               Cancel
             </button>
             <button
-            type="submit"
-            disabled={!isOutputValid}
-            className={`px-4 py-2 rounded-md text-white transition ${
-              isOutputValid
-                ? "bg-accent hover:bg-blue-700"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
-          >
+              type="submit"
+              disabled={!isOutputValid}
+              className={`px-4 py-2 rounded-md text-white transition ${
+                isOutputValid
+                  ? "bg-accent hover:bg-blue-700"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+            >
               Confirm
             </button>
           </div>

@@ -1,16 +1,14 @@
-import { TfiLayersAlt } from "react-icons/tfi";
+import { LuChartSpline } from "react-icons/lu";
 
 export interface BtnProps {
   onClick: (e: React.MouseEvent) => void;
   x: number;
   y: number;
-  showLabel: boolean;
 }
 
-export default function ConvLayerBtn(props: BtnProps) {
-  const icon_x = props.x + 197;
+export default function ActivationLayerBtn(props: BtnProps) {
+  const icon_x = props.x + 144;
   const icon_y = props.y + 16;
-  const short_icon_x = icon_x - 40;
   return (
     <>
       {/* Convolutivonal Layer Button */}
@@ -19,7 +17,7 @@ export default function ConvLayerBtn(props: BtnProps) {
         <rect
           x={props.x}
           y={props.y}
-          width={props.showLabel ? 230 : 185}
+          width={170}
           height={50}
           rx={25}
           className="fill-bg stroke-text hover:fill-gray-100 transition-colors"
@@ -50,18 +48,18 @@ export default function ConvLayerBtn(props: BtnProps) {
           fontSize="13"
           className="fill-text-muted font-secondary pointer-events-none"
         >
-          {/* add convolutional layer */}
-          {props.showLabel ? "add convolutional layer" : "convolution layer"}
+          {/* add activation layer */}
+          activation layer
         </text>
 
         {/* right-hand icon */}
         <g
           transform={`translate(${
-            props.showLabel ? icon_x : short_icon_x
+            icon_x
           }, ${icon_y})`}
           className="fill-text"
         >
-          <TfiLayersAlt />
+          <LuChartSpline />
         </g>
       </g>
     </>

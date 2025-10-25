@@ -4,12 +4,31 @@ import VisualiserCanvas from "./VisualiserCanvas";
 import VisualiserMenuBtn from "./VisualiserMenuBtn";
 import * as d3 from "d3";
 import { drawConvLayer } from "@/utils/drawConvLayer";
-import ConvLayerModal, { ConvParams } from "./Layers/ConvLayerModal";
+import ConvLayerModal, {
+  ConvParams,
+  isConvParams,
+} from "./Layers/ConvLayerModal";
+import ActivationSelectModal, {
+  ActivationType,
+  isActivationType,
+} from "./Layers/ActivationSelectModal";
 
 // Draw lines between layers
-const MAXLAYERS = 5;
+const MAXLAYERS = 6;
 const W = 1183;
 const H = 500;
+
+export type validLayerTypes = {
+  conv: boolean;
+  activation: boolean;
+};
+
+type LayerDims = {
+  width: number;
+  height: number;
+  depth: number;
+  type?: string;
+};
 
 export default function Visualiser() {
   // -- Constants --
@@ -20,26 +39,29 @@ export default function Visualiser() {
   // -- State initialisation --
   const initialLayers: {
     type: string;
-    params?: ConvParams | undefined;
+    params?: ConvParams | ActivationType | undefined;
   }[] = [];
   const initialAction = "";
 
   const [started, setStarted] = useState<boolean>(false);
   const [action, setAction] = useState(initialAction);
+  const [showActivationModal, setShowActivationModal] = useState(false);
+  const [activationType, setActivationType] = useState<ActivationType | null>(
+    null
+  );
   const [showConvModal, setShowConvModal] = useState<boolean>(false);
   // Number of layers already created
   const [numLayers, setNumLayers] = useState<number>(0);
   // Store each created layer's type and dimensions
   const [layers, setLayers] = useState(initialLayers);
   // Store dimensions of the last layer created
-  const [prevLayerDims, setPrevLayerDims] = useState<
-    | {
-        width: number;
-        height: number;
-        depth: number;
-      }
-    | undefined
-  >(undefined);
+  const [prevLayerDims, setPrevLayerDims] = useState<LayerDims | undefined>(
+    undefined
+  );
+  const [allowedLayerTypes, setAllowedLayerTypes] = useState<validLayerTypes>({
+    conv: true,
+    activation: false,
+  });
 
   // -- Event handlers --
 
@@ -52,24 +74,44 @@ export default function Visualiser() {
       return;
     }
 
+    if (actionType === "add-activation") {
+      setShowActivationModal(true);
+      return;
+    }
     // Handle other actions...
   };
 
   // Convolutional Layer Modal handler
   const handleConvConfirm = (params: ConvParams) => {
-    setShowConvModal(false);
-
     if (numLayers < MAXLAYERS) {
       setNumLayers((prev) => prev + 1);
       setLayers((prev) => [...prev, { type: "add-conv-layer", params }]);
     }
 
+    setShowConvModal(false);
+
     // Viz only officially starts iff first layer is created
-    if (!started) setStarted(true);
+    if (!started) {
+      setStarted(true);
+    }
+  };
+
+  const handleActivationSelect = (activation: ActivationType) => {
+    if (numLayers < MAXLAYERS) {
+      setNumLayers((prev) => prev + 1);
+      setLayers((prev) => [...prev, { type: "add-activation", params: activation }]);
+    }
+    setShowActivationModal(false);
+    setActivationType(activation);
   };
 
   // -- Render Logic --
-  if (action != initialAction && showConvModal == false && started) {
+  if (
+    action != initialAction &&
+    showConvModal == false &&
+    showActivationModal == false &&
+    started
+  ) {
     if (layers.length === 0) return;
 
     const latestLayerIndex = layers.length - 1;
@@ -92,7 +134,10 @@ export default function Visualiser() {
         .attr("transform", `translate(${layerxOffset}, 0)`);
 
       // Draw Convolutional Layer
-      if (latestLayer.type === "add-conv-layer" && latestLayer.params) {
+      if (
+        latestLayer.type === "add-conv-layer" &&
+        isConvParams(latestLayer.params)
+      ) {
         drawConvLayer(
           W,
           H,
@@ -103,8 +148,8 @@ export default function Visualiser() {
           layerGroup
         );
 
-        // Maybe move into drawConvLayer 
-        // But maybe not incase I want to add INITIAL conv layer for eg. 
+        // Maybe move into drawConvLayer
+        // But maybe not incase I want to add INITIAL conv layer for eg.
         layerGroup
           .append("text")
           .attr("x", W / (2 * MAXLAYERS))
@@ -130,6 +175,57 @@ export default function Visualiser() {
           height: latestLayer.params.height,
           depth: latestLayer.params.depth,
         });
+
+        setAllowedLayerTypes({
+          ...allowedLayerTypes,
+          conv: true,
+          activation: true,
+        });
+      }
+
+      if (
+        latestLayer.type === "add-activation" &&
+        isActivationType(latestLayer.params) &&
+        prevLayerDims
+      ) {
+        drawConvLayer(
+          W,
+          H,
+          prevLayerDims.depth,
+          prevLayerDims.width,
+          prevLayerDims.height,
+          MAXLAYERS,
+          layerGroup
+        );
+
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.15)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(`Activation Layer`);
+
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.85)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(`${activationType}`);
+
+        setPrevLayerDims({
+          width: prevLayerDims.width,
+          height: prevLayerDims.height,
+          depth: prevLayerDims.depth,
+        });
+
+        setAllowedLayerTypes({
+          ...allowedLayerTypes,
+          activation: false,
+        });
       }
     }
 
@@ -142,7 +238,7 @@ export default function Visualiser() {
       <VisualiserCanvas
         id="canvas"
         ref={svgRef}
-        className={"w-[1183px] h-[500px] d3-root"}
+        className={`w-[1183px] h-[500px] d3-root`}
       >
         {/* Only render the button if fewer than max layers exist */}
         {numLayers < MAXLAYERS && (
@@ -153,6 +249,7 @@ export default function Visualiser() {
             height={H}
             onAction={handleMenuAction}
             showLabel={!started}
+            validLayerTypes={allowedLayerTypes}
           />
         )}
       </VisualiserCanvas>
@@ -163,6 +260,13 @@ export default function Visualiser() {
           onClose={() => setShowConvModal(false)}
           onConfirm={handleConvConfirm}
           hasStarted={started}
+        />
+      )}
+
+      {showActivationModal && (
+        <ActivationSelectModal
+          onClose={() => setShowActivationModal(false)}
+          onSelect={handleActivationSelect}
         />
       )}
     </div>
