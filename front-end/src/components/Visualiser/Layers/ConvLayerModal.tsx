@@ -1,21 +1,13 @@
-import { ConvParams } from "@/utils/types";
+import { ConvParams, LayerDims, MAX_DEPTH, MAX_FILTER_SIZE, MAX_FILTERS, MAX_HEIGHT, MAX_PADDING, MAX_STRIDE, MAX_WIDTH } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import { useState } from "react";
-
-const MAX_WIDTH = 25;
-const MAX_HEIGHT = 25;
-const MAX_DEPTH = 5;
-const MAX_FILTERS = MAX_DEPTH;
-const MAX_FILTER_SIZE = 11;
-const MAX_PADDING = 10;
-const MAX_STRIDE = 8;
 
 // -- Props --
 interface ConvModalProps {
   onClose: () => void;
   onConfirm: (params: ConvParams) => void;
   hasStarted: boolean;
-  prevDims?: { width: number; height: number; depth: number };
+  prevDims?: LayerDims;
 }
 
 // -- Main Component --

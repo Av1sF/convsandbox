@@ -1,4 +1,3 @@
-import "../../app/globals.css";
 import ConvLayerBtn from "./Layers/ConvLayerBtn";
 import ActivationLayerBtn from "./Layers/ActivationLayerBtn";
 import UpsamplingLayerBtn from "./Layers/UpsamplingLayerBtn";
@@ -58,7 +57,7 @@ export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
           />
         )}
 
-        {!props.showLabel && props.validLayerTypes.activation && (
+        {!props.showLabel && props.validLayerTypes.upsample && (
           <UpsamplingLayerBtn
             onClick={handleAddUpsamplingLayer}
             x={svgXstart}

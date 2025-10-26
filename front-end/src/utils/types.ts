@@ -1,3 +1,12 @@
+export const MAXLAYERS = 6;
+export const MAX_WIDTH = 25;
+export const MAX_HEIGHT = 25;
+export const MAX_DEPTH = 5;
+export const MAX_FILTERS = MAX_DEPTH;
+export const MAX_FILTER_SIZE = 11;
+export const MAX_PADDING = 10;
+export const MAX_STRIDE = 8;
+
 export type validLayerTypes = {
   conv: boolean;
   activation: boolean;
@@ -28,7 +37,7 @@ export interface VisualiserMenuBtnProps {
     // max width and height
     height: number;
     width: number;
-    onAction: (action: layerActionType) => void;
+    onAction: (action: LayerActionType) => void;
     showLabel: boolean;
     validLayerTypes: validLayerTypes;
 }
@@ -45,4 +54,18 @@ export interface ConvParams {
 
 export type ActivationType = "Tanh" | "Sigmoid" | "ReLU" | "Leaky ReLU";
 
-export type layerActionType = "add-conv-layer"  | "add-activation" | "add-upsampling" | "";
+export type LayerActionType = 
+"add-conv-layer"  | 
+"add-activation" | 
+"add-upsampling" | 
+"";
+
+export type UpsamplingType =
+  | "Bed of Nails"
+  | "Nearest Neighbor"
+  | "Bilinear Interpolation";
+
+export type UpsamplingParams = {
+  method: UpsamplingType, 
+  scaleFactor: number,
+}
