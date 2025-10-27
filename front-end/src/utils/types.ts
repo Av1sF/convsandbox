@@ -6,6 +6,7 @@ export const MAX_FILTERS = MAX_DEPTH;
 export const MAX_FILTER_SIZE = 11;
 export const MAX_PADDING = 10;
 export const MAX_STRIDE = 8;
+export const MAX_SCALE_FACTOR = 25;
 
 export type validLayerTypes = {
   conv: boolean;

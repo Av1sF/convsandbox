@@ -8,9 +8,9 @@ export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
 
   const svgXstart = props.width / 6 - 24;
   const svgYstart = (1.3 * props.height) / 3;
-  const buttonYoffset = 60
+  const buttonYoffset = 60;
 
-  // Individual button click handlers (add more later )
+  // Handlers
   const handleAddConvLayer = (e: React.MouseEvent) => {
     e.stopPropagation();
     props.onAction("add-conv-layer");
@@ -26,45 +26,66 @@ export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
     props.onAction("add-upsampling");
   };
 
-  return (
-    <>
-      <g transform={`translate(${props.x}, ${props.y})`}>
-        {/* first label above rectangle, aligned left */}
-        <text
+  // 👇 Array of available button configurations
+  const buttons = [
+    {
+      key: "conv",
+      visible: props.validLayerTypes.conv,
+      component: (
+        <ConvLayerBtn
+          onClick={handleAddConvLayer}
           x={svgXstart}
-          y={svgYstart - 20} // 10px above the rect
-          textAnchor="start" // align to left edge
-          dominantBaseline="auto" // align baseline
-          className="fill-text-muted font-main"
-        >
-          {label}
-        </text>
+          y={0}
+          showLabel={props.showLabel}
+        />
+      ),
+    },
+    {
+      key: "activation",
+      visible: props.validLayerTypes.activation && !props.showLabel,
+      component: (
+        <ActivationLayerBtn
+          onClick={handleAddActivationLayer}
+          x={svgXstart}
+          y={0}
+        />
+      ),
+    },
+    {
+      key: "upsample",
+      visible: props.validLayerTypes.upsample && !props.showLabel,
+      component: (
+        <UpsamplingLayerBtn
+          onClick={handleAddUpsamplingLayer}
+          x={svgXstart}
+          y={0}
+        />
+      ),
+    },
+  ];
 
-        {props.validLayerTypes.conv && (
-          <ConvLayerBtn
-            onClick={handleAddConvLayer}
-            x={svgXstart}
-            y={svgYstart}
-            showLabel={props.showLabel}
-          />
-        )}
+  // Filter only visible ones
+  const visibleButtons = buttons.filter((b) => b.visible);
 
-        {!props.showLabel && props.validLayerTypes.activation && (
-          <ActivationLayerBtn
-            onClick={handleAddActivationLayer}
-            x={svgXstart}
-            y={svgYstart + buttonYoffset}
-          />
-        )}
+  return (
+    <g transform={`translate(${props.x}, ${props.y})`}>
+      {/* Title text above buttons */}
+      <text
+        x={svgXstart}
+        y={svgYstart - 20}
+        textAnchor="start"
+        dominantBaseline="auto"
+        className="fill-text-muted font-main"
+      >
+        {label}
+      </text>
 
-        {!props.showLabel && props.validLayerTypes.upsample && (
-          <UpsamplingLayerBtn
-            onClick={handleAddUpsamplingLayer}
-            x={svgXstart}
-            y={svgYstart + buttonYoffset * 2}
-          />
-        )}
-      </g>
-    </>
+      {/* Dynamically stack visible buttons */}
+      {visibleButtons.map((btn, i) => (
+        <g key={btn.key} transform={`translate(0, ${svgYstart + i * buttonYoffset})`}>
+          {btn.component}
+        </g>
+      ))}
+    </g>
   );
 }

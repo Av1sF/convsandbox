@@ -265,18 +265,30 @@ export default function Visualiser() {
           .text(`Upsampling Layer`);
 
         layerGroup
+        .append("text")
+        .attr("x", W / (2 * MAXLAYERS))
+        .attr("y", H * 0.15 + 16)
+        .attr("text-anchor", "middle")
+        .attr("font-size", 10)
+        .attr("fill", "#333")
+        .attr("opacity", 0.8) 
+        .text(`${upsamplingType}`);
+
+        layerGroup
           .append("text")
           .attr("x", W / (2 * MAXLAYERS))
           .attr("y", H * 0.85)
           .attr("text-anchor", "middle")
           .attr("font-size", 14)
           .attr("fill", "#333")
-          .text(`${upsamplingType}`);
+          .text(
+            `${prevLayerDims.height*latestLayer.params.scaleFactor} x ${prevLayerDims.width*latestLayer.params.scaleFactor} x ${prevLayerDims.depth}`
+          );
 
         setPrevLayerDims({
-          width: prevLayerDims.width,
+          width: prevLayerDims.width*latestLayer.params.scaleFactor,
           height: prevLayerDims.height*latestLayer.params.scaleFactor,
-          depth: prevLayerDims.depth*latestLayer.params.scaleFactor,
+          depth: prevLayerDims.depth,
         });
 
         setAllowedLayerTypes({

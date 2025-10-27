@@ -6,6 +6,7 @@ import {
   MAX_HEIGHT,
   MAX_WIDTH,
   UpsamplingType,
+  MAX_SCALE_FACTOR
 } from "@/utils/types";
 import { UpsamplingParams } from "../../../utils/types";
 
@@ -104,9 +105,9 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
     outputDims.depth <= MAX_DEPTH;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-6">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl p-8 animate-fadeIn relative overflow-hidden">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-6">
+      <div className="bg-bg rounded-2xl shadow-xl w-full max-w-5xl p-8 animate-fadeIn relative max-h-[95vh] overflow-y-auto">
+        <h2 className="text-2xl font-semibold text-text mb-3">
           Select Upsampling Method
         </h2>
         <p className="text-sm text-gray-500 mb-6">
@@ -142,9 +143,9 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
             <input
               type="number"
               value={scale}
-              onChange={(e) => setScale(Math.max(1, Number(e.target.value)))}
-              min={1}
-              max={5}
+              onChange={(e) => setScale(Math.max(2, Number(e.target.value)))}
+              min={2}
+              max={MAX_SCALE_FACTOR}
               className="ml-2 border border-gray-300 rounded-md px-3 py-1 w-20 text-center"
             />
           </label>
@@ -158,8 +159,8 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
         </div>
 
         {!isOutputValid && (
-          <p className="text-red-600 text-sm mt-3 font-medium">
-            Output dimensions
+          <p className="text-accent-warm text-sm mt-3 font-medium">
+           ⚠️ Output Dimension Error: Must not exceed {MAX_HEIGHT}x{MAX_WIDTH}x{MAX_DEPTH}
           </p>
         )}
 
@@ -179,7 +180,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
             className={`px-4 py-2 rounded-lg transition text-white ${
               !selectedMethod || !isOutputValid
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
+                : "bg-accent hover:bg-blue-700"
             }`}
           >
             Confirm

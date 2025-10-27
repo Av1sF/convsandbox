@@ -148,7 +148,7 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
           {hasStarted && prevDims && (
             <>
               <p className="text-sm text-text-muted">
-                <MathJax>{`Previous Layer Dimensions: \\(${prevDims.width} \\times ${prevDims.height} \\times ${prevDims.depth}\\)`}</MathJax>
+                <MathJax>{`Previous Layer Dimensions: \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
               </p>
               <MathJax>
                 <div className="space-y-3">
