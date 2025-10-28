@@ -6,9 +6,9 @@ import {
   MAX_HEIGHT,
   MAX_WIDTH,
   UpsamplingType,
-  MAX_SCALE_FACTOR
+  MAX_SCALE_FACTOR,
+  UpsamplingParams,
 } from "@/utils/types";
-import { UpsamplingParams } from "../../../utils/types";
 
 export interface UpsamplingSelectModalProps {
   onClose: () => void;
@@ -28,16 +28,12 @@ const UPSAMPLING_METHODS: {
     description:
       "Simplest upsampling: inserts zeros between input elements to increase spatial size.",
     graph: (
-      <svg width="80" height="60" viewBox="0 0 100 60">
-        <rect x="15" y="15" width="10" height="10" fill="#2563eb" />
-        <rect x="45" y="15" width="10" height="10" fill="#2563eb" />
-        <rect x="15" y="45" width="10" height="10" fill="#2563eb" />
-        <rect x="45" y="45" width="10" height="10" fill="#2563eb" />
-        <circle cx="30" cy="15" r="2" fill="#d1d5db" />
-        <circle cx="30" cy="45" r="2" fill="#d1d5db" />
-        <circle cx="15" cy="30" r="2" fill="#d1d5db" />
-        <circle cx="45" cy="30" r="2" fill="#d1d5db" />
-      </svg>
+      <img
+        src={"/icons/bed-of-nails.svg"}
+        width="180"
+        height="100"
+        alt="bed-of-nails-icon"
+      />
     ),
   },
   {
@@ -46,12 +42,12 @@ const UPSAMPLING_METHODS: {
     description:
       "Copies the nearest pixel’s value to expand the image. Fast but can appear blocky.",
     graph: (
-      <svg width="80" height="60" viewBox="0 0 100 60">
-        <rect x="20" y="20" width="15" height="15" fill="#16a34a" />
-        <rect x="35" y="20" width="15" height="15" fill="#16a34a" />
-        <rect x="20" y="35" width="15" height="15" fill="#16a34a" />
-        <rect x="35" y="35" width="15" height="15" fill="#16a34a" />
-      </svg>
+      <img
+        src={"/icons/nearest-neighbour.svg"}
+        width="180"
+        height="100"
+        alt="nearest-neighbour-icon"
+      />
     ),
   },
   {
@@ -60,22 +56,12 @@ const UPSAMPLING_METHODS: {
     description:
       "Smooths pixel values using weighted averages of nearby pixels. Produces softer transitions.",
     graph: (
-      <svg width="80" height="60" viewBox="0 0 100 60">
-        <defs>
-          <linearGradient id="bilinearGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#fbbf24" />
-            <stop offset="100%" stopColor="#f87171" />
-          </linearGradient>
-        </defs>
-        <rect
-          x="20"
-          y="20"
-          width="40"
-          height="20"
-          fill="url(#bilinearGrad)"
-          rx="4"
-        />
-      </svg>
+      <img
+        src={"/icons/bilinear-interpolation.svg"}
+        width="180"
+        height="100"
+        alt="bilinear-inter-icon"
+      />
     ),
   },
 ];
@@ -160,7 +146,8 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
 
         {!isOutputValid && (
           <p className="text-accent-warm text-sm mt-3 font-medium">
-           ⚠️ Output Dimension Error: Must not exceed {MAX_HEIGHT}x{MAX_WIDTH}x{MAX_DEPTH}
+            ⚠️ Output Dimension Error: Must not exceed {MAX_HEIGHT}x{MAX_WIDTH}x
+            {MAX_DEPTH}
           </p>
         )}
 
