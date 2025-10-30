@@ -8,6 +8,12 @@
  * @param maxLayers - Max number of layers user can add (max 5)
  * @param layerGroup - The i th layer svg group
  */
+
+import { PiNumberSixDuotone } from "react-icons/pi";
+
+type MidPoint = { x: number; y: number };
+type LayerConnections = [MidPoint[], MidPoint[]]; // [leftPoints, rightPoints]
+
 export const drawConvLayer = (
   canvasW: number,
   canvasH: number,
@@ -17,11 +23,24 @@ export const drawConvLayer = (
   maxLayers: number,
   layerGroup: d3.Selection<SVGGElement, unknown, null, undefined>
 ) => {
-  const rectWidth = Math.trunc((numColumns / 25) * (0.63*canvasW/maxLayers));
-  const rectHeight = Math.trunc((numRows / 25) * (0.63*canvasW/maxLayers));
+  const rectWidth = Math.trunc(
+    (numColumns / 25) * ((0.63 * canvasW) / maxLayers)
+  );
+  const rectHeight = Math.trunc(
+    (numRows / 25) * ((0.63 * canvasW) / maxLayers)
+  );
 
+  const leftMidPoints: MidPoint[] = [];
+  const rightMidPoints: MidPoint[] = [];
+  const result: LayerConnections = [leftMidPoints, rightMidPoints];
   const cellWidth = rectWidth / numColumns;
   const cellHeight = rectHeight / numRows;
+
+  const match = /translate\(([^,]+),\s*([^)]+)\)/.exec(
+    layerGroup.attr("transform")
+  );
+
+  const actualX = match ? parseFloat(match[1]) : 0;
 
   var xOffset;
   var yOffset;
@@ -47,12 +66,29 @@ export const drawConvLayer = (
   const startX = canvasW / (2 * maxLayers) - 0.5 * totalConvWidth;
   const startY = canvasH / 2 - 0.5 * totalConvHeight;
 
+  const rectStartYs = [];
+  for (let i = 0; i < numDepth; i++) {
+    rectStartYs.push(startY + i * yOffset);
+  }
+
+  // console.log('OFSET %d', j)
+  //   console.log('midpoint %d', rightMidPointY)
+  //   for (let i = j; i < numDepth; i++) {
+  //     let rectStartY = startY + i * yOffset
+  //     console.log('rectstart %d', rectStartY)
+  //     if (rightMidPointY < rectStartY && ! over) {
+  //       numXoffset = Math.max(0, i-j-1)
+  //       console.log(numXoffset)
+  //       break;
+  //     }
+  //   }
+
   // Draw n number of rectangles/squares
   for (let j = 0; j < numDepth; j++) {
     layerGroup
       .append("rect")
       .attr("x", startX + j * xOffset)
-      .attr("y", startY + j * yOffset)
+      .attr("y", rectStartYs[j])
       .attr("width", rectWidth)
       .attr("height", rectHeight)
       .attr("class", "fill-bg stroke-text")
@@ -61,6 +97,43 @@ export const drawConvLayer = (
       .duration(400)
       .delay(j * 150)
       .style("opacity", 1);
+
+    // left mid point of square
+    leftMidPoints.push({
+      x: startX + j * xOffset + actualX,
+      y: startY + j * yOffset + rectHeight / 2,
+    });
+
+    // var rightMidPointY = startY + j * yOffset + rectHeight / 2;
+    // var numXoffset = numDepth - 1;
+    // var biggerThan = rectStartYs.filter((num) => num < rightMidPointY);
+    // if (biggerThan.length != 0) {
+    //   numXoffset = Math.max(biggerThan.length - 1 - j, 0);
+    // }
+
+    // rightMidPoints.push({
+    //   x: Math.min(
+    //     startX + (j + numXoffset) * xOffset + actualX + rectWidth,
+    //     startX + actualX + rectWidth + (numDepth - 1) * xOffset
+    //   ),
+    //   // x: Math.max((startX + j * xOffset + actualX + rectWidth + (Math.floor((rectHeight / 2)/yOffset) * xOffset)), numDepth* xOffset + actualX),
+    //   y: rightMidPointY,
+    // });
+
+    var rightPointY; 
+    if (j != numDepth-1){
+      rightPointY = startY + j * yOffset + 0.5*yOffset
+    } else {
+      rightPointY = startY + j * yOffset + rectHeight / 2
+    }
+    rightMidPoints.push({
+      x: Math.min(
+        startX + (j) * xOffset + actualX + rectWidth,
+        startX + actualX + rectWidth + (numDepth - 1) * xOffset
+      ),
+      y: rightPointY,
+    });
+
 
     // Vertical grid lines
     if (numColumns > 1) {
@@ -102,4 +175,6 @@ export const drawConvLayer = (
       }
     }
   }
+
+  return result;
 };

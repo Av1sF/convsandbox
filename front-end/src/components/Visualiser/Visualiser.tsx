@@ -9,10 +9,14 @@ import ActivationSelectModal from "./Layers/ActivationSelectModal";
 import { ActivationType, ConvParams, LayerActionType, LayerDims, MAXLAYERS, UpsamplingParams, UpsamplingType, validLayerTypes } from '@/utils/types';
 import { isActivationType, isConvParams, isUpsamplingParams } from "@/utils/typeGuards";
 import UpsamplingSelectModal from "./Layers/UpsamplingSelectModal";
+import drawLayerConnections from "@/utils/drawLayerConnection";
 
 // Draw lines between layers
 const W = 1183;
 const H = 500;
+
+type MidPoint = { x: number; y: number };
+type LayerConnections = [MidPoint[], MidPoint[]]; // [leftPoints, rightPoints]
 
 interface Layer {
   type: LayerActionType;
@@ -26,6 +30,8 @@ export default function Visualiser() {
   const root = svg.select(".d3-root");
 
   // -- State initialisation --
+  // An array to store all layers' midpoints
+  const [allLayerConnections, setAllLayerConnections] = useState<(LayerConnections[])>([])
   const initialLayers:Layer[] = [];
   const initialAction = "";
 
@@ -130,6 +136,7 @@ export default function Visualiser() {
     // Layer Group
     const existingGroup = root.select(`.layer-${latestLayerIndex}`);
     let layerGroup;
+    let layerConnections : LayerConnections | undefined = undefined;
 
     if (!existingGroup.empty()) {
       // Layer already exists no need to re-render
@@ -139,6 +146,7 @@ export default function Visualiser() {
       // Create layer group
       layerGroup = root
         .append("g")
+        // .attr("class", "layer")
         .attr("class", `layer-${latestLayerIndex}`)
         .attr("transform", `translate(${layerxOffset}, 0)`);
         console.log(allowedLayerTypes)
@@ -147,7 +155,8 @@ export default function Visualiser() {
         latestLayer.type === "add-conv-layer" &&
         isConvParams(latestLayer.params)
       ) {
-        drawConvLayer(
+
+        layerConnections  = drawConvLayer(
           W,
           H,
           latestLayer.params.depth,
@@ -157,8 +166,6 @@ export default function Visualiser() {
           layerGroup
         );
 
-        // Maybe move into drawConvLayer
-        // But maybe not incase I want to add INITIAL conv layer for eg.
         layerGroup
           .append("text")
           .attr("x", W / (2 * MAXLAYERS))
@@ -178,6 +185,7 @@ export default function Visualiser() {
           .text(
             `${latestLayer.params.height} x ${latestLayer.params.width} x ${latestLayer.params.depth}`
           );
+        
 
         setPrevLayerDims({
           width: latestLayer.params.width,
@@ -198,7 +206,7 @@ export default function Visualiser() {
         isActivationType(latestLayer.params) &&
         prevLayerDims
       ) {
-        drawConvLayer(
+        layerConnections = drawConvLayer(
           W,
           H,
           prevLayerDims.depth,
@@ -207,6 +215,7 @@ export default function Visualiser() {
           MAXLAYERS,
           layerGroup
         );
+
 
         layerGroup
           .append("text")
@@ -245,7 +254,7 @@ export default function Visualiser() {
         prevLayerDims
       ) {
 
-        drawConvLayer(
+        layerConnections = drawConvLayer(
           W,
           H,
           prevLayerDims.depth,
@@ -297,6 +306,21 @@ export default function Visualiser() {
           upsample: true, 
         });
       }
+
+     if (layerConnections) {
+            allLayerConnections.push(layerConnections);
+            setAllLayerConnections([...allLayerConnections])
+            console.log(allLayerConnections)
+
+            if (allLayerConnections.length > 1) {
+              drawLayerConnections(root, 
+              allLayerConnections,
+              layers[latestLayerIndex-1].type, 
+              latestLayer.type,
+            )
+            }
+          }
+
     }
 
     // reset action after handling
