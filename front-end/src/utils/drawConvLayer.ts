@@ -9,10 +9,7 @@
  * @param layerGroup - The i th layer svg group
  */
 
-import { PiNumberSixDuotone } from "react-icons/pi";
-
-type MidPoint = { x: number; y: number };
-type LayerConnections = [MidPoint[], MidPoint[]]; // [leftPoints, rightPoints]
+import { LayerConnections, MidPoint } from "./types";
 
 export const drawConvLayer = (
   canvasW: number,
@@ -70,18 +67,6 @@ export const drawConvLayer = (
   for (let i = 0; i < numDepth; i++) {
     rectStartYs.push(startY + i * yOffset);
   }
-
-  // console.log('OFSET %d', j)
-  //   console.log('midpoint %d', rightMidPointY)
-  //   for (let i = j; i < numDepth; i++) {
-  //     let rectStartY = startY + i * yOffset
-  //     console.log('rectstart %d', rectStartY)
-  //     if (rightMidPointY < rectStartY && ! over) {
-  //       numXoffset = Math.max(0, i-j-1)
-  //       console.log(numXoffset)
-  //       break;
-  //     }
-  //   }
 
   // Draw n number of rectangles/squares
   for (let j = 0; j < numDepth; j++) {

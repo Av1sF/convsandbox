@@ -53,6 +53,10 @@ export interface ConvParams {
   filterSize?: number;
 }
 
+export type MidPoint = { x: number; y: number };
+
+export type LayerConnections = [MidPoint[], MidPoint[]]; // [leftPoints, rightPoints]
+
 export type ActivationType = "Tanh" | "Sigmoid" | "ReLU" | "Leaky ReLU";
 
 export type LayerActionType = 

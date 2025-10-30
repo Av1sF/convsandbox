@@ -1,10 +1,9 @@
 import * as d3 from "d3";
-import { LayerActionType } from "./types";
-type MidPoint = { x: number; y: number };
+import { LayerActionType, LayerConnections } from "./types";
 
 function drawLayerConnections(
   svgRoot: d3.Selection<d3.BaseType, unknown, null, undefined>,
-  allLayerConnections: [MidPoint[], MidPoint[]][],
+  allLayerConnections: LayerConnections[],
   prevLayerType: LayerActionType,
   currLayerType: LayerActionType
 ) {

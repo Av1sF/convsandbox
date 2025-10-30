@@ -6,7 +6,7 @@ import * as d3 from "d3";
 import { drawConvLayer } from "@/utils/drawConvLayer";
 import ConvLayerModal from "./Layers/ConvLayerModal";
 import ActivationSelectModal from "./Layers/ActivationSelectModal";
-import { ActivationType, ConvParams, LayerActionType, LayerDims, MAXLAYERS, UpsamplingParams, UpsamplingType, validLayerTypes } from '@/utils/types';
+import { ActivationType, ConvParams, LayerActionType, LayerConnections, LayerDims, MAXLAYERS, UpsamplingParams, UpsamplingType, validLayerTypes } from '@/utils/types';
 import { isActivationType, isConvParams, isUpsamplingParams } from "@/utils/typeGuards";
 import UpsamplingSelectModal from "./Layers/UpsamplingSelectModal";
 import drawLayerConnections from "@/utils/drawLayerConnection";
@@ -14,9 +14,6 @@ import drawLayerConnections from "@/utils/drawLayerConnection";
 // Draw lines between layers
 const W = 1183;
 const H = 500;
-
-type MidPoint = { x: number; y: number };
-type LayerConnections = [MidPoint[], MidPoint[]]; // [leftPoints, rightPoints]
 
 interface Layer {
   type: LayerActionType;
@@ -149,7 +146,7 @@ export default function Visualiser() {
         // .attr("class", "layer")
         .attr("class", `layer-${latestLayerIndex}`)
         .attr("transform", `translate(${layerxOffset}, 0)`);
-        console.log(allowedLayerTypes)
+
       // Draw Convolutional Layer
       if (
         latestLayer.type === "add-conv-layer" &&
@@ -310,7 +307,6 @@ export default function Visualiser() {
      if (layerConnections) {
             allLayerConnections.push(layerConnections);
             setAllLayerConnections([...allLayerConnections])
-            console.log(allLayerConnections)
 
             if (allLayerConnections.length > 1) {
               drawLayerConnections(root, 
