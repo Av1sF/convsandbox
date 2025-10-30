@@ -1,34 +1,24 @@
 "use client";
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import VisualiserCanvas from "./VisualiserCanvas";
 import VisualiserMenuBtn from "./VisualiserMenuBtn";
 import * as d3 from "d3";
 import { drawConvLayer } from "@/utils/drawConvLayer";
-import ConvLayerModal, {
-  ConvParams,
-  isConvParams,
-} from "./Layers/ConvLayerModal";
-import ActivationSelectModal, {
-  ActivationType,
-  isActivationType,
-} from "./Layers/ActivationSelectModal";
+import ConvLayerModal from "./Layers/ConvLayerModal";
+import ActivationSelectModal from "./Layers/ActivationSelectModal";
+import { ActivationType, ConvParams, LayerActionType, LayerConnections, LayerDims, MAXLAYERS, UpsamplingParams, UpsamplingType, validLayerTypes } from '@/utils/types';
+import { isActivationType, isConvParams, isUpsamplingParams } from "@/utils/typeGuards";
+import UpsamplingSelectModal from "./Layers/UpsamplingSelectModal";
+import drawLayerConnections from "@/utils/drawLayerConnection";
 
 // Draw lines between layers
-const MAXLAYERS = 6;
 const W = 1183;
 const H = 500;
 
-export type validLayerTypes = {
-  conv: boolean;
-  activation: boolean;
-};
-
-type LayerDims = {
-  width: number;
-  height: number;
-  depth: number;
-  type?: string;
-};
+interface Layer {
+  type: LayerActionType;
+  params?: ConvParams | ActivationType | UpsamplingParams | undefined;
+}
 
 export default function Visualiser() {
   // -- Constants --
@@ -37,19 +27,26 @@ export default function Visualiser() {
   const root = svg.select(".d3-root");
 
   // -- State initialisation --
-  const initialLayers: {
-    type: string;
-    params?: ConvParams | ActivationType | undefined;
-  }[] = [];
+  // An array to store all layers' midpoints
+  const [allLayerConnections, setAllLayerConnections] = useState<(LayerConnections[])>([])
+  const initialLayers:Layer[] = [];
   const initialAction = "";
 
   const [started, setStarted] = useState<boolean>(false);
-  const [action, setAction] = useState(initialAction);
+  const [action, setAction] = useState<LayerActionType>(initialAction);
+
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [activationType, setActivationType] = useState<ActivationType | null>(
     null
   );
+
   const [showConvModal, setShowConvModal] = useState<boolean>(false);
+
+  const [showUpsamplingModal, setShowUpsamplingModal] = useState<boolean>(false);
+  const [upsamplingType, setUpsamplingType] = useState<UpsamplingType | null>(
+    null
+  );
+
   // Number of layers already created
   const [numLayers, setNumLayers] = useState<number>(0);
   // Store each created layer's type and dimensions
@@ -61,33 +58,44 @@ export default function Visualiser() {
   const [allowedLayerTypes, setAllowedLayerTypes] = useState<validLayerTypes>({
     conv: true,
     activation: false,
+    upsample: false, 
   });
 
   // -- Event handlers --
 
   // Visualiser Menu handler
-  const handleMenuAction = (actionType: string) => {
+  const handleMenuAction = (actionType: LayerActionType) => {
     setAction(actionType);
 
-    if (actionType === "add-conv-layer") {
-      setShowConvModal(true);
-      return;
-    }
+    switch(actionType) {
+      case "add-conv-layer":
+        setShowConvModal(true);
+        return;
 
-    if (actionType === "add-activation") {
-      setShowActivationModal(true);
-      return;
+      case "add-activation":
+        setShowActivationModal(true);
+        return;
+
+      case "add-upsampling":
+        setShowUpsamplingModal(true);
+        return; 
     }
     // Handle other actions...
   };
 
-  // Convolutional Layer Modal handler
-  const handleConvConfirm = (params: ConvParams) => {
+  const addLayer = (
+    params: ConvParams | ActivationType | UpsamplingParams,
+    layerType: LayerActionType
+  ) => {
     if (numLayers < MAXLAYERS) {
       setNumLayers((prev) => prev + 1);
-      setLayers((prev) => [...prev, { type: "add-conv-layer", params }]);
+      setLayers((prev) => [...prev, { type: layerType, params }]);
     }
+  };
 
+  // Convolutional Layer Modal handler
+  const handleConvConfirm = (params: ConvParams) => {
+    addLayer(params, "add-conv-layer")
     setShowConvModal(false);
 
     // Viz only officially starts iff first layer is created
@@ -97,12 +105,15 @@ export default function Visualiser() {
   };
 
   const handleActivationSelect = (activation: ActivationType) => {
-    if (numLayers < MAXLAYERS) {
-      setNumLayers((prev) => prev + 1);
-      setLayers((prev) => [...prev, { type: "add-activation", params: activation }]);
-    }
+    addLayer(activation, "add-activation");
     setShowActivationModal(false);
     setActivationType(activation);
+  };
+
+  const handleUpsamplingSelect = (params: UpsamplingParams) => {
+    addLayer(params, "add-upsampling");
+    setShowUpsamplingModal(false);
+    setUpsamplingType(params.method); 
   };
 
   // -- Render Logic --
@@ -110,6 +121,7 @@ export default function Visualiser() {
     action != initialAction &&
     showConvModal == false &&
     showActivationModal == false &&
+    showUpsamplingModal == false &&
     started
   ) {
     if (layers.length === 0) return;
@@ -121,6 +133,7 @@ export default function Visualiser() {
     // Layer Group
     const existingGroup = root.select(`.layer-${latestLayerIndex}`);
     let layerGroup;
+    let layerConnections : LayerConnections | undefined = undefined;
 
     if (!existingGroup.empty()) {
       // Layer already exists no need to re-render
@@ -130,6 +143,7 @@ export default function Visualiser() {
       // Create layer group
       layerGroup = root
         .append("g")
+        // .attr("class", "layer")
         .attr("class", `layer-${latestLayerIndex}`)
         .attr("transform", `translate(${layerxOffset}, 0)`);
 
@@ -138,7 +152,8 @@ export default function Visualiser() {
         latestLayer.type === "add-conv-layer" &&
         isConvParams(latestLayer.params)
       ) {
-        drawConvLayer(
+
+        layerConnections  = drawConvLayer(
           W,
           H,
           latestLayer.params.depth,
@@ -148,8 +163,6 @@ export default function Visualiser() {
           layerGroup
         );
 
-        // Maybe move into drawConvLayer
-        // But maybe not incase I want to add INITIAL conv layer for eg.
         layerGroup
           .append("text")
           .attr("x", W / (2 * MAXLAYERS))
@@ -169,6 +182,7 @@ export default function Visualiser() {
           .text(
             `${latestLayer.params.height} x ${latestLayer.params.width} x ${latestLayer.params.depth}`
           );
+        
 
         setPrevLayerDims({
           width: latestLayer.params.width,
@@ -180,15 +194,16 @@ export default function Visualiser() {
           ...allowedLayerTypes,
           conv: true,
           activation: true,
+          upsample: true, 
         });
       }
-
-      if (
+      
+      else if (
         latestLayer.type === "add-activation" &&
         isActivationType(latestLayer.params) &&
         prevLayerDims
       ) {
-        drawConvLayer(
+        layerConnections = drawConvLayer(
           W,
           H,
           prevLayerDims.depth,
@@ -197,6 +212,7 @@ export default function Visualiser() {
           MAXLAYERS,
           layerGroup
         );
+
 
         layerGroup
           .append("text")
@@ -225,8 +241,82 @@ export default function Visualiser() {
         setAllowedLayerTypes({
           ...allowedLayerTypes,
           activation: false,
+          upsample: true, 
         });
       }
+
+      else if (
+        latestLayer.type === "add-upsampling" && 
+        isUpsamplingParams(latestLayer.params) && 
+        prevLayerDims
+      ) {
+
+        layerConnections = drawConvLayer(
+          W,
+          H,
+          prevLayerDims.depth,
+          prevLayerDims.width*latestLayer.params.scaleFactor,
+          prevLayerDims.height*latestLayer.params.scaleFactor,
+          MAXLAYERS,
+          layerGroup
+        );
+
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.15)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(`Upsampling Layer`);
+
+        layerGroup
+        .append("text")
+        .attr("x", W / (2 * MAXLAYERS))
+        .attr("y", H * 0.15 + 16)
+        .attr("text-anchor", "middle")
+        .attr("font-size", 10)
+        .attr("fill", "#333")
+        .attr("opacity", 0.8) 
+        .text(`${upsamplingType}`);
+
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.85)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(
+            `${prevLayerDims.height*latestLayer.params.scaleFactor} x ${prevLayerDims.width*latestLayer.params.scaleFactor} x ${prevLayerDims.depth}`
+          );
+
+        setPrevLayerDims({
+          width: prevLayerDims.width*latestLayer.params.scaleFactor,
+          height: prevLayerDims.height*latestLayer.params.scaleFactor,
+          depth: prevLayerDims.depth,
+        });
+
+        setAllowedLayerTypes({
+          conv: true,
+          activation: true,
+          upsample: true, 
+        });
+      }
+
+     if (layerConnections) {
+            allLayerConnections.push(layerConnections);
+            setAllLayerConnections([...allLayerConnections])
+
+            if (allLayerConnections.length > 1) {
+              drawLayerConnections(root, 
+              allLayerConnections,
+              layers[latestLayerIndex-1].type, 
+              latestLayer.type,
+            )
+            }
+          }
+
     }
 
     // reset action after handling
@@ -263,10 +353,18 @@ export default function Visualiser() {
         />
       )}
 
-      {showActivationModal && (
+      {showActivationModal && prevLayerDims && (
         <ActivationSelectModal
           onClose={() => setShowActivationModal(false)}
           onSelect={handleActivationSelect}
+        />
+      )}
+
+      {showUpsamplingModal && prevLayerDims && (
+        <UpsamplingSelectModal
+          onClose={() => setShowUpsamplingModal(false)}
+          onConfirm={handleUpsamplingSelect}
+          prevDims={prevLayerDims}
         />
       )}
     </div>

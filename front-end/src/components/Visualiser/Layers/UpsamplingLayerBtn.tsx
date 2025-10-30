@@ -1,10 +1,9 @@
-import { ConvLayerSelectionBtnProps } from "@/utils/types";
-import { TfiLayersAlt } from "react-icons/tfi";
+import { LayerSelectionBtnProps } from "@/utils/types";
+import { BsBoxArrowUpRight } from "react-icons/bs";
 
-export default function ConvLayerBtn(props: ConvLayerSelectionBtnProps) {
-  const icon_x = props.x + 197;
+export default function UpsamplingLayerBtn(props: LayerSelectionBtnProps) {
+  const icon_x = props.x + 155;
   const icon_y = props.y + 16;
-  const short_icon_x = icon_x - 40;
   return (
     <>
       {/* Convolutivonal Layer Button */}
@@ -13,7 +12,7 @@ export default function ConvLayerBtn(props: ConvLayerSelectionBtnProps) {
         <rect
           x={props.x}
           y={props.y}
-          width={props.showLabel ? 230 : 185}
+          width={180}
           height={50}
           rx={25}
           className="fill-bg stroke-text hover:fill-gray-100 transition-colors"
@@ -44,18 +43,18 @@ export default function ConvLayerBtn(props: ConvLayerSelectionBtnProps) {
           fontSize="13"
           className="fill-text-muted font-secondary pointer-events-none"
         >
-          {/* add convolutional layer */}
-          {props.showLabel ? "add convolutional layer" : "convolution layer"}
+          {/* add activation layer */}
+          upsampling layer
         </text>
 
         {/* right-hand icon */}
         <g
           transform={`translate(${
-            props.showLabel ? icon_x : short_icon_x
+            icon_x
           }, ${icon_y})`}
           className="fill-text"
         >
-          <TfiLayersAlt />
+          <BsBoxArrowUpRight />
         </g>
       </g>
     </>

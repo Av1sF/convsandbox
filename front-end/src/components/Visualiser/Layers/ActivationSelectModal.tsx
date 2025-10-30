@@ -1,14 +1,6 @@
+import { ActivationType } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import React from "react";
-
-export type ActivationType = "Tanh" | "Sigmoid" | "ReLU" | "Leaky ReLU";
-
-export function isActivationType(value: any): value is ActivationType {
-  return (
-    typeof value === "string" &&
-    ["Tanh", "Sigmoid", "ReLU", "Leaky ReLU"].includes(value)
-  );
-}
 
 interface ActivationSelectModalProps {
   onClose: () => void;
@@ -108,7 +100,7 @@ const ActivationSelectModal: React.FC<ActivationSelectModalProps> = ({
 }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-6 ">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl p-8 animate-fadeIn relative max-h-[95vh] overflow-y-auto">
+      <div className="bg-bg rounded-2xl shadow-xl w-full max-w-5xl p-8 animate-fadeIn relative max-h-[95vh] overflow-y-auto">
         <h2 className="text-2xl font-semibold text-gray-800 mb-3">
           Select Activation Function
         </h2>

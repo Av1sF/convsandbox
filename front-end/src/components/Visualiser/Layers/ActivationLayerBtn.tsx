@@ -1,12 +1,7 @@
+import { LayerSelectionBtnProps } from "@/utils/types";
 import { LuChartSpline } from "react-icons/lu";
 
-export interface BtnProps {
-  onClick: (e: React.MouseEvent) => void;
-  x: number;
-  y: number;
-}
-
-export default function ActivationLayerBtn(props: BtnProps) {
+export default function ActivationLayerBtn(props: LayerSelectionBtnProps) {
   const icon_x = props.x + 144;
   const icon_y = props.y + 16;
   return (

@@ -1,44 +1,13 @@
+import { ConvParams, LayerDims, MAX_DEPTH, MAX_FILTER_SIZE, MAX_FILTERS, MAX_HEIGHT, MAX_PADDING, MAX_STRIDE, MAX_WIDTH } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import { useState } from "react";
 
-const MAX_WIDTH = 25;
-const MAX_HEIGHT = 25;
-const MAX_DEPTH = 5;
-const MAX_FILTERS = MAX_DEPTH;
-const MAX_FILTER_SIZE = 11;
-const MAX_PADDING = 10;
-const MAX_STRIDE = 8;
-
 // -- Props --
-export interface ConvParams {
-  width: number;
-  height: number;
-  depth: number;
-  stride?: number;
-  numFilters?: number;
-  padding?: number;
-  filterSize?: number;
-}
-
 interface ConvModalProps {
   onClose: () => void;
   onConfirm: (params: ConvParams) => void;
   hasStarted: boolean;
-  prevDims?: { width: number; height: number; depth: number };
-}
-
-export function isConvParams(obj: any): obj is ConvParams {
-  return (
-    obj &&
-    typeof obj === "object" &&
-    typeof obj.width === "number" &&
-    typeof obj.height === "number" &&
-    typeof obj.depth === "number" &&
-    (obj.stride === undefined || typeof obj.stride === "number") &&
-    (obj.numFilters === undefined || typeof obj.numFilters === "number") &&
-    (obj.padding === undefined || typeof obj.padding === "number") &&
-    (obj.filterSize === undefined || typeof obj.filterSize === "number")
-  );
+  prevDims?: LayerDims;
 }
 
 // -- Main Component --
@@ -179,7 +148,7 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
           {hasStarted && prevDims && (
             <>
               <p className="text-sm text-text-muted">
-                <MathJax>{`Previous Layer Dimensions: \\(${prevDims.width} \\times ${prevDims.height} \\times ${prevDims.depth}\\)`}</MathJax>
+                <MathJax>{`Previous Layer Dimensions: \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
               </p>
               <MathJax>
                 <div className="space-y-3">
