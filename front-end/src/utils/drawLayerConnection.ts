@@ -8,8 +8,8 @@ function drawLayerConnections(
   currLayerType: LayerActionType
 ) {
   if (allLayerConnections.length < 2) return;
-
-  if (currLayerType == "add-conv-layer") {
+  if (currLayerType != "add-activation"
+  ) {
     const [, prevRightPoints] =
       allLayerConnections[allLayerConnections.length - 2];
     const [nextLeftPoints] =

@@ -6,18 +6,19 @@ import * as d3 from "d3";
 import { drawConvLayer } from "@/utils/drawConvLayer";
 import ConvLayerModal from "./Layers/ConvLayerModal";
 import ActivationSelectModal from "./Layers/ActivationSelectModal";
-import { ActivationType, ConvParams, LayerActionType, LayerConnections, LayerDims, MAXLAYERS, UpsamplingParams, UpsamplingType, validLayerTypes } from '@/utils/types';
-import { isActivationType, isConvParams, isUpsamplingParams } from "@/utils/typeGuards";
+import { ActivationType, ConvParams, DownsamplingParams, DownsamplingType, LayerActionType, LayerConnections, LayerDims, MAXLAYERS, UpsamplingParams, UpsamplingType, validLayerTypes } from '@/utils/types';
+import { isActivationType, isConvParams, isDownsamplingParams, isUpsamplingParams } from "@/utils/typeGuards";
 import UpsamplingSelectModal from "./Layers/UpsamplingSelectModal";
 import drawLayerConnections from "@/utils/drawLayerConnection";
-
+import DownsamplingSelectModal from "./Layers/DownsamplingSelectModal";
+ 
 // Draw lines between layers
 const W = 1183;
 const H = 500;
 
 interface Layer {
   type: LayerActionType;
-  params?: ConvParams | ActivationType | UpsamplingParams | undefined;
+  params?: ConvParams | ActivationType | UpsamplingParams | DownsamplingParams | undefined;
 }
 
 export default function Visualiser() {
@@ -47,6 +48,11 @@ export default function Visualiser() {
     null
   );
 
+  const [showDownsamplingModal, setShowDownsamplingModal] = useState<boolean>(false);
+  const [downsamplingType, setDownsamplingType] = useState<DownsamplingType | null>(
+    null
+  );
+
   // Number of layers already created
   const [numLayers, setNumLayers] = useState<number>(0);
   // Store each created layer's type and dimensions
@@ -59,6 +65,7 @@ export default function Visualiser() {
     conv: true,
     activation: false,
     upsample: false, 
+    downsample: false, 
   });
 
   // -- Event handlers --
@@ -79,12 +86,16 @@ export default function Visualiser() {
       case "add-upsampling":
         setShowUpsamplingModal(true);
         return; 
+      
+      case "add-downsampling":
+        setShowDownsamplingModal(true); 
+        return; 
     }
     // Handle other actions...
   };
 
   const addLayer = (
-    params: ConvParams | ActivationType | UpsamplingParams,
+    params: ConvParams | ActivationType | UpsamplingParams | DownsamplingParams,
     layerType: LayerActionType
   ) => {
     if (numLayers < MAXLAYERS) {
@@ -116,12 +127,20 @@ export default function Visualiser() {
     setUpsamplingType(params.method); 
   };
 
+  const handleDownsamplingSelect = (params: DownsamplingParams) => {
+    addLayer(params, "add-downsampling");
+    setShowDownsamplingModal(false);
+    setDownsamplingType(params.type); 
+  };
+
+
   // -- Render Logic --
   if (
     action != initialAction &&
     showConvModal == false &&
     showActivationModal == false &&
     showUpsamplingModal == false &&
+    showDownsamplingModal == false && 
     started
   ) {
     if (layers.length === 0) return;
@@ -242,6 +261,7 @@ export default function Visualiser() {
           ...allowedLayerTypes,
           activation: false,
           upsample: true, 
+          downsample: true, 
         });
       }
 
@@ -301,13 +321,72 @@ export default function Visualiser() {
           conv: true,
           activation: true,
           upsample: true, 
+          downsample: true
+        });
+      }
+      else if (
+        latestLayer.type === "add-downsampling" && 
+        isDownsamplingParams(latestLayer.params) && // change param so it can draw 
+        prevLayerDims
+      )  {
+        layerConnections = drawConvLayer(
+          W,
+          H,
+          latestLayer.params.outputDims.depth, 
+          latestLayer.params.outputDims.width, 
+          latestLayer.params.outputDims.height, 
+          MAXLAYERS,
+          layerGroup
+        );
+
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.15)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(`Pooling Layer`);
+
+        layerGroup
+        .append("text")
+        .attr("x", W / (2 * MAXLAYERS))
+        .attr("y", H * 0.15 + 16)
+        .attr("text-anchor", "middle")
+        .attr("font-size", 10)
+        .attr("fill", "#333")
+        .attr("opacity", 0.8) 
+        .text(`${downsamplingType}`);
+
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.85)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(
+            `${latestLayer.params.outputDims.height} x ${latestLayer.params.outputDims.width} x ${latestLayer.params.outputDims.depth}`
+          );
+
+        setPrevLayerDims({
+          width: latestLayer.params.outputDims.width,
+          height: latestLayer.params.outputDims.height,
+          depth: latestLayer.params.outputDims.depth,
+        });
+
+        setAllowedLayerTypes({
+          conv: true,
+          activation: true,
+          upsample: true, 
+          downsample: true
         });
       }
 
      if (layerConnections) {
+
             allLayerConnections.push(layerConnections);
             setAllLayerConnections([...allLayerConnections])
-
             if (allLayerConnections.length > 1) {
               drawLayerConnections(root, 
               allLayerConnections,
@@ -364,6 +443,14 @@ export default function Visualiser() {
         <UpsamplingSelectModal
           onClose={() => setShowUpsamplingModal(false)}
           onConfirm={handleUpsamplingSelect}
+          prevDims={prevLayerDims}
+        />
+      )}
+
+      {showDownsamplingModal && prevLayerDims && (
+        <DownsamplingSelectModal
+          onClose={() => setShowDownsamplingModal(false)}
+          onConfirm={handleDownsamplingSelect}
           prevDims={prevLayerDims}
         />
       )}

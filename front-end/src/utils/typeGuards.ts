@@ -1,4 +1,4 @@
-import { ActivationType, ConvParams, UpsamplingParams, UpsamplingType } from "@/utils/types";
+import { ActivationType, ConvParams, UpsamplingParams, UpsamplingType, DownsamplingType, DownsamplingParams} from "@/utils/types";
 
 export function isConvParams(obj: any): obj is ConvParams {
   return (
@@ -34,4 +34,29 @@ export function isUpsamplingParams(value: any): value is UpsamplingParams {
     typeof value.scaleFactor === "number" &&
     validMethods.includes(value.method)
   );
+}
+
+
+export function isDownsamplingParams(obj: any): obj is DownsamplingParams {
+  if (typeof obj !== "object" || obj === null) return false;
+
+  const hasValidType =
+    typeof obj.type === "string" &&
+    ["Max Pooling", "Average Pooling", "Global Max Pooling", "Global Average Pooling"].includes(obj.type as DownsamplingType);
+
+  const hasValidFilterSize =
+    obj.filterSize === undefined || (typeof obj.filterSize === "number" && obj.filterSize > 0);
+
+  const hasValidStride =
+    obj.stride === undefined || (typeof obj.stride === "number" && obj.stride > 0);
+
+  const hasValidOutputDims =
+    obj.outputDims === undefined ||
+    (typeof obj.outputDims === "object" &&
+      obj.outputDims !== null &&
+      typeof obj.outputDims.width === "number" &&
+      typeof obj.outputDims.height === "number" &&
+      typeof obj.outputDims.depth === "number");
+
+  return hasValidType && hasValidFilterSize && hasValidStride && hasValidOutputDims;
 }
