@@ -12,6 +12,7 @@ export type validLayerTypes = {
   conv: boolean;
   activation: boolean;
   upsample : boolean;
+  downsample: boolean; 
 };
 
 export type LayerDims = {
@@ -63,6 +64,7 @@ export type LayerActionType =
 "add-conv-layer"  | 
 "add-activation" | 
 "add-upsampling" | 
+"add-downsampling" |
 "";
 
 export type UpsamplingType =
@@ -73,4 +75,11 @@ export type UpsamplingType =
 export type UpsamplingParams = {
   method: UpsamplingType, 
   scaleFactor: number,
+}
+export type DownsamplingType = "Max Pooling" | "Average Pooling" | "Global Pooling" | "Global Max Pooling" | "Global Average Pooling";
+export interface DownsamplingParams {
+  type: DownsamplingType;
+  filterSize?: number;
+  stride?: number; 
+  outputDims: { width: number; height: number; depth: number };
 }

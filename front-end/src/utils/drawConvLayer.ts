@@ -119,6 +119,9 @@ export const drawConvLayer = (
       y: rightPointY,
     });
 
+    // console.log(rightMidPoints)
+    // console.log(leftMidPoints)
+
 
     // Vertical grid lines
     if (numColumns > 1) {

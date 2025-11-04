@@ -2,6 +2,7 @@ import ConvLayerBtn from "./Layers/ConvLayerBtn";
 import ActivationLayerBtn from "./Layers/ActivationLayerBtn";
 import UpsamplingLayerBtn from "./Layers/UpsamplingLayerBtn";
 import { VisualiserMenuBtnProps } from "@/utils/types";
+import DownsamplingLayerBtn from "./Layers/DownsamplingLayerBtn";
 
 export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
   const label = props.showLabel ? "Get Started!" : "Add...";
@@ -24,6 +25,11 @@ export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
   const handleAddUpsamplingLayer = (e: React.MouseEvent) => {
     e.stopPropagation();
     props.onAction("add-upsampling");
+  };
+
+  const handleAddDownsamplingLayer = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    props.onAction("add-downsampling");
   };
 
   // 👇 Array of available button configurations
@@ -57,6 +63,17 @@ export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
       component: (
         <UpsamplingLayerBtn
           onClick={handleAddUpsamplingLayer}
+          x={svgXstart}
+          y={0}
+        />
+      ),
+    },
+    {
+      key: "downsample",
+      visible: props.validLayerTypes.upsample && !props.showLabel,
+      component: (
+        <DownsamplingLayerBtn
+          onClick={handleAddDownsamplingLayer}
           x={svgXstart}
           y={0}
         />
