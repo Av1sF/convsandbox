@@ -164,7 +164,6 @@ export default function Visualiser() {
 
   const handleActivationSelect = (activation: ActivationType) => {
     addLayer(activation, "add-activation");
-    console.log('meh')
     setShowActivationModal(false);
     setActivationType(activation);
   };
@@ -217,10 +216,15 @@ export default function Visualiser() {
         latestLayer.type === "add-activation" &&
         isActivationType(latestLayer.params)
       ) {
+        let yText =
+          layers[layers.length - 2].type == "add-downsampling" ||
+          layers[layers.length - 2].type == "add-upsampling"
+            ? 0.81
+            : 0.19;
         layerGroup
           .append("text")
           .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.19)
+          .attr("y", H * yText)
           .attr("text-anchor", "middle")
           .classed("font-alt", true)
           .attr("font-size", 12)
@@ -243,17 +247,16 @@ export default function Visualiser() {
             upsample: false,
             downsample: false,
             dense: true,
-            conv: false
+            conv: false,
           });
         }
-  
       }
     } else {
       // Create layer group
       layerGroup = root
         .append("g")
         // .attr("class", "layer")
-        .attr("class", `layer-${numLayers-1}`)
+        .attr("class", `layer-${numLayers - 1}`)
         .attr("transform", `translate(${layerxOffset}, 0)`);
 
       // Draw Convolutional Layer
