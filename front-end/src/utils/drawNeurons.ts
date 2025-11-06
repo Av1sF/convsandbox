@@ -62,19 +62,5 @@ export const drawNeurons = (
     });
   }
 
-  // // Optional: layer label
-  // layerGroup
-  //   .append("text")
-  //   .attr("x", startX)
-  //   .attr("y", startY - verticalSpacing)
-  //   .attr("text-anchor", "middle")
-  //   .attr("font-size", 12)
-  //   .attr("fill", "currentColor")
-  //   .text(`Dense (${numNeurons})`)
-  //   .style("opacity", 0)
-  //   .transition()
-  //   .duration(600)
-  //   .style("opacity", 1);
-
   return result;
 };

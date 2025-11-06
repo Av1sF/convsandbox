@@ -212,7 +212,6 @@ export default function Visualiser() {
       // Layer already exists no need to re-render
       // Used in the case user cancels on layer creation
       layerGroup = existingGroup;
-      console.log('errrrr')
 
       if (
         latestLayer.type === "add-activation" &&
