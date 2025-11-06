@@ -9,6 +9,7 @@
  * @param layerGroup - The i th layer svg group
  */
 
+import { BaseType } from "d3";
 import { LayerConnections, MidPoint } from "./types";
 
 export const drawConvLayer = (
@@ -18,7 +19,7 @@ export const drawConvLayer = (
   numColumns: number,
   numRows: number,
   maxLayers: number,
-  layerGroup: d3.Selection<SVGGElement, unknown, null, undefined>
+  layerGroup: d3.Selection<SVGGElement, unknown, null, undefined> | d3.Selection<BaseType, unknown, null, undefined>
 ) => {
   const rectWidth = Math.trunc(
     (numColumns / 25) * ((0.63 * canvasW) / maxLayers)
