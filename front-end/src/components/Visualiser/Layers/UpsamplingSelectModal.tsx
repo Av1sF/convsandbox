@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import {
   ConvParams,
-  LayerDims,
   MAX_DEPTH,
   MAX_HEIGHT,
   MAX_WIDTH,
   UpsamplingType,
   MAX_SCALE_FACTOR,
   UpsamplingParams,
+  convLayerDims,
 } from "@/utils/types";
 
 export interface UpsamplingSelectModalProps {
   onClose: () => void;
   onConfirm: (params: UpsamplingParams) => void;
-  prevDims: LayerDims; // previous layer dimensions
+  prevDims: convLayerDims; // previous layer dimensions
 }
 
 const UPSAMPLING_METHODS: {

@@ -11,16 +11,23 @@ export const MAX_SCALE_FACTOR = 25;
 export type validLayerTypes = {
   conv: boolean;
   activation: boolean;
-  upsample : boolean;
-  downsample: boolean; 
+  upsample: boolean;
+  downsample: boolean;
+  dense: boolean;
 };
 
-export type LayerDims = {
+export type convLayerDims = {
   width: number;
   height: number;
   depth: number;
   type?: string;
 };
+
+export type denseLayerDims = {
+  neurons: number;
+};
+
+export type LayerDims = convLayerDims ;
 
 export interface LayerSelectionBtnProps {
   onClick: (e: React.MouseEvent) => void;
@@ -34,14 +41,14 @@ export interface ConvLayerSelectionBtnProps extends LayerSelectionBtnProps {
 
 export interface VisualiserMenuBtnProps {
   // start point
-    x: number;
-    y: number;
-    // max width and height
-    height: number;
-    width: number;
-    onAction: (action: LayerActionType) => void;
-    showLabel: boolean;
-    validLayerTypes: validLayerTypes;
+  x: number;
+  y: number;
+  // max width and height
+  height: number;
+  width: number;
+  onAction: (action: LayerActionType) => void;
+  showLabel: boolean;
+  validLayerTypes: validLayerTypes;
 }
 
 export interface ConvParams {
@@ -60,12 +67,13 @@ export type LayerConnections = [MidPoint[], MidPoint[]]; // [leftPoints, rightPo
 
 export type ActivationType = "Tanh" | "Sigmoid" | "ReLU" | "Leaky ReLU";
 
-export type LayerActionType = 
-"add-conv-layer"  | 
-"add-activation" | 
-"add-upsampling" | 
-"add-downsampling" |
-"";
+export type LayerActionType =
+  | "add-conv-layer"
+  | "add-activation"
+  | "add-upsampling"
+  | "add-downsampling"
+  | "add-dense-layer"
+  | "";
 
 export type UpsamplingType =
   | "Bed of Nails"
@@ -73,13 +81,18 @@ export type UpsamplingType =
   | "Bilinear Interpolation";
 
 export type UpsamplingParams = {
-  method: UpsamplingType, 
-  scaleFactor: number,
-}
-export type DownsamplingType = "Max Pooling" | "Average Pooling" | "Global Pooling" | "Global Max Pooling" | "Global Average Pooling";
+  method: UpsamplingType;
+  scaleFactor: number;
+};
+export type DownsamplingType =
+  | "Max Pooling"
+  | "Average Pooling"
+  | "Global Pooling"
+  | "Global Max Pooling"
+  | "Global Average Pooling";
 export interface DownsamplingParams {
   type: DownsamplingType;
   filterSize?: number;
-  stride?: number; 
+  stride?: number;
   outputDims: { width: number; height: number; depth: number };
 }

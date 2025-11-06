@@ -1,4 +1,4 @@
-import { ActivationType, ConvParams, UpsamplingParams, UpsamplingType, DownsamplingType, DownsamplingParams} from "@/utils/types";
+import { ActivationType, ConvParams, UpsamplingParams, UpsamplingType, DownsamplingType, DownsamplingParams, convLayerDims, denseLayerDims} from "@/utils/types";
 
 export function isConvParams(obj: any): obj is ConvParams {
   return (
@@ -59,4 +59,27 @@ export function isDownsamplingParams(obj: any): obj is DownsamplingParams {
       typeof obj.outputDims.depth === "number");
 
   return hasValidType && hasValidFilterSize && hasValidStride && hasValidOutputDims;
+}
+
+export function isNumberParam(param: any): param is number {
+  return typeof param === "number" && !isNaN(param);
+}
+
+export function isConvLayerDims(obj: unknown): obj is convLayerDims {
+  if (typeof obj !== "object" || obj === null) return false;
+
+  const o = obj as Record<string, unknown>;
+  return (
+    typeof o.width === "number" &&
+    typeof o.height === "number" &&
+    typeof o.depth === "number" &&
+    (o.type === undefined || typeof o.type === "string")
+  );
+}
+
+export function isDenseLayerDims(obj: unknown): obj is denseLayerDims {
+  if (typeof obj !== "object" || obj === null) return false;
+
+  const o = obj as Record<string, unknown>;
+  return typeof o.neurons === "number";
 }

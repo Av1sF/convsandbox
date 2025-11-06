@@ -3,6 +3,7 @@ import ActivationLayerBtn from "./Layers/ActivationLayerBtn";
 import UpsamplingLayerBtn from "./Layers/UpsamplingLayerBtn";
 import { VisualiserMenuBtnProps } from "@/utils/types";
 import DownsamplingLayerBtn from "./Layers/DownsamplingLayerBtn";
+import DneseLayerBtn from './Layers/DenseLayerBtn';
 
 export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
   const label = props.showLabel ? "Get Started!" : "Add...";
@@ -30,6 +31,11 @@ export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
   const handleAddDownsamplingLayer = (e: React.MouseEvent) => {
     e.stopPropagation();
     props.onAction("add-downsampling");
+  };
+
+  const handleAddDenseLayer = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    props.onAction("add-dense-layer");
   };
 
   // 👇 Array of available button configurations
@@ -70,10 +76,21 @@ export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
     },
     {
       key: "downsample",
-      visible: props.validLayerTypes.upsample && !props.showLabel,
+      visible: props.validLayerTypes.downsample && !props.showLabel,
       component: (
         <DownsamplingLayerBtn
           onClick={handleAddDownsamplingLayer}
+          x={svgXstart}
+          y={0}
+        />
+      ),
+    },
+    {
+      key: "dense",
+      visible: props.validLayerTypes.dense && !props.showLabel,
+      component: (
+        <DneseLayerBtn
+          onClick={handleAddDenseLayer}
           x={svgXstart}
           y={0}
         />

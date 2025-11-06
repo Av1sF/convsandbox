@@ -6,11 +6,13 @@ import * as d3 from "d3";
 import { drawConvLayer } from "@/utils/drawConvLayer";
 import ConvLayerModal from "./Layers/ConvLayerModal";
 import ActivationSelectModal from "./Layers/ActivationSelectModal";
-import { ActivationType, ConvParams, DownsamplingParams, DownsamplingType, LayerActionType, LayerConnections, LayerDims, MAXLAYERS, UpsamplingParams, UpsamplingType, validLayerTypes } from '@/utils/types';
-import { isActivationType, isConvParams, isDownsamplingParams, isUpsamplingParams } from "@/utils/typeGuards";
+import { ActivationType, convLayerDims, ConvParams, denseLayerDims, DownsamplingParams, DownsamplingType, LayerActionType, LayerConnections, LayerDims, MAXLAYERS, UpsamplingParams, UpsamplingType, validLayerTypes } from '@/utils/types';
+import { isActivationType, isConvLayerDims, isConvParams, isDownsamplingParams, isNumberParam, isUpsamplingParams } from "@/utils/typeGuards";
 import UpsamplingSelectModal from "./Layers/UpsamplingSelectModal";
 import drawLayerConnections from "@/utils/drawLayerConnection";
 import DownsamplingSelectModal from "./Layers/DownsamplingSelectModal";
+import DenseLayerModal from "./Layers/DenseLayerModal";
+import { drawNeurons } from "@/utils/drawNeurons";
  
 // Draw lines between layers
 const W = 1183;
@@ -18,7 +20,7 @@ const H = 500;
 
 interface Layer {
   type: LayerActionType;
-  params?: ConvParams | ActivationType | UpsamplingParams | DownsamplingParams | undefined;
+  params?: ConvParams | ActivationType | UpsamplingParams | DownsamplingParams | number | undefined;
 }
 
 export default function Visualiser() {
@@ -53,12 +55,14 @@ export default function Visualiser() {
     null
   );
 
+  const [showDenseModal, setshowDenseModal] = useState<boolean>(false);
+
   // Number of layers already created
   const [numLayers, setNumLayers] = useState<number>(0);
   // Store each created layer's type and dimensions
   const [layers, setLayers] = useState(initialLayers);
   // Store dimensions of the last layer created
-  const [prevLayerDims, setPrevLayerDims] = useState<LayerDims | undefined>(
+  const [prevLayerDims, setPrevLayerDims] = useState<convLayerDims | denseLayerDims | undefined>(
     undefined
   );
   const [allowedLayerTypes, setAllowedLayerTypes] = useState<validLayerTypes>({
@@ -66,6 +70,7 @@ export default function Visualiser() {
     activation: false,
     upsample: false, 
     downsample: false, 
+    dense: false, 
   });
 
   // -- Event handlers --
@@ -90,12 +95,16 @@ export default function Visualiser() {
       case "add-downsampling":
         setShowDownsamplingModal(true); 
         return; 
+
+      case "add-dense-layer": 
+        setshowDenseModal(true); 
+        return; 
     }
     // Handle other actions...
   };
 
   const addLayer = (
-    params: ConvParams | ActivationType | UpsamplingParams | DownsamplingParams,
+    params: ConvParams | ActivationType | UpsamplingParams | DownsamplingParams | number,
     layerType: LayerActionType
   ) => {
     if (numLayers < MAXLAYERS) {
@@ -133,6 +142,12 @@ export default function Visualiser() {
     setDownsamplingType(params.type); 
   };
 
+  const handleDenseNeuronSelect = (params: number) => {
+    console.log('ge')
+    addLayer(params, "add-dense-layer");
+    setshowDenseModal(false);
+  };
+
 
   // -- Render Logic --
   if (
@@ -141,6 +156,7 @@ export default function Visualiser() {
     showActivationModal == false &&
     showUpsamplingModal == false &&
     showDownsamplingModal == false && 
+    showDenseModal == false && 
     started
   ) {
     if (layers.length === 0) return;
@@ -214,13 +230,15 @@ export default function Visualiser() {
           conv: true,
           activation: true,
           upsample: true, 
+          downsample: true,
+          dense: true 
         });
       }
       
       else if (
         latestLayer.type === "add-activation" &&
         isActivationType(latestLayer.params) &&
-        prevLayerDims
+        isConvLayerDims(prevLayerDims)
       ) {
         layerConnections = drawConvLayer(
           W,
@@ -262,13 +280,14 @@ export default function Visualiser() {
           activation: false,
           upsample: true, 
           downsample: true, 
+          dense:true, 
         });
       }
 
       else if (
         latestLayer.type === "add-upsampling" && 
         isUpsamplingParams(latestLayer.params) && 
-        prevLayerDims
+        isConvLayerDims(prevLayerDims)
       ) {
 
         layerConnections = drawConvLayer(
@@ -321,7 +340,8 @@ export default function Visualiser() {
           conv: true,
           activation: true,
           upsample: true, 
-          downsample: true
+          downsample: true,
+          dense: true, 
         });
       }
       else if (
@@ -379,8 +399,57 @@ export default function Visualiser() {
           conv: true,
           activation: true,
           upsample: true, 
-          downsample: true
+          downsample: true,
+          dense: true,
         });
+      } else if (
+        latestLayer.type === "add-dense-layer" 
+        && isNumberParam(latestLayer.params) // change param so it can draw 
+        
+      )  {
+        var string = latestLayer.params == 1? "neuron" : "neurons"
+
+        layerConnections =  drawNeurons(
+          W,
+          H,
+          latestLayer.params, 
+          MAXLAYERS,
+          layerGroup
+        );
+        
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.15)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")
+          .text(`Dense Layer`);
+
+        layerGroup
+          .append("text")
+          .attr("x", W / (2 * MAXLAYERS))
+          .attr("y", H * 0.85)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#333")    
+          .text(
+            `${latestLayer.params} ${string}`
+          );
+
+          setAllowedLayerTypes({
+          conv: false,
+          activation: true,
+          upsample: false, 
+          downsample: false,
+          dense: true,
+        });
+
+        setPrevLayerDims({
+          neurons: latestLayer.params,
+        });
+
+
       }
 
      if (layerConnections) {
@@ -413,7 +482,7 @@ export default function Visualiser() {
         {numLayers < MAXLAYERS && (
           <VisualiserMenuBtn
             x={(W / MAXLAYERS) * numLayers}
-            y={0}
+            y={-50} // was 0 
             width={W / MAXLAYERS}
             height={H}
             onAction={handleMenuAction}
@@ -423,7 +492,7 @@ export default function Visualiser() {
         )}
       </VisualiserCanvas>
 
-      {showConvModal && (
+      {showConvModal && (prevLayerDims === undefined || isConvLayerDims(prevLayerDims)) && (
         <ConvLayerModal
           prevDims={prevLayerDims}
           onClose={() => setShowConvModal(false)}
@@ -439,7 +508,7 @@ export default function Visualiser() {
         />
       )}
 
-      {showUpsamplingModal && prevLayerDims && (
+      {showUpsamplingModal && isConvLayerDims(prevLayerDims) && (
         <UpsamplingSelectModal
           onClose={() => setShowUpsamplingModal(false)}
           onConfirm={handleUpsamplingSelect}
@@ -447,11 +516,18 @@ export default function Visualiser() {
         />
       )}
 
-      {showDownsamplingModal && prevLayerDims && (
+      {showDownsamplingModal && isConvLayerDims(prevLayerDims) && (
         <DownsamplingSelectModal
           onClose={() => setShowDownsamplingModal(false)}
           onConfirm={handleDownsamplingSelect}
           prevDims={prevLayerDims}
+        />
+      )}
+
+      {showDenseModal && (
+        <DenseLayerModal
+          onClose={() => setShowDownsamplingModal(false)}
+          onConfirm={handleDenseNeuronSelect}
         />
       )}
     </div>
