@@ -45,7 +45,7 @@ export default function ConvLayerBtn(props: ConvLayerSelectionBtnProps) {
           className="fill-text-muted font-secondary pointer-events-none"
         >
           {/* add convolutional layer */}
-          {props.showLabel ? "add convolutional layer" : "convolution layer"}
+          {props.showLabel ? "add input layer" : "convolution layer"}
         </text>
 
         {/* right-hand icon */}

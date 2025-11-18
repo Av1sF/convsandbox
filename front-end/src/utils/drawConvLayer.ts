@@ -7,6 +7,7 @@
  * @param numRows - Height of the conv layer (max 25)
  * @param maxLayers - Max number of layers user can add (max 5)
  * @param layerGroup - The i th layer svg group
+ * @param tensor
  */
 
 import { BaseType } from "d3";
@@ -21,7 +22,8 @@ export const drawConvLayer = (
   maxLayers: number,
   layerGroup:
     | d3.Selection<SVGGElement, unknown, null, undefined>
-    | d3.Selection<BaseType, unknown, null, undefined>
+    | d3.Selection<BaseType, unknown, null, undefined>,
+  tensor?: number | number[] | number[][] | number[][][] | number[][][][] | number[][][][][] | number[][][][][][]
 ) => {
   const rectWidth = Math.trunc(
     (numColumns / 25) * ((0.63 * canvasW) / maxLayers)
@@ -105,13 +107,12 @@ export const drawConvLayer = (
       ),
       y: rightPointY,
     });
-    
 
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numColumns; col++) {
         const x = startX + j * xOffset + col * cellWidth;
         const y = startY + j * yOffset + row * cellHeight;
-        const randomOpacity = Math.random(); 
+        const randomOpacity = Math.random();
 
         layerGroup
           .append("rect")
@@ -120,7 +121,7 @@ export const drawConvLayer = (
           .attr("width", cellWidth)
           .attr("height", cellHeight)
           // .attr("class", "stroke-text")
-          .attr('fill', '#5f6c7b')
+          .attr("fill", "#5f6c7b")
           .style("opacity", 0)
           .transition()
           .duration(400)

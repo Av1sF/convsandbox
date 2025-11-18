@@ -35,6 +35,7 @@ import drawLayerConnections from "@/utils/drawLayerConnection";
 import DownsamplingSelectModal from "./Layers/DownsamplingSelectModal";
 import DenseLayerModal from "./Layers/DenseLayerModal";
 import { drawNeurons } from "@/utils/drawNeurons";
+// import { DummyModel } from "@/utils/DummyModel";
 
 // Draw lines between layers
 const W = 1183;
@@ -181,7 +182,6 @@ export default function Visualiser() {
   };
 
   const handleDenseNeuronSelect = (params: number) => {
-    console.log("ge");
     addLayer(params, "add-dense-layer");
     setshowDenseModal(false);
   };
@@ -264,15 +264,17 @@ export default function Visualiser() {
         latestLayer.type === "add-conv-layer" &&
         isConvParams(latestLayer.params)
       ) {
-        layerConnections = drawConvLayer(
-          W,
-          H,
-          latestLayer.params.depth,
-          latestLayer.params.width,
-          latestLayer.params.height,
-          MAXLAYERS,
-          layerGroup
-        );
+        if (numLayers != 1) {
+          layerConnections = drawConvLayer(
+            W,
+            H,
+            latestLayer.params.depth,
+            latestLayer.params.width,
+            latestLayer.params.height,
+            MAXLAYERS,
+            layerGroup
+          );
+        }
 
         layerGroup
           .append("text")
@@ -294,20 +296,45 @@ export default function Visualiser() {
             `${latestLayer.params.height} x ${latestLayer.params.width} x ${latestLayer.params.depth}`
           );
 
-        setPrevLayerDims({
+        let currlayerDims = {
           width: latestLayer.params.width,
           height: latestLayer.params.height,
           depth: latestLayer.params.depth,
-        });
+        };
+        setPrevLayerDims(currlayerDims);
 
-        setAllowedLayerTypes({
-          ...allowedLayerTypes,
-          conv: true,
-          activation: true,
-          upsample: true,
-          downsample: true,
-          dense: true,
-        });
+        if (numLayers == 1) {
+          setAllowedLayerTypes({
+            ...allowedLayerTypes,
+            conv: true,
+            activation: false,
+            upsample: true,
+            downsample: true,
+            dense: false,
+          });
+
+          let tensorArray = undefined;
+
+          layerConnections = drawConvLayer(
+            W,
+            H,
+            latestLayer.params.depth,
+            latestLayer.params.width,
+            latestLayer.params.height,
+            MAXLAYERS,
+            layerGroup,
+            tensorArray
+          );
+        } else {
+          setAllowedLayerTypes({
+            ...allowedLayerTypes,
+            conv: false,
+            activation: true,
+            upsample: false,
+            downsample: false,
+            dense: false,
+          });
+        }
       } else if (
         latestLayer.type === "add-upsampling" &&
         isUpsamplingParams(latestLayer.params) &&
@@ -363,9 +390,9 @@ export default function Visualiser() {
 
         setAllowedLayerTypes({
           conv: true,
-          activation: true,
-          upsample: true,
-          downsample: true,
+          activation: false,
+          upsample: false,
+          downsample: false,
           dense: true,
         });
       } else if (
@@ -421,9 +448,9 @@ export default function Visualiser() {
 
         setAllowedLayerTypes({
           conv: true,
-          activation: true,
-          upsample: true,
-          downsample: true,
+          activation: false,
+          upsample: false,
+          downsample: false,
           dense: true,
         });
       } else if (
@@ -463,7 +490,7 @@ export default function Visualiser() {
           activation: true,
           upsample: false,
           downsample: false,
-          dense: true,
+          dense: false,
         });
 
         setPrevLayerDims({

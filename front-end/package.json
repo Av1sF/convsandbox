@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
     "better-react-mathjax": "^2.3.0",
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
