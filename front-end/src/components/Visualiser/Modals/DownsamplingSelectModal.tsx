@@ -43,7 +43,6 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
   const [filterSize, setFilterSize] = useState<number>(2);
   const [stride, setStride] = useState<number>(1);
 
-  // ✅ Correct formula including stride
   const computeOutputDims = () => {
     // if (!selectedType) return null;
     const { width, height, depth } = prevDims;

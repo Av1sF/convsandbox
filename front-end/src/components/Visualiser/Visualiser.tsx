@@ -4,8 +4,8 @@ import VisualiserCanvas from "./VisualiserCanvas";
 import VisualiserMenuBtn from "./VisualiserMenuBtn";
 import * as d3 from "d3";
 import { drawConvLayer } from "@/utils/drawConvLayer";
-import ConvLayerModal from "./Layers/ConvLayerModal";
-import ActivationSelectModal from "./Layers/ActivationSelectModal";
+import ConvLayerModal from "./Modals/ConvLayerModal";
+import ActivationSelectModal from "./Modals/ActivationSelectModal";
 import {
   ActivationType,
   convLayerDims,
@@ -30,14 +30,13 @@ import {
   isNumberParam,
   isUpsamplingParams,
 } from "@/utils/typeGuards";
-import UpsamplingSelectModal from "./Layers/UpsamplingSelectModal";
+import UpsamplingSelectModal from "./Modals/UpsamplingSelectModal";
 import drawLayerConnections from "@/utils/drawLayerConnection";
-import DownsamplingSelectModal from "./Layers/DownsamplingSelectModal";
-import DenseLayerModal from "./Layers/DenseLayerModal";
+import DownsamplingSelectModal from "./Modals/DownsamplingSelectModal";
+import DenseLayerModal from "./Modals/DenseLayerModal";
 import { drawNeurons } from "@/utils/drawNeurons";
-// import { DummyModel } from "@/utils/DummyModel";
+import { addLayerLabel } from "@/utils/addLayerLabel";
 
-// Draw lines between layers
 const W = 1183;
 const H = 500;
 
@@ -69,34 +68,17 @@ export default function Visualiser() {
   const [started, setStarted] = useState<boolean>(false);
   const [action, setAction] = useState<LayerActionType>(initialAction);
 
-  const [showActivationModal, setShowActivationModal] = useState(false);
-  const [activationType, setActivationType] = useState<ActivationType | null>(
-    null
-  );
-
-  const [showConvModal, setShowConvModal] = useState<boolean>(false);
-
-  const [showUpsamplingModal, setShowUpsamplingModal] =
-    useState<boolean>(false);
-  const [upsamplingType, setUpsamplingType] = useState<UpsamplingType | null>(
-    null
-  );
-
-  const [showDownsamplingModal, setShowDownsamplingModal] =
-    useState<boolean>(false);
-  const [downsamplingType, setDownsamplingType] =
-    useState<DownsamplingType | null>(null);
-
-  const [showDenseModal, setshowDenseModal] = useState<boolean>(false);
-
   // Number of layers already created
   const [numLayers, setNumLayers] = useState<number>(0);
+
   // Store each created layer's type and dimensions
   const [layers, setLayers] = useState(initialLayers);
+
   // Store dimensions of the last layer created
   const [prevLayerDims, setPrevLayerDims] = useState<
     convLayerDims | denseLayerDims | undefined
   >(undefined);
+  
   const [allowedLayerTypes, setAllowedLayerTypes] = useState<validLayerTypes>({
     conv: true,
     activation: false,
@@ -105,34 +87,47 @@ export default function Visualiser() {
     dense: false,
   });
 
+  const [modals, setModals] = useState({
+    conv: false,
+    activation: false,
+    upsample: false,
+    downsample: false,
+    dense: false,
+  });
+
+  const openModal = (key: keyof typeof modals) =>
+    setModals((m) => ({ ...m, [key]: true }));
+
+  const closeModal = (key: keyof typeof modals) =>
+    setModals((m) => ({ ...m, [key]: false }));
+
+  const allModalsClosed = Object.values(modals).every((m) => !m);
+
+  const modalMap: Record<LayerActionType, keyof typeof modals> = {
+    "": "conv",
+    "add-conv-layer": "conv",
+    "add-activation": "activation",
+    "add-upsampling": "upsample",
+    "add-downsampling": "downsample",
+    "add-dense-layer": "dense",
+  };
+
+  // -- Modal State initialisation --
+  const [activationType, setActivationType] = useState<ActivationType | null>(
+    null
+  );
+  const [upsamplingType, setUpsamplingType] = useState<UpsamplingType | null>(
+    null
+  );
+  const [downsamplingType, setDownsamplingType] =
+    useState<DownsamplingType | null>(null);
+
   // -- Event handlers --
 
   // Visualiser Menu handler
-  const handleMenuAction = (actionType: LayerActionType) => {
-    setAction(actionType);
-
-    switch (actionType) {
-      case "add-conv-layer":
-        setShowConvModal(true);
-        return;
-
-      case "add-activation":
-        setShowActivationModal(true);
-        return;
-
-      case "add-upsampling":
-        setShowUpsamplingModal(true);
-        return;
-
-      case "add-downsampling":
-        setShowDownsamplingModal(true);
-        return;
-
-      case "add-dense-layer":
-        setshowDenseModal(true);
-        return;
-    }
-    // Handle other actions...
+  const handleMenuAction = (type: LayerActionType) => {
+    setAction(type);
+    openModal(modalMap[type]);
   };
 
   const addLayer = (
@@ -155,7 +150,7 @@ export default function Visualiser() {
   // Convolutional Layer Modal handler
   const handleConvConfirm = (params: ConvParams) => {
     addLayer(params, "add-conv-layer");
-    setShowConvModal(false);
+    closeModal("conv");
 
     // Viz only officially starts iff first layer is created
     if (!started) {
@@ -163,44 +158,86 @@ export default function Visualiser() {
     }
   };
 
+  // Activation Modal handler
   const handleActivationSelect = (activation: ActivationType) => {
     addLayer(activation, "add-activation");
-    setShowActivationModal(false);
+    closeModal("activation");
     setActivationType(activation);
   };
 
+  // Upsampling Modal handler
   const handleUpsamplingSelect = (params: UpsamplingParams) => {
     addLayer(params, "add-upsampling");
-    setShowUpsamplingModal(false);
+    closeModal("upsample");
     setUpsamplingType(params.method);
   };
 
+  // Downsampling Modal handler
   const handleDownsamplingSelect = (params: DownsamplingParams) => {
     addLayer(params, "add-downsampling");
-    setShowDownsamplingModal(false);
+    closeModal("downsample");
     setDownsamplingType(params.type);
   };
 
+  // Dense layer Modal handler
   const handleDenseNeuronSelect = (params: number) => {
     addLayer(params, "add-dense-layer");
-    setshowDenseModal(false);
+    closeModal("dense");
+  };
+  const modalComponents = {
+    conv: (
+      <div key="conv">
+        <ConvLayerModal
+          prevDims={prevLayerDims as convLayerDims}
+          onClose={() => closeModal("conv")}
+          onConfirm={handleConvConfirm}
+          hasStarted={started}
+        />
+      </div>
+    ),
+    activation: (
+      <div key="activation">
+        <ActivationSelectModal
+          onClose={() => closeModal("activation")}
+          onSelect={handleActivationSelect}
+        />
+      </div>
+    ),
+    upsample: (
+      <div key="upsample">
+        <UpsamplingSelectModal
+          prevDims={prevLayerDims as convLayerDims}
+          onClose={() => closeModal("upsample")}
+          onConfirm={handleUpsamplingSelect}
+        />
+      </div>
+    ),
+    downsample: (
+      <div key="downsample">
+        <DownsamplingSelectModal
+          prevDims={prevLayerDims as convLayerDims}
+          onClose={() => closeModal("downsample")}
+          onConfirm={handleDownsamplingSelect}
+        />
+      </div>
+    ),
+    dense: (
+      <div key="dense">
+        <DenseLayerModal
+          onClose={() => closeModal("dense")}
+          onConfirm={handleDenseNeuronSelect}
+        />
+      </div>
+    ),
   };
 
   // -- Render Logic --
-  if (
-    action != initialAction &&
-    showConvModal == false &&
-    showActivationModal == false &&
-    showUpsamplingModal == false &&
-    showDownsamplingModal == false &&
-    showDenseModal == false &&
-    started
-  ) {
+  if (action != initialAction && allModalsClosed && started) {
     if (layers.length === 0) return;
 
-    // const latestLayerIndex = layers.length - 1;
     const latestLayer = layers[layers.length - 1];
     const layerxOffset = (W / MAXLAYERS) * (numLayers - 1);
+    const layerLabelx = W / (2 * MAXLAYERS);
 
     // Layer Group
     const existingGroup = root.select(`.layer-${numLayers - 1}`);
@@ -209,7 +246,6 @@ export default function Visualiser() {
 
     if (!existingGroup.empty()) {
       // Layer already exists no need to re-render
-      // Used in the case user cancels on layer creation
       layerGroup = existingGroup;
 
       if (
@@ -221,17 +257,16 @@ export default function Visualiser() {
           layers[layers.length - 2].type == "add-upsampling"
             ? 0.81
             : 0.19;
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * yText)
-          .attr("text-anchor", "middle")
-          .classed("font-alt", true)
-          .attr("font-size", 12)
-          .attr("opacity", 0.8)
-          .attr("fill", "#333")
-          .text(`${activationType}`);
 
+        addLayerLabel(
+          layerLabelx,
+          H * yText,
+          layerGroup,
+          `${activationType}`,
+          12
+        );
+
+        // Determine next valid layer selections
         if (isConvLayerDims(prevLayerDims)) {
           setAllowedLayerTypes({
             ...allowedLayerTypes,
@@ -255,7 +290,6 @@ export default function Visualiser() {
       // Create layer group
       layerGroup = root
         .append("g")
-        // .attr("class", "layer")
         .attr("class", `layer-${numLayers - 1}`)
         .attr("transform", `translate(${layerxOffset}, 0)`);
 
@@ -264,45 +298,32 @@ export default function Visualiser() {
         latestLayer.type === "add-conv-layer" &&
         isConvParams(latestLayer.params)
       ) {
-        if (numLayers != 1) {
-          layerConnections = drawConvLayer(
-            W,
-            H,
-            latestLayer.params.depth,
-            latestLayer.params.width,
-            latestLayer.params.height,
-            MAXLAYERS,
-            layerGroup
-          );
-        }
+        layerConnections = drawConvLayer(
+          W,
+          H,
+          latestLayer.params.depth,
+          latestLayer.params.width,
+          latestLayer.params.height,
+          MAXLAYERS,
+          layerGroup
+        );
 
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.15)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 14)
-          .attr("fill", "#333")
-          .text(`Convolutional Layer`);
+        addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Convolutional Layer`);
 
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.85)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 14)
-          .attr("fill", "#333")
-          .text(
-            `${latestLayer.params.height} x ${latestLayer.params.width} x ${latestLayer.params.depth}`
-          );
+        addLayerLabel(
+          layerLabelx,
+          H * 0.85,
+          layerGroup,
+          `${latestLayer.params.height} x ${latestLayer.params.width} x ${latestLayer.params.depth}`
+        );
 
-        let currlayerDims = {
+        setPrevLayerDims({
           width: latestLayer.params.width,
           height: latestLayer.params.height,
           depth: latestLayer.params.depth,
-        };
-        setPrevLayerDims(currlayerDims);
+        });
 
+        // Determine next valid layer selection
         if (numLayers == 1) {
           setAllowedLayerTypes({
             ...allowedLayerTypes,
@@ -312,19 +333,6 @@ export default function Visualiser() {
             downsample: true,
             dense: false,
           });
-
-          let tensorArray = undefined;
-
-          layerConnections = drawConvLayer(
-            W,
-            H,
-            latestLayer.params.depth,
-            latestLayer.params.width,
-            latestLayer.params.height,
-            MAXLAYERS,
-            layerGroup,
-            tensorArray
-          );
         } else {
           setAllowedLayerTypes({
             ...allowedLayerTypes,
@@ -350,37 +358,23 @@ export default function Visualiser() {
           layerGroup
         );
 
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.15)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 14)
-          .attr("fill", "#333")
-          .text(`Upsampling Layer`);
-
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.15 + 16)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 10)
-          .attr("fill", "#333")
-          .attr("opacity", 0.8)
-          .text(`${upsamplingType}`);
-
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.85)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 14)
-          .attr("fill", "#333")
-          .text(
-            `${prevLayerDims.height * latestLayer.params.scaleFactor} x ${
-              prevLayerDims.width * latestLayer.params.scaleFactor
-            } x ${prevLayerDims.depth}`
-          );
+        addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Upsampling Layer`);
+        addLayerLabel(
+          layerLabelx,
+          H * 0.15 + 16,
+          layerGroup,
+          `${upsamplingType}`,
+          10
+        );
+        addLayerLabel(
+          layerLabelx,
+          H * 0.85,
+          layerGroup,
+          `${prevLayerDims.height * latestLayer.params.scaleFactor} x ${
+            prevLayerDims.width * latestLayer.params.scaleFactor
+          } x ${prevLayerDims.depth}`,
+          14
+        );
 
         setPrevLayerDims({
           width: prevLayerDims.width * latestLayer.params.scaleFactor,
@@ -410,35 +404,20 @@ export default function Visualiser() {
           layerGroup
         );
 
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.15)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 14)
-          .attr("fill", "#333")
-          .text(`Pooling Layer`);
-
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.15 + 16)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 10)
-          .attr("fill", "#333")
-          .attr("opacity", 0.8)
-          .text(`${downsamplingType}`);
-
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.85)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 14)
-          .attr("fill", "#333")
-          .text(
-            `${latestLayer.params.outputDims.height} x ${latestLayer.params.outputDims.width} x ${latestLayer.params.outputDims.depth}`
-          );
+        addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Pooling Layer`);
+        addLayerLabel(
+          layerLabelx,
+          H * 0.15 + 16,
+          layerGroup,
+          `${downsamplingType}`,
+          10
+        );
+        addLayerLabel(
+          layerLabelx,
+          H * 0.85,
+          layerGroup,
+          `${latestLayer.params.outputDims.height} x ${latestLayer.params.outputDims.width} x ${latestLayer.params.outputDims.depth}`
+        );
 
         setPrevLayerDims({
           width: latestLayer.params.outputDims.width,
@@ -467,23 +446,13 @@ export default function Visualiser() {
           layerGroup
         );
 
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.15)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 14)
-          .attr("fill", "#333")
-          .text(`Dense Layer`);
-
-        layerGroup
-          .append("text")
-          .attr("x", W / (2 * MAXLAYERS))
-          .attr("y", H * 0.85)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 14)
-          .attr("fill", "#333")
-          .text(`${latestLayer.params} ${string}`);
+        addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Dense Layer`);
+        addLayerLabel(
+          layerLabelx,
+          H * 0.85,
+          layerGroup,
+          `${latestLayer.params} ${string}`
+        );
 
         setAllowedLayerTypes({
           conv: false,
@@ -537,44 +506,8 @@ export default function Visualiser() {
         )}
       </VisualiserCanvas>
 
-      {showConvModal &&
-        (prevLayerDims === undefined || isConvLayerDims(prevLayerDims)) && (
-          <ConvLayerModal
-            prevDims={prevLayerDims}
-            onClose={() => setShowConvModal(false)}
-            onConfirm={handleConvConfirm}
-            hasStarted={started}
-          />
-        )}
-
-      {showActivationModal && prevLayerDims && (
-        <ActivationSelectModal
-          onClose={() => setShowActivationModal(false)}
-          onSelect={handleActivationSelect}
-        />
-      )}
-
-      {showUpsamplingModal && isConvLayerDims(prevLayerDims) && (
-        <UpsamplingSelectModal
-          onClose={() => setShowUpsamplingModal(false)}
-          onConfirm={handleUpsamplingSelect}
-          prevDims={prevLayerDims}
-        />
-      )}
-
-      {showDownsamplingModal && isConvLayerDims(prevLayerDims) && (
-        <DownsamplingSelectModal
-          onClose={() => setShowDownsamplingModal(false)}
-          onConfirm={handleDownsamplingSelect}
-          prevDims={prevLayerDims}
-        />
-      )}
-
-      {showDenseModal && (
-        <DenseLayerModal
-          onClose={() => setShowDownsamplingModal(false)}
-          onConfirm={handleDenseNeuronSelect}
-        />
+      {Object.entries(modals).map(([key, open]) =>
+        open ? modalComponents[key as keyof typeof modals] : null
       )}
     </div>
   );

@@ -7,6 +7,8 @@ export const MAX_FILTER_SIZE = 11;
 export const MAX_PADDING = 10;
 export const MAX_STRIDE = 8;
 export const MAX_SCALE_FACTOR = 25;
+export const W = 1183;
+export const H = 500;
 
 export type validLayerTypes = {
   conv: boolean;
