@@ -15,7 +15,7 @@
   --color-accent-warm: #ef4565; /* tertiary accent (warm coral/orange) */
 
   /* Fonts */
-  --font-sans: var(--font-manrope);
+  --font-main: var(--font-manrope);
   --font-alt: var(--font-worksans);
 }
 

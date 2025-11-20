@@ -7,8 +7,10 @@
  * @param numRows - Height of the conv layer (max 25)
  * @param maxLayers - Max number of layers user can add (max 5)
  * @param layerGroup - The i th layer svg group
+ * @param tensor
  */
 
+import { BaseType } from "d3";
 import { LayerConnections, MidPoint } from "./types";
 
 export const drawConvLayer = (
@@ -18,7 +20,10 @@ export const drawConvLayer = (
   numColumns: number,
   numRows: number,
   maxLayers: number,
-  layerGroup: d3.Selection<SVGGElement, unknown, null, undefined>
+  layerGroup:
+    | d3.Selection<SVGGElement, unknown, null, undefined>
+    | d3.Selection<BaseType, unknown, null, undefined>,
+  tensor?: number | number[] | number[][] | number[][][] | number[][][][] | number[][][][][] | number[][][][][][]
 ) => {
   const rectWidth = Math.trunc(
     (numColumns / 25) * ((0.63 * canvasW) / maxLayers)
@@ -89,77 +94,39 @@ export const drawConvLayer = (
       y: startY + j * yOffset + rectHeight / 2,
     });
 
-    // var rightMidPointY = startY + j * yOffset + rectHeight / 2;
-    // var numXoffset = numDepth - 1;
-    // var biggerThan = rectStartYs.filter((num) => num < rightMidPointY);
-    // if (biggerThan.length != 0) {
-    //   numXoffset = Math.max(biggerThan.length - 1 - j, 0);
-    // }
-
-    // rightMidPoints.push({
-    //   x: Math.min(
-    //     startX + (j + numXoffset) * xOffset + actualX + rectWidth,
-    //     startX + actualX + rectWidth + (numDepth - 1) * xOffset
-    //   ),
-    //   // x: Math.max((startX + j * xOffset + actualX + rectWidth + (Math.floor((rectHeight / 2)/yOffset) * xOffset)), numDepth* xOffset + actualX),
-    //   y: rightMidPointY,
-    // });
-
-    var rightPointY; 
-    if (j != numDepth-1){
-      rightPointY = startY + j * yOffset + 0.5*yOffset
+    var rightPointY;
+    if (j != numDepth - 1) {
+      rightPointY = startY + j * yOffset + 0.5 * yOffset;
     } else {
-      rightPointY = startY + j * yOffset + rectHeight / 2
+      rightPointY = startY + j * yOffset + rectHeight / 2;
     }
     rightMidPoints.push({
       x: Math.min(
-        startX + (j) * xOffset + actualX + rectWidth,
+        startX + j * xOffset + actualX + rectWidth,
         startX + actualX + rectWidth + (numDepth - 1) * xOffset
       ),
       y: rightPointY,
     });
 
-    // console.log(rightMidPoints)
-    // console.log(leftMidPoints)
+    for (let row = 0; row < numRows; row++) {
+      for (let col = 0; col < numColumns; col++) {
+        const x = startX + j * xOffset + col * cellWidth;
+        const y = startY + j * yOffset + row * cellHeight;
+        const randomOpacity = Math.random();
 
-
-    // Vertical grid lines
-    if (numColumns > 1) {
-      for (let i = 1; i < numColumns; i++) {
-        const x = startX + i * cellWidth;
         layerGroup
-          .append("line")
-          .attr("x1", x + j * xOffset)
-          .attr("y1", startY + j * yOffset)
-          .attr("x2", x + j * xOffset)
-          .attr("y2", startY + rectHeight + j * yOffset)
-          .attr("class", "stroke-stroke")
-          .attr("stroke-width", i % 5 === 0 ? 1.5 : 0.5)
-          .attr("opacity", 0)
+          .append("rect")
+          .attr("x", x)
+          .attr("y", y)
+          .attr("width", cellWidth)
+          .attr("height", cellHeight)
+          // .attr("class", "stroke-text")
+          .attr("fill", "#5f6c7b")
+          .style("opacity", 0)
           .transition()
           .duration(400)
-          .delay(i * 20)
-          .attr("opacity", 1);
-      }
-    }
-
-    // Horizontal grid lines
-    if (numRows > 1) {
-      for (let i = 1; i < numRows; i++) {
-        const y = startY + i * cellHeight;
-        layerGroup
-          .append("line")
-          .attr("x1", startX + j * xOffset)
-          .attr("y1", y + j * yOffset)
-          .attr("x2", startX + rectWidth + j * xOffset)
-          .attr("y2", y + j * yOffset)
-          .attr("class", "stroke-stroke")
-          .attr("stroke-width", i % 5 === 0 ? 1.5 : 0.5)
-          .attr("opacity", 0)
-          .transition()
-          .duration(400)
-          .delay(i * 20)
-          .attr("opacity", 1);
+          .delay((row * numColumns + col) * 10)
+          .style("opacity", randomOpacity);
       }
     }
   }
