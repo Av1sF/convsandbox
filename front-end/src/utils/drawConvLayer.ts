@@ -12,6 +12,18 @@
 
 import { BaseType } from "d3";
 import { LayerConnections, MidPoint } from "./types";
+import { isNumberParam } from './typeGuards';
+
+function is3DTensor(t: any): t is number[][][][] {
+  return (
+    Array.isArray(t) &&
+    t.every(
+      a =>
+        Array.isArray(a) &&
+        a.every(b => Array.isArray(b))
+    )
+  );
+}
 
 export const drawConvLayer = (
   canvasW: number,
@@ -112,7 +124,13 @@ export const drawConvLayer = (
       for (let col = 0; col < numColumns; col++) {
         const x = startX + j * xOffset + col * cellWidth;
         const y = startY + j * yOffset + row * cellHeight;
-        const randomOpacity = Math.random();
+        var randomOpacity = Math.random(); 
+   
+        if (is3DTensor(tensor)) {
+          if (isNumberParam(tensor[0][row][col][j])) {
+            randomOpacity = tensor[0][row][col][j];
+          }
+        }
 
         layerGroup
           .append("rect")

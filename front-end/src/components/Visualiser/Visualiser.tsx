@@ -15,7 +15,6 @@ import {
   DownsamplingType,
   LayerActionType,
   LayerConnections,
-  LayerDims,
   MAXLAYERS,
   UpsamplingParams,
   UpsamplingType,
@@ -36,6 +35,7 @@ import DownsamplingSelectModal from "./Modals/DownsamplingSelectModal";
 import DenseLayerModal from "./Modals/DenseLayerModal";
 import { drawNeurons } from "@/utils/drawNeurons";
 import { addLayerLabel } from "@/utils/addLayerLabel";
+import { setConvLayer, setInputLayer } from "@/utils/DummyModel";
 
 const W = 1183;
 const H = 500;
@@ -73,6 +73,9 @@ export default function Visualiser() {
 
   // Store each created layer's type and dimensions
   const [layers, setLayers] = useState(initialLayers);
+
+  // Dummy Model 
+  const [tensorLayers, setTensorLayers] = useState<any[]>([]); 
 
   // Store dimensions of the last layer created
   const [prevLayerDims, setPrevLayerDims] = useState<
@@ -298,16 +301,6 @@ export default function Visualiser() {
         latestLayer.type === "add-conv-layer" &&
         isConvParams(latestLayer.params)
       ) {
-        layerConnections = drawConvLayer(
-          W,
-          H,
-          latestLayer.params.depth,
-          latestLayer.params.width,
-          latestLayer.params.height,
-          MAXLAYERS,
-          layerGroup
-        );
-
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Convolutional Layer`);
 
         addLayerLabel(
@@ -333,6 +326,11 @@ export default function Visualiser() {
             downsample: true,
             dense: false,
           });
+          
+          tensorLayers.push(setInputLayer(latestLayer.params as convLayerDims));
+          setTensorLayers([...tensorLayers]);
+          console.log(tensorLayers)
+          
         } else {
           setAllowedLayerTypes({
             ...allowedLayerTypes,
@@ -342,7 +340,24 @@ export default function Visualiser() {
             downsample: false,
             dense: false,
           });
+
+          console.log(tensorLayers)
+          tensorLayers.push(setConvLayer(latestLayer.params as ConvParams, tensorLayers[tensorLayers.length-1]));
+          setTensorLayers([...tensorLayers]);
+          console.log(tensorLayers)
         }
+
+        layerConnections = drawConvLayer(
+          W,
+          H,
+          latestLayer.params.depth,
+          latestLayer.params.width,
+          latestLayer.params.height,
+          MAXLAYERS,
+          layerGroup,
+          tensorLayers[tensorLayers.length-1].arraySync()
+        );
+
       } else if (
         latestLayer.type === "add-upsampling" &&
         isUpsamplingParams(latestLayer.params) &&
@@ -394,6 +409,11 @@ export default function Visualiser() {
         isDownsamplingParams(latestLayer.params) && // change param so it can draw
         prevLayerDims
       ) {
+
+        // tensorLayers.push(setDownsamplingLayer(latestLayer.params as DownsamplingParams, tensorLayers[tensorLayers.length-1]));
+        // setTensorLayers([...tensorLayers]);
+        
+
         layerConnections = drawConvLayer(
           W,
           H,
@@ -401,7 +421,8 @@ export default function Visualiser() {
           latestLayer.params.outputDims.width,
           latestLayer.params.outputDims.height,
           MAXLAYERS,
-          layerGroup
+          layerGroup,
+          tensorLayers[tensorLayers.length-1].arraySync()
         );
 
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Pooling Layer`);

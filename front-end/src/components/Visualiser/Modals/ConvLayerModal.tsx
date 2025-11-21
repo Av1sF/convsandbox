@@ -71,10 +71,13 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
   // -- Render Logic --
   if (prevDims) {
     outputWidth = Math.floor(
-      (prevDims.width - filterSize + 2 * padding) / (stride + 1)
+      // prevDims.width / stride
+      // (prevDims.width - filterSize + 2 * padding) / (stride + 1)
+      (((prevDims.width + 2*padding) - filterSize) / stride) + 1
     );
     outputHeight = Math.floor(
-      (prevDims.height - filterSize + 2 * padding) / (stride + 1)
+      // prevDims.height/ stride 
+      (((prevDims.height + 2*padding) - filterSize) / stride) + 1
     );
     outputDepth = numFilters;
   }
@@ -114,14 +117,14 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
             </h3>
             <p className="text-base">
               <MathJax>
-                {`\\(H_{out} = \\frac{H_{in} - F + 2P}{S + 1} = 
-                \\frac{${prevDims.height} - ${filterSize} + 2(${padding})}{${stride} + 1}
+                {`\\(H_{out} = \\lfloor \\frac{H_{in} - F + 2P}{S} + 1 \\rfloor = 
+                \\lfloor \\frac{${prevDims.height} - ${filterSize} + 2(${padding})}{${stride}}  + 1 \\rfloor
                  = ${outputHeight}\\)`}
               </MathJax>
 
               <MathJax className="py-4">
-                {`\\(W_{out} = \\frac{W_{in} - F + 2P}{S + 1} = 
-                \\frac{${prevDims.width} - ${filterSize} + 2(${padding})}{${stride} + 1}
+                {`\\(W_{out} = \\lfloor \\frac{W_{in} - F + 2P}{S} + 1 \\rfloor = 
+                \\lfloor \\frac{${prevDims.width} - ${filterSize} + 2(${padding})}{${stride}}  + 1 \\rfloor
                  = ${outputWidth}\\)`}
               </MathJax>
 

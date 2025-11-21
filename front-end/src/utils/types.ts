@@ -89,7 +89,6 @@ export type UpsamplingParams = {
 export type DownsamplingType =
   | "Max Pooling"
   | "Average Pooling"
-  | "Global Pooling"
   | "Global Max Pooling"
   | "Global Average Pooling";
 export interface DownsamplingParams {
