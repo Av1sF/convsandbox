@@ -35,7 +35,7 @@ import DownsamplingSelectModal from "./Modals/DownsamplingSelectModal";
 import DenseLayerModal from "./Modals/DenseLayerModal";
 import { drawNeurons } from "@/utils/drawNeurons";
 import { addLayerLabel } from "@/utils/addLayerLabel";
-import { setConvLayer, setInputLayer } from "@/utils/DummyModel";
+import { setConvLayer, setDownsamplingLayer, setInputLayer } from "@/utils/DummyModel";
 
 const W = 1183;
 const H = 500;
@@ -347,6 +347,8 @@ export default function Visualiser() {
           console.log(tensorLayers)
         }
 
+        console.log (tensorLayers[tensorLayers.length-1].arraySync())
+        console.log(tensorLayers[tensorLayers.length-1].shape)
         layerConnections = drawConvLayer(
           W,
           H,
@@ -410,10 +412,12 @@ export default function Visualiser() {
         prevLayerDims
       ) {
 
-        // tensorLayers.push(setDownsamplingLayer(latestLayer.params as DownsamplingParams, tensorLayers[tensorLayers.length-1]));
-        // setTensorLayers([...tensorLayers]);
-        
+        console.log(tensorLayers[tensorLayers.length-1].arraySync())
 
+        tensorLayers.push(setDownsamplingLayer(latestLayer.params as DownsamplingParams, tensorLayers[tensorLayers.length-1]));
+        setTensorLayers([...tensorLayers]);
+        
+        // console.log(tensorLayers[tensorLayers.length-1].arraySync())
         layerConnections = drawConvLayer(
           W,
           H,
@@ -422,7 +426,7 @@ export default function Visualiser() {
           latestLayer.params.outputDims.height,
           MAXLAYERS,
           layerGroup,
-          tensorLayers[tensorLayers.length-1].arraySync()
+          // tensorLayers[tensorLayers.length-1].arraySync()
         );
 
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Pooling Layer`);

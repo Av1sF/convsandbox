@@ -1,5 +1,7 @@
 import * as tf from "@tensorflow/tfjs";
-import { convLayerDims, ConvParams } from "./types";
+import { convLayerDims, ConvParams, DownsamplingParams } from "./types";
+
+const DATAFORMAT = "channelsLast"
 
 export function setInputLayer(params: convLayerDims) : tf.Tensor {
     const inputVector : tf.Tensor =
@@ -49,7 +51,7 @@ export function setConvLayer(params: ConvParams, prevTensor: tf.Tensor ) : tf.Te
         kernelSize: params.filterSize,
         strides: params.stride,
         padding: 'valid',
-        dataFormat: "channelsLast",
+        dataFormat: DATAFORMAT,
       });
       output = layer.apply(padding? padding.apply(prevTensor) : prevTensor);
 
@@ -74,7 +76,70 @@ export function setConvLayer(params: ConvParams, prevTensor: tf.Tensor ) : tf.Te
   }
 }}
 
+export function setDownsamplingLayer(
+  params: DownsamplingParams,
+  prevLayer: tf.Tensor
+) {
+  let layer;
+  let output;
+  console.log(params)
 
+  switch (params.type) {
+    case "Max Pooling":
+
+      const Input = tf.input({ shape: [25,25,5] });
+      const averagePooling2DLayer =
+          tf.layers.averagePooling2d(
+              { dataFormat: 'channelsLast',
+                strides: 1, 
+                poolSize: 2, 
+
+               }
+          );
+      const Output = averagePooling2DLayer.apply(Input);
+      
+      const Data = tf.ones([1,25,25,5]);
+      // console.log(prevLayer.arraySync())
+      // console.log(Data.arraySync())
+      // if( Output as tf.Tensor) {
+        const model =
+          tf.model({ inputs: Input, outputs: Output as tf.SymbolicTensor});
+        const o = model.predict(Data) as tf.Tensor ;
+        console.log(o.shape)
+      // }
+      
+    //   layer = tf.layers.maxPooling2d({
+    //     dataFormat: DATAFORMAT,
+    //     strides: 1,
+    //     poolSize: 1,
+    //     padding: "same",
+    //   });
+    //   console.log("meow")
+    // case "Average Pooling":
+    //   layer = tf.layers.averagePooling2d({
+    //     dataFormat: DATAFORMAT,
+    //     strides: params.stride,
+    //     poolSize: params.filterSize,
+    //     padding: "valid",
+    //   });
+    // case "Global Max Pooling":
+    //   layer = tf.layers.globalMaxPooling2d({
+    //     dataFormat: DATAFORMAT,
+    //   });
+    // case "Global Average Pooling":
+    //   layer = tf.layers.globalAveragePooling2d({
+    //     dataFormat: DATAFORMAT,
+    //   });
+  }
+
+  // output = layer.apply(prevLayer);
+
+  // if (output instanceof tf.Tensor) {
+  //   console.log(prevLayer.shape)
+  //   console.log(output.shape)
+  //   return output;
+  // }
+}
 
 // export class DummyModel {
 //   inputDims!: convLayerDims;
