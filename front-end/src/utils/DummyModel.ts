@@ -79,7 +79,7 @@ export function setConvLayer(params: ConvParams, prevTensor: tf.Tensor ) : tf.Te
 export function setDownsamplingLayer(
   params: DownsamplingParams,
   prevLayer: tf.Tensor
-) {
+) : tf.Tensor | undefined {
   let layer;
   let output;
   console.log(params)
@@ -87,25 +87,43 @@ export function setDownsamplingLayer(
   switch (params.type) {
     case "Max Pooling":
 
-      const Input = tf.input({ shape: [25,25,5] });
       const averagePooling2DLayer =
           tf.layers.averagePooling2d(
               { dataFormat: 'channelsLast',
                 strides: 1, 
                 poolSize: 2, 
-
                }
           );
-      const Output = averagePooling2DLayer.apply(Input);
       
       const Data = tf.ones([1,25,25,5]);
-      // console.log(prevLayer.arraySync())
-      // console.log(Data.arraySync())
-      // if( Output as tf.Tensor) {
-        const model =
-          tf.model({ inputs: Input, outputs: Output as tf.SymbolicTensor});
-        const o = model.predict(Data) as tf.Tensor ;
-        console.log(o.shape)
+
+      const output = averagePooling2DLayer.apply(prevLayer);
+      
+       if (output instanceof tf.Tensor) {
+      console.log(prevLayer.shape)
+      console.log(output.shape)
+      return output;
+    }
+
+      // const Input = tf.input({ shape: [25,25,5] });
+      // const averagePooling2DLayer =
+      //     tf.layers.averagePooling2d(
+      //         { dataFormat: 'channelsLast',
+      //           strides: 1, 
+      //           poolSize: 2, 
+
+      //          }
+      //     );
+      // const Output = averagePooling2DLayer.apply(Input);
+      
+      // const Data = tf.ones([1,25,25,5]);
+      // // console.log(prevLayer.arraySync())
+      // // console.log(Data.arraySync())
+      // // if( Output as tf.Tensor) {
+      //   const model =
+      //     tf.model({ inputs: Input, outputs: Output as tf.SymbolicTensor});
+      //   const o = model.predict(Data) as tf.Tensor ;
+      //   console.log(o.shape)
       // }
       
     //   layer = tf.layers.maxPooling2d({

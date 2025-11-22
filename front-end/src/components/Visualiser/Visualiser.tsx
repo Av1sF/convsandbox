@@ -417,7 +417,7 @@ export default function Visualiser() {
         tensorLayers.push(setDownsamplingLayer(latestLayer.params as DownsamplingParams, tensorLayers[tensorLayers.length-1]));
         setTensorLayers([...tensorLayers]);
         
-        // console.log(tensorLayers[tensorLayers.length-1].arraySync())
+        console.log(tensorLayers[tensorLayers.length-1].arraySync())
         layerConnections = drawConvLayer(
           W,
           H,
