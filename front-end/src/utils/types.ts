@@ -78,7 +78,7 @@ export type LayerActionType =
   | "";
 
 export type UpsamplingType =
-  | "Bed of Nails"
+  // | "Bed of Nails"
   | "Nearest Neighbor"
   | "Bilinear Interpolation";
 

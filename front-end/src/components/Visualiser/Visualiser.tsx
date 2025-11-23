@@ -36,6 +36,7 @@ import DenseLayerModal from "./Modals/DenseLayerModal";
 import { drawNeurons } from "@/utils/drawNeurons";
 import { addLayerLabel } from "@/utils/addLayerLabel";
 import { setConvLayer, setDownsamplingLayer, setInputLayer } from "@/utils/DummyModel";
+import { setUpsamplingLayer } from '../../utils/DummyModel';
 
 const W = 1183;
 const H = 500;
@@ -365,6 +366,10 @@ export default function Visualiser() {
         isUpsamplingParams(latestLayer.params) &&
         isConvLayerDims(prevLayerDims)
       ) {
+
+        tensorLayers.push(setUpsamplingLayer(latestLayer.params as UpsamplingParams, tensorLayers[tensorLayers.length-1]));
+        setTensorLayers([...tensorLayers]);
+
         layerConnections = drawConvLayer(
           W,
           H,
@@ -372,7 +377,8 @@ export default function Visualiser() {
           prevLayerDims.width * latestLayer.params.scaleFactor,
           prevLayerDims.height * latestLayer.params.scaleFactor,
           MAXLAYERS,
-          layerGroup
+          layerGroup,
+          tensorLayers[tensorLayers.length-1].arraySync()
         );
 
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Upsampling Layer`);

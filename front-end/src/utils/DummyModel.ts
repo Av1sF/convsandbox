@@ -1,5 +1,5 @@
 import * as tf from "@tensorflow/tfjs";
-import { convLayerDims, ConvParams, DownsamplingParams } from "./types";
+import { convLayerDims, ConvParams, DownsamplingParams, UpsamplingParams, UpsamplingType } from './types';
 
 const DATAFORMAT = "channelsLast";
 
@@ -59,6 +59,28 @@ export function setConvLayer(
     }
   }
 }
+
+export function setUpsamplingLayer(
+  params: UpsamplingParams,
+  prevLayer: tf.Tensor
+): tf.Tensor | undefined {
+  
+  // param have upsampling and method 
+  const upsamplingLayer = tf.layers.upSampling2d({
+      dataFormat: DATAFORMAT, 
+      size: [params.scaleFactor, params.scaleFactor], 
+      interpolation: params.method == "Nearest Neighbor"? "nearest" : "bilinear",
+    })
+
+    const upsamplingLayerOutput = upsamplingLayer.apply(prevLayer); 
+
+    if (upsamplingLayerOutput instanceof tf.Tensor) {
+      console.log(prevLayer.shape);
+      console.log(upsamplingLayerOutput.shape);
+      return upsamplingLayerOutput;
+    }
+ 
+} 
 
 export function setDownsamplingLayer(
   params: DownsamplingParams,
