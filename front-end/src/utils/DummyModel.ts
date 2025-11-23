@@ -1,5 +1,12 @@
 import * as tf from "@tensorflow/tfjs";
-import { ActivationType, convLayerDims, ConvParams, DownsamplingParams, UpsamplingParams, UpsamplingType } from './types';
+import {
+  ActivationType,
+  convLayerDims,
+  ConvParams,
+  DownsamplingParams,
+  UpsamplingParams,
+  UpsamplingType,
+} from "./types";
 
 const DATAFORMAT = "channelsLast";
 
@@ -36,7 +43,7 @@ export function setConvLayer(
       strides: params.stride,
       padding: "valid",
       dataFormat: DATAFORMAT,
-      biasInitializer: 'randomUniform', 
+      biasInitializer: "randomUniform",
     });
     output = layer.apply(padding ? padding.apply(prevTensor) : prevTensor);
 
@@ -64,33 +71,39 @@ export function setActivationLayer(
   params: ActivationType,
   prevLayer: tf.Tensor
 ): tf.Tensor | undefined {
-  // tanh sigmoid relu leakyrelu 
-  switch(params) {
-    case "Sigmoid": 
-      return prevLayer.logSigmoid() 
-  }
+  // tanh sigmoid relu leakyrelu
+  switch (params) {
+    case "Sigmoid":
+      return prevLayer.logSigmoid();
 
+    case "Tanh":
+      return prevLayer.tanh();
+
+    case "Leaky ReLU":
+      return prevLayer.leakyRelu(0.1);
+
+    case "ReLU":
+      return prevLayer.relu();
+  }
 }
 
 export function setUpsamplingLayer(
   params: UpsamplingParams,
   prevLayer: tf.Tensor
 ): tf.Tensor | undefined {
-  
-  // param have upsampling and method 
+  // param have upsampling and method
   const upsamplingLayer = tf.layers.upSampling2d({
-      dataFormat: DATAFORMAT, 
-      size: [params.scaleFactor, params.scaleFactor], 
-      interpolation: params.method == "Nearest Neighbor"? "nearest" : "bilinear",
-    })
+    dataFormat: DATAFORMAT,
+    size: [params.scaleFactor, params.scaleFactor],
+    interpolation: params.method == "Nearest Neighbor" ? "nearest" : "bilinear",
+  });
 
-    const upsamplingLayerOutput = upsamplingLayer.apply(prevLayer); 
+  const upsamplingLayerOutput = upsamplingLayer.apply(prevLayer);
 
-    if (upsamplingLayerOutput instanceof tf.Tensor) {
-      return upsamplingLayerOutput;
-    }
- 
-} 
+  if (upsamplingLayerOutput instanceof tf.Tensor) {
+    return upsamplingLayerOutput;
+  }
+}
 
 export function setDownsamplingLayer(
   params: DownsamplingParams,
@@ -113,8 +126,8 @@ export function setDownsamplingLayer(
         console.log(avgPoolOutput.shape);
         return avgPoolOutput;
       }
-    
-    case "Max Pooling": 
+
+    case "Max Pooling":
       const maxPooling2DLayer = tf.layers.maxPooling2d({
         dataFormat: DATAFORMAT,
         strides: params.stride,
@@ -128,13 +141,13 @@ export function setDownsamplingLayer(
         console.log(maxPoolOutput.shape);
         return maxPoolOutput;
       }
-    
-    case "Global Average Pooling": 
-      const globalAvgPoolLayer = tf.layers.globalAveragePooling2d({
-        dataFormat: DATAFORMAT, 
-      })
 
-      const globalAvgPoolOutput = globalAvgPoolLayer.apply(prevLayer); 
+    case "Global Average Pooling":
+      const globalAvgPoolLayer = tf.layers.globalAveragePooling2d({
+        dataFormat: DATAFORMAT,
+      });
+
+      const globalAvgPoolOutput = globalAvgPoolLayer.apply(prevLayer);
 
       if (globalAvgPoolOutput instanceof tf.Tensor) {
         console.log(prevLayer.shape);
@@ -142,12 +155,12 @@ export function setDownsamplingLayer(
         return globalAvgPoolOutput;
       }
 
-    case "Global Max Pooling": 
+    case "Global Max Pooling":
       const globalMaxPoolLayer = tf.layers.globalMaxPool2d({
-        dataFormat: DATAFORMAT, 
-      })
+        dataFormat: DATAFORMAT,
+      });
 
-      const globalMaxPoolOutput = globalMaxPoolLayer.apply(prevLayer); 
+      const globalMaxPoolOutput = globalMaxPoolLayer.apply(prevLayer);
 
       if (globalMaxPoolOutput instanceof tf.Tensor) {
         console.log(prevLayer.shape);

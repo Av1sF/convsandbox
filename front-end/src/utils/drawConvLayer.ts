@@ -70,7 +70,7 @@ export const drawConvLayer = (
   var xOffset;
   var yOffset;
 
-  const haschildren = !layerGroup.select("#rect-0").empty() 
+  const haschildren = !layerGroup.select("rect").empty() 
 
   if (numColumns <= 5) {
     xOffset = rectWidth * 0.8;
@@ -188,7 +188,6 @@ export const drawConvLayer = (
     }
   }
   } else {
-    console.log("gay")
     for (let j = 0; j < numDepth; j++) {
       for (let row=0; row < numRows; row++) {
         for (let col=0; col <numColumns; col++) {
