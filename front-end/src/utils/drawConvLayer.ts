@@ -14,6 +14,9 @@ import { BaseType } from "d3";
 import { LayerConnections, MidPoint } from "./types";
 import { isNumberParam } from './typeGuards';
 
+const MAX_WEIGHT = 1.5 
+const MIN_WEIGHT = -1.5 
+
 function is3DTensor(t: any): t is number[][][][] {
   return (
     Array.isArray(t) &&
@@ -126,9 +129,19 @@ export const drawConvLayer = (
         const y = startY + j * yOffset + row * cellHeight;
         var randomOpacity = Math.random(); 
    
+        // works for convolutional layer stack
+        // but there are negative opacities! -> what to do 
+        // implemented shitty solution 
         if (is3DTensor(tensor)) {
           if (isNumberParam(tensor[0][row][col][j])) {
             randomOpacity = tensor[0][row][col][j];
+            randomOpacity += Math.abs(MIN_WEIGHT)
+            randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT
+            if (randomOpacity > 1) {
+              randomOpacity = 1.0
+            } else if (randomOpacity < 0) {
+              randomOpacity = 0.0 
+            }
           }
         }
 

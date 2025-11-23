@@ -6,8 +6,8 @@ const DATAFORMAT = "channelsLast";
 export function setInputLayer(params: convLayerDims): tf.Tensor {
   const inputVector: tf.Tensor =
     params.depth == 0
-      ? tf.randomUniform([params.height, params.width, 1, 1], 0, 1)
-      : tf.randomUniform([1, params.height, params.width, params.depth], 0, 1);
+      ? tf.randomUniform([params.height, params.width, 1, 1], -1, 1)
+      : tf.randomUniform([1, params.height, params.width, params.depth], -1, 1);
 
   return inputVector;
 }
@@ -36,6 +36,7 @@ export function setConvLayer(
       strides: params.stride,
       padding: "valid",
       dataFormat: DATAFORMAT,
+      biasInitializer: 'randomUniform', 
     });
     output = layer.apply(padding ? padding.apply(prevTensor) : prevTensor);
 
