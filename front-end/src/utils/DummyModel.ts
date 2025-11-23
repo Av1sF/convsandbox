@@ -1,5 +1,5 @@
 import * as tf from "@tensorflow/tfjs";
-import { convLayerDims, ConvParams, DownsamplingParams, UpsamplingParams, UpsamplingType } from './types';
+import { ActivationType, convLayerDims, ConvParams, DownsamplingParams, UpsamplingParams, UpsamplingType } from './types';
 
 const DATAFORMAT = "channelsLast";
 
@@ -60,6 +60,18 @@ export function setConvLayer(
   }
 }
 
+export function setActivationLayer(
+  params: ActivationType,
+  prevLayer: tf.Tensor
+): tf.Tensor | undefined {
+  // tanh sigmoid relu leakyrelu 
+  switch(params) {
+    case "Sigmoid": 
+      return prevLayer.logSigmoid() 
+  }
+
+}
+
 export function setUpsamplingLayer(
   params: UpsamplingParams,
   prevLayer: tf.Tensor
@@ -75,8 +87,6 @@ export function setUpsamplingLayer(
     const upsamplingLayerOutput = upsamplingLayer.apply(prevLayer); 
 
     if (upsamplingLayerOutput instanceof tf.Tensor) {
-      console.log(prevLayer.shape);
-      console.log(upsamplingLayerOutput.shape);
       return upsamplingLayerOutput;
     }
  

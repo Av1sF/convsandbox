@@ -35,7 +35,7 @@ import DownsamplingSelectModal from "./Modals/DownsamplingSelectModal";
 import DenseLayerModal from "./Modals/DenseLayerModal";
 import { drawNeurons } from "@/utils/drawNeurons";
 import { addLayerLabel } from "@/utils/addLayerLabel";
-import { setConvLayer, setDownsamplingLayer, setInputLayer } from "@/utils/DummyModel";
+import { setActivationLayer, setConvLayer, setDownsamplingLayer, setInputLayer } from "@/utils/DummyModel";
 import { setUpsamplingLayer } from '../../utils/DummyModel';
 
 const W = 1183;
@@ -256,6 +256,28 @@ export default function Visualiser() {
         latestLayer.type === "add-activation" &&
         isActivationType(latestLayer.params)
       ) {
+
+        tensorLayers.push(setActivationLayer(latestLayer.params as ActivationType, tensorLayers[tensorLayers.length-1]));
+        setTensorLayers([...tensorLayers]);
+        console.log("argghh")
+        console.log(tensorLayers[tensorLayers.length -1])
+
+        if (prevLayerDims && isConvLayerDims(prevLayerDims)) {
+          drawConvLayer(
+          W,
+          H,
+          prevLayerDims.depth,
+          prevLayerDims.width,
+          prevLayerDims.height,
+          MAXLAYERS,
+          layerGroup,
+          tensorLayers[tensorLayers.length-1].arraySync()
+        );
+
+        }
+        
+        
+
         let yText =
           layers[layers.length - 2].type == "add-downsampling" ||
           layers[layers.length - 2].type == "add-upsampling"
