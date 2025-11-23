@@ -28,6 +28,14 @@ function is3DTensor(t: any): t is number[][][][] {
   );
 }
 
+function is2DTensor(t: any): t is number[][] {
+  return Array.isArray(t) && 
+    t.every(row => 
+      Array.isArray(row) && 
+      row.every(item => typeof item === 'number')
+    );
+}
+
 export const drawConvLayer = (
   canvasW: number,
   canvasH: number,
@@ -61,6 +69,7 @@ export const drawConvLayer = (
 
   var xOffset;
   var yOffset;
+
   if (numColumns <= 5) {
     xOffset = rectWidth * 0.8;
   } else if (5 < numColumns && numColumns <= 10) {
@@ -76,6 +85,8 @@ export const drawConvLayer = (
   } else {
     yOffset = Math.trunc(rectHeight * 0.2);
   }
+
+  console.log(tensor)
 
   let totalConvHeight = rectHeight + (numDepth - 1) * yOffset;
   let totalConvWidth = rectWidth + (numDepth - 1) * xOffset;
@@ -128,12 +139,12 @@ export const drawConvLayer = (
         const x = startX + j * xOffset + col * cellWidth;
         const y = startY + j * yOffset + row * cellHeight;
         var randomOpacity = Math.random(); 
-   
-        // works for convolutional layer stack
-        // but there are negative opacities! -> what to do 
-        // implemented shitty solution 
+  
         if (is3DTensor(tensor)) {
           if (isNumberParam(tensor[0][row][col][j])) {
+            // negative opacity shit solution 
+            // what to do -> future map them to a RGB range 
+            // more than 1 -> another shade -> etc... 
             randomOpacity = tensor[0][row][col][j];
             randomOpacity += Math.abs(MIN_WEIGHT)
             randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT
@@ -143,6 +154,15 @@ export const drawConvLayer = (
               randomOpacity = 0.0 
             }
           }
+        } else if (is2DTensor(tensor)) {
+          randomOpacity = tensor[row][j]
+          randomOpacity += Math.abs(MIN_WEIGHT)
+            randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT
+            if (randomOpacity > 1) {
+              randomOpacity = 1.0
+            } else if (randomOpacity < 0) {
+              randomOpacity = 0.0 
+            }
         }
 
         layerGroup
