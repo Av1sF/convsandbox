@@ -426,7 +426,7 @@ export default function Visualiser() {
           latestLayer.params.outputDims.height,
           MAXLAYERS,
           layerGroup,
-          // tensorLayers[tensorLayers.length-1].arraySync()
+          tensorLayers[tensorLayers.length-1].arraySync()
         );
 
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Pooling Layer`);
