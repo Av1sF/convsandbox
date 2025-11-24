@@ -1,14 +1,12 @@
 import * as tf from "@tensorflow/tfjs";
+import { is2DTensor } from './is2DTensor';
 import {
   ActivationType,
   convLayerDims,
   ConvParams,
-  denseLayerDims,
   DownsamplingParams,
   UpsamplingParams,
-  UpsamplingType,
 } from "./types";
-import { randomNormal } from "d3";
 
 const DATAFORMAT = "channelsLast";
 
@@ -25,7 +23,6 @@ export function setConvLayer(
   params: ConvParams,
   prevTensor: tf.Tensor
 ): tf.Tensor | undefined {
-  // var padding: "valid" | "same" = "same"; // might be wrong check
   let output;
   console.log(params);
   let layer;
@@ -74,7 +71,7 @@ export function setDenseLayer(params: number,
 ) : tf.Tensor | undefined{
 
   if (prevLayer as tf.Tensor) { 
-    const flatten =  tf.layers.flatten().apply(prevLayer)
+    const flatten =  prevLayer.shape.length == 2? prevLayer: tf.layers.flatten().apply(prevLayer)
     const dense = tf.layers.dense({
       units: params, 
       biasInitializer: "randomNormal", 
@@ -84,8 +81,8 @@ export function setDenseLayer(params: number,
     const denseOutput = dense.apply(flatten)
 
     if (denseOutput instanceof tf.Tensor) {
-      console.log(denseOutput.arraySync())
-      console.log(dense.getWeights()[0].print());
+      // console.log(denseOutput.arraySync())
+      // console.log(dense.getWeights()[0].print());
       return denseOutput
     }
   }

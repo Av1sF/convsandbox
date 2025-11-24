@@ -9,19 +9,10 @@
 
 import * as d3 from "d3";
 import { LayerConnections, MidPoint } from "./types";
+import { is2DTensor } from "./is2DTensor";
 
 const MAX_WEIGHT = 1.5;
 const MIN_WEIGHT = -1.5;
-
-function is2DTensor(t: any): t is number[][] {
-  return (
-    Array.isArray(t) &&
-    t.every(
-      (row) =>
-        Array.isArray(row) && row.every((item) => typeof item === "number")
-    )
-  );
-}
 
 export const drawNeurons = (
   canvasW: number,
