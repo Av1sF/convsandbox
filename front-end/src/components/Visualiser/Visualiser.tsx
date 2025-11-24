@@ -260,9 +260,8 @@ export default function Visualiser() {
 
         tensorLayers.push(setActivationLayer(latestLayer.params as ActivationType, tensorLayers[tensorLayers.length-1]));
         setTensorLayers([...tensorLayers]);
-        console.log("argghh")
-        console.log(tensorLayers[tensorLayers.length -1])
-
+        console.log("meow")
+        console.log(prevLayerDims)
         if (prevLayerDims && isConvLayerDims(prevLayerDims)) {
           drawConvLayer(
           W,
@@ -275,6 +274,16 @@ export default function Visualiser() {
           tensorLayers[tensorLayers.length-1].arraySync()
         );
 
+        } else if (prevLayerDims && isDenseLayerDims(prevLayerDims)) {
+          console.log("eherro")
+          drawNeurons(
+          W,
+          H,
+          prevLayerDims.neurons,
+          MAXLAYERS,
+          layerGroup,
+          tensorLayers[tensorLayers.length - 1]
+        )
         }
         
         
@@ -492,14 +501,15 @@ export default function Visualiser() {
       ) {
         var string = latestLayer.params == 1 ? "neuron" : "neurons";
         
-        setDenseLayer(latestLayer.params, tensorLayers[tensorLayers.length -1])
-
+        tensorLayers.push(setDenseLayer(latestLayer.params, tensorLayers[tensorLayers.length -1]));
+        setTensorLayers([...tensorLayers]);
         layerConnections = drawNeurons(
           W,
           H,
           latestLayer.params,
           MAXLAYERS,
-          layerGroup
+          layerGroup,
+          tensorLayers[tensorLayers.length - 1]
         );
 
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Dense Layer`);
