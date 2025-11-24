@@ -3,10 +3,12 @@ import {
   ActivationType,
   convLayerDims,
   ConvParams,
+  denseLayerDims,
   DownsamplingParams,
   UpsamplingParams,
   UpsamplingType,
 } from "./types";
+import { randomNormal } from "d3";
 
 const DATAFORMAT = "channelsLast";
 
@@ -65,6 +67,31 @@ export function setConvLayer(
       return output;
     }
   }
+}
+
+export function setDenseLayer(params: number, 
+  prevLayer: tf.Tensor
+) : tf.Tensor | undefined{
+
+  if (prevLayer as tf.Tensor) { 
+    const flatten =  tf.layers.flatten().apply(prevLayer)
+    const dense = tf.layers.dense({
+      units: params, 
+      biasInitializer: "randomNormal", 
+      kernelInitializer: "randomNormal", 
+    })
+
+    const denseOutput = dense.apply(flatten)
+
+    if (denseOutput instanceof tf.Tensor) {
+      console.log(denseOutput.arraySync())
+      console.log(dense.getWeights()[0].print());
+      return denseOutput
+    }
+  }
+
+  // if prev is convLayerdims => flatten 
+  // else chain the dense layers
 }
 
 export function setActivationLayer(

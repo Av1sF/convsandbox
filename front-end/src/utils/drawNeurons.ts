@@ -10,15 +10,36 @@
 import * as d3 from "d3";
 import { LayerConnections, MidPoint } from "./types";
 
+const MAX_WEIGHT = 1.5;
+const MIN_WEIGHT = -1.5;
+
+function is2DTensor(t: any): t is number[][] {
+  return (
+    Array.isArray(t) &&
+    t.every(
+      (row) =>
+        Array.isArray(row) && row.every((item) => typeof item === "number")
+    )
+  );
+}
+
 export const drawNeurons = (
   canvasW: number,
   canvasH: number,
   numNeurons: number,
   maxLayers: number,
-  layerGroup: d3.Selection<SVGGElement, unknown, null, undefined>
+  layerGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
+  tensor?:
+    | number
+    | number[]
+    | number[][]
+    | number[][][]
+    | number[][][][]
+    | number[][][][][]
+    | number[][][][][][]
 ): LayerConnections => {
   const circleRadius = Math.trunc((0.35 * canvasW) / (maxLayers * 10 + 5));
-  console.log(circleRadius)
+  console.log(circleRadius);
   const verticalSpacing = circleRadius * 4;
   const totalHeight = (numNeurons - 1) * verticalSpacing;
 
@@ -37,6 +58,18 @@ export const drawNeurons = (
   for (let i = 0; i < numNeurons; i++) {
     const cy = startY + i * verticalSpacing;
     const cx = startX;
+    var randomOpacity = Math.random();
+
+    if (is2DTensor(tensor)) {
+      randomOpacity = tensor[0][i];
+      randomOpacity += Math.abs(MIN_WEIGHT);
+      randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT;
+      if (randomOpacity > 1) {
+        randomOpacity = 1.0;
+      } else if (randomOpacity < 0) {
+        randomOpacity = 0.0;
+      }
+    }
 
     // Draw neuron (circle)
     layerGroup
@@ -49,7 +82,21 @@ export const drawNeurons = (
       .transition()
       .duration(400)
       .delay(i * 100)
-      .style("opacity", 1);
+      .style("opacity", 1)
+      ;
+
+    layerGroup
+      .append("circle")
+      .attr("cx", cx)
+      .attr("cy", cy)
+      .attr("r", circleRadius)
+      .attr("fill", "#5f6c7b")
+      .style("opacity", 0)
+      .transition()
+      .duration(400)
+      .delay(i * 100)
+      .style("opacity", randomOpacity)
+      ;
 
     // Left + right midpoints (for connections)
     leftMidPoints.push({

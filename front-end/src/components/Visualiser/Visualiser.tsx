@@ -35,8 +35,9 @@ import DownsamplingSelectModal from "./Modals/DownsamplingSelectModal";
 import DenseLayerModal from "./Modals/DenseLayerModal";
 import { drawNeurons } from "@/utils/drawNeurons";
 import { addLayerLabel } from "@/utils/addLayerLabel";
-import { setActivationLayer, setConvLayer, setDownsamplingLayer, setInputLayer } from "@/utils/DummyModel";
+import { setActivationLayer, setConvLayer, setDenseLayer, setDownsamplingLayer, setInputLayer } from "@/utils/DummyModel";
 import { setUpsamplingLayer } from '../../utils/DummyModel';
+import { tensor } from "@tensorflow/tfjs";
 
 const W = 1183;
 const H = 500;
@@ -490,6 +491,8 @@ export default function Visualiser() {
         isNumberParam(latestLayer.params) // change param so it can draw
       ) {
         var string = latestLayer.params == 1 ? "neuron" : "neurons";
+        
+        setDenseLayer(latestLayer.params, tensorLayers[tensorLayers.length -1])
 
         layerConnections = drawNeurons(
           W,
