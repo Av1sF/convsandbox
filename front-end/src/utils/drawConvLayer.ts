@@ -16,8 +16,8 @@ import { isNumberParam } from './typeGuards';
 import { is3DTensor } from "./is3DTensor";
 import { is2DTensor } from "./is2DTensor";
 
-const MAX_WEIGHT = 1.5 
-const MIN_WEIGHT = -1.5 
+const MAX_WEIGHT = 1.0
+const MIN_WEIGHT = -1.0
 
 export const drawConvLayer = (
   canvasW: number,
@@ -31,6 +31,7 @@ export const drawConvLayer = (
     | d3.Selection<BaseType, unknown, null, undefined>,
   tensor?: number | number[] | number[][] | number[][][] | number[][][][] | number[][][][][] | number[][][][][][]
 ) => {
+  console.log(tensor)
   const rectWidth = Math.trunc(
     (numColumns / 25) * ((0.63 * canvasW) / maxLayers)
   );

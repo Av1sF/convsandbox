@@ -1,11 +1,5 @@
 import { LayerActionType, LayerSelectionBtnProps } from "@/utils/types";
 
- interface Props {
-    x: number, 
-    y: number, 
-    onAction: (action: LayerActionType) => void;
-}
-
 export default function VisualiserSmallPlusBtn(props: LayerSelectionBtnProps) {
   return (
     <>

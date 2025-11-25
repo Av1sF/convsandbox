@@ -41,9 +41,8 @@ import {
   setDenseLayer,
   setDownsamplingLayer,
   setInputLayer,
+  setUpsamplingLayer,
 } from "@/utils/DummyModel";
-import { setUpsamplingLayer } from "../../utils/DummyModel";
-import { tensor } from "@tensorflow/tfjs";
 import VisualiserSmallPlusBtn from "./VisualiserSmallPlusBtn";
 
 const W = 1183;
@@ -151,10 +150,10 @@ export default function Visualiser() {
       | number,
     layerType: LayerActionType
   ) => {
-    if (numLayers <= (MAXLAYERS)) {
-      if ((layerType != "add-activation") || numLayers === MAXLAYERS) {
+    if (numLayers <= MAXLAYERS) {
+      if (layerType != "add-activation" || numLayers === MAXLAYERS) {
         setNumLayers((prev) => prev + 1);
-      } 
+      }
       setLayers((prev) => [...prev, { type: layerType, params }]);
     }
   };
@@ -252,7 +251,9 @@ export default function Visualiser() {
     const layerLabelx = W / (2 * MAXLAYERS);
 
     // Layer Group
-    const existingGroup = root.select(`.layer-${Math.min(numLayers, MAXLAYERS) - 1}`);
+    const existingGroup = root.select(
+      `.layer-${Math.min(numLayers, MAXLAYERS) - 1}`
+    );
     let layerGroup;
     let layerConnections: LayerConnections | undefined = undefined;
 
@@ -263,6 +264,8 @@ export default function Visualiser() {
       if (
         latestLayer.type === "add-activation" &&
         isActivationType(latestLayer.params)
+        && 
+        existingGroup.select(`#${activationType}`).empty()
       ) {
         tensorLayers.push(
           setActivationLayer(
@@ -271,8 +274,7 @@ export default function Visualiser() {
           )
         );
         setTensorLayers([...tensorLayers]);
-        console.log("meow");
-        console.log(prevLayerDims);
+
         if (prevLayerDims && isConvLayerDims(prevLayerDims)) {
           drawConvLayer(
             W,
@@ -285,7 +287,6 @@ export default function Visualiser() {
             tensorLayers[tensorLayers.length - 1].arraySync()
           );
         } else if (prevLayerDims && isDenseLayerDims(prevLayerDims)) {
-          console.log("eherro");
           drawNeurons(
             W,
             H,
@@ -370,7 +371,6 @@ export default function Visualiser() {
 
           tensorLayers.push(setInputLayer(latestLayer.params as convLayerDims));
           setTensorLayers([...tensorLayers]);
-          console.log(tensorLayers);
         } else {
           setAllowedLayerTypes({
             ...allowedLayerTypes,
@@ -381,7 +381,6 @@ export default function Visualiser() {
             dense: false,
           });
 
-          console.log(tensorLayers);
           tensorLayers.push(
             setConvLayer(
               latestLayer.params as ConvParams,
@@ -389,11 +388,8 @@ export default function Visualiser() {
             )
           );
           setTensorLayers([...tensorLayers]);
-          console.log(tensorLayers);
         }
 
-        console.log(tensorLayers[tensorLayers.length - 1].arraySync());
-        console.log(tensorLayers[tensorLayers.length - 1].shape);
         layerConnections = drawConvLayer(
           W,
           H,
@@ -464,8 +460,6 @@ export default function Visualiser() {
         isDownsamplingParams(latestLayer.params) && // change param so it can draw
         prevLayerDims
       ) {
-        console.log(tensorLayers[tensorLayers.length - 1].arraySync());
-
         tensorLayers.push(
           setDownsamplingLayer(
             latestLayer.params as DownsamplingParams,
@@ -474,7 +468,6 @@ export default function Visualiser() {
         );
         setTensorLayers([...tensorLayers]);
 
-        console.log(tensorLayers[tensorLayers.length - 1].arraySync());
         layerConnections = drawConvLayer(
           W,
           H,
@@ -508,7 +501,7 @@ export default function Visualiser() {
         });
 
         setAllowedLayerTypes({
-          conv: downsamplingType?.includes("Global")? false: true,
+          conv: downsamplingType?.includes("Global") ? false : true,
           activation: false,
           upsample: false,
           downsample: false,
@@ -595,9 +588,9 @@ export default function Visualiser() {
           />
         )}
 
-        { numLayers == MAXLAYERS && (
+        {numLayers == MAXLAYERS && (
           <VisualiserSmallPlusBtn
-            x={(W / MAXLAYERS) * (numLayers*0.95)}
+            x={(W / MAXLAYERS) * (numLayers * 0.95)}
             y={H * 0.092}
             onClick={() => handleMenuAction("add-activation")}
           />
