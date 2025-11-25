@@ -29,9 +29,9 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
 }) => {
   // -- Constants and vars
   // Output dimensions
-  var [outputWidth, setOutputWidth] = useState<number>(25);
-  var [outputHeight, setOutputHeight] = useState<number>(25);
-  var [outputDepth, setOutputDepth] = useState<number>(5);
+  var [outputWidth, setOutputWidth] = useState<number>(10);
+  var [outputHeight, setOutputHeight] = useState<number>(10);
+  var [outputDepth, setOutputDepth] = useState<number>(3);
 
   // -- State initialisation --
   const [stride, setStride] = useState<number>(1);
@@ -81,12 +81,9 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
   // -- Render Logic --
   if (prevDims) {
     outputWidth = Math.floor(
-      // prevDims.width / stride
-      // (prevDims.width - filterSize + 2 * padding) / (stride + 1)
       (prevDims.width + 2 * padding - filterSize) / stride + 1
     );
     outputHeight = Math.floor(
-      // prevDims.height/ stride
       (prevDims.height + 2 * padding - filterSize) / stride + 1
     );
     outputDepth = numFilters;
@@ -127,18 +124,18 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
             </h3>
             <p className="text-base">
               <MathJax>
-                {`\\(H_{out} = \\lfloor \\frac{H_{in} - F + 2P}{S} + 1 \\rfloor = 
-                \\lfloor \\frac{${prevDims.height} - ${filterSize} + 2(${padding})}{${stride}}  + 1 \\rfloor
+                {`\\(H_{out} = \\lfloor \\frac{H_{in} - {\\color{#00BFA6}{F}} + 2{\\color{#FC3E00}{P}}}{{\\color{#5073B3}{S}}} + 1 \\rfloor = 
+                \\lfloor \\frac{${prevDims.height} - {\\color{#00BFA6}{${filterSize}}} + 2({\\color{#FC3E00}{${padding}}})}{{\\color{#5073B3}{${stride}}}}  + 1 \\rfloor
                  = ${outputHeight}\\)`}
               </MathJax>
 
               <MathJax className="py-4">
-                {`\\(W_{out} = \\lfloor \\frac{W_{in} - F + 2P}{S} + 1 \\rfloor = 
-                \\lfloor \\frac{${prevDims.width} - ${filterSize} + 2(${padding})}{${stride}}  + 1 \\rfloor
+                {`\\(W_{out} = \\lfloor \\frac{W_{in} - {\\color{#00BFA6}{F}} + 2{\\color{#FC3E00}{P}}}{{\\color{#5073B3}{S}}} + 1 \\rfloor = 
+                \\lfloor \\frac{${prevDims.width} - {\\color{#00BFA6}{${filterSize}}} + 2({\\color{#FC3E00}{${padding}}})}{{\\color{#5073B3}{${stride}}}}  + 1 \\rfloor
                  = ${outputWidth}\\)`}
               </MathJax>
 
-              <MathJax>{`\\(D_{out} = K = ${numFilters}\\)`}</MathJax>
+              <MathJax>{`\\(D_{out} = {\\color{#BB85FC}{K}} = {\\color{#BB85FC}{${numFilters}}}\\)`}</MathJax>
             </p>
           </div>
         )}
@@ -167,7 +164,9 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
                 <div className="space-y-3">
                   {/* Number of Filters */}
                   <label className="flex flex-col text-sm text-text-muted">
-                    <span>{"Number of Filters (\\(K\\))"}</span>
+                    <span>
+                      {"Number of Filters (\\(\\textcolor{#BB85FC}{K}\\))"}
+                    </span>
                     <input
                       type="number"
                       value={numFilters}
@@ -182,9 +181,9 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
                     />
                   </label>
 
-                  {/* Filter Size */}
+                  {/* Filter Size  9CEADF */}
                   <label className="flex flex-col text-sm text-text-muted">
-                    <span>{"Filter Size (\\(F\\))"}</span>
+                    <span>{"Filter Size (\\(\\color{#00BFA6}{F}\\))"}</span>
                     <p className="text-xs text-stroke opacity-60">
                       Kernel/filter size is currently {filterSize}×{filterSize}
                     </p>
@@ -204,7 +203,7 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
 
                   {/* Stride */}
                   <label className="flex flex-col text-sm text-text-muted">
-                    <span>{"Stride (\\(S\\))"}</span>
+                    <span>{"Stride (\\(\\color{#5073B3}{S}\\))"}</span>
                     <p className="text-xs text-stroke opacity-60">
                       The stride with which we slide the filter
                     </p>
@@ -223,7 +222,8 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
                   {/* Padding */}
                   <label className="flex flex-col text-sm text-text-muted">
                     <p>
-                      Size of zero-padding <span>{"(\\(P\\))"}</span>
+                      Size of zero-padding{" "}
+                      <span>{"(\\(\\color{#FC3E00}{P}\\))"}</span>
                     </p>
                     <p className="text-xs text-stroke opacity-60">
                       Specify the amount of zeros we pad around the input volume
@@ -250,9 +250,14 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
           {/* When user is creating first layer  */}
           {!hasStarted && (
             <div className="space-y-3">
+              <p>Pick the dimensions of your input layer!</p>
+              <p className="text-xs">
+                In practice, this could be the size of an image and each
+                channel/depth would correspond to a colour channel.
+              </p>
               {/* Output Width */}
               <label className="flex flex-col text-sm text-text-muted">
-                Size (max {Math.min(MAX_WIDTH, MAX_HEIGHT)}):
+                Width & Height (max {Math.min(MAX_WIDTH, MAX_HEIGHT)}):
                 <input
                   type="number"
                   value={outputWidth} // or outputHeight — they're kept in sync
