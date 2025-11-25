@@ -501,7 +501,7 @@ export default function Visualiser() {
         });
 
         setAllowedLayerTypes({
-          conv: downsamplingType?.includes("Global") ? false : true,
+          conv: latestLayer.params.outputDims.width == 1 && latestLayer.params.outputDims.height == 1 ? false : true,
           activation: false,
           upsample: false,
           downsample: false,
