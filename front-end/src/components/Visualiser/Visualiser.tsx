@@ -35,9 +35,16 @@ import DownsamplingSelectModal from "./Modals/DownsamplingSelectModal";
 import DenseLayerModal from "./Modals/DenseLayerModal";
 import { drawNeurons } from "@/utils/drawNeurons";
 import { addLayerLabel } from "@/utils/addLayerLabel";
-import { setActivationLayer, setConvLayer, setDenseLayer, setDownsamplingLayer, setInputLayer } from "@/utils/DummyModel";
-import { setUpsamplingLayer } from '../../utils/DummyModel';
+import {
+  setActivationLayer,
+  setConvLayer,
+  setDenseLayer,
+  setDownsamplingLayer,
+  setInputLayer,
+} from "@/utils/DummyModel";
+import { setUpsamplingLayer } from "../../utils/DummyModel";
 import { tensor } from "@tensorflow/tfjs";
+import VisualiserSmallPlusBtn from "./VisualiserSmallPlusBtn";
 
 const W = 1183;
 const H = 500;
@@ -76,14 +83,14 @@ export default function Visualiser() {
   // Store each created layer's type and dimensions
   const [layers, setLayers] = useState(initialLayers);
 
-  // Dummy Model 
-  const [tensorLayers, setTensorLayers] = useState<any[]>([]); 
+  // Dummy Model
+  const [tensorLayers, setTensorLayers] = useState<any[]>([]);
 
   // Store dimensions of the last layer created
   const [prevLayerDims, setPrevLayerDims] = useState<
     convLayerDims | denseLayerDims | undefined
   >(undefined);
-  
+
   const [allowedLayerTypes, setAllowedLayerTypes] = useState<validLayerTypes>({
     conv: true,
     activation: false,
@@ -144,10 +151,10 @@ export default function Visualiser() {
       | number,
     layerType: LayerActionType
   ) => {
-    if (numLayers < MAXLAYERS) {
-      if (layerType != "add-activation") {
+    if (numLayers <= (MAXLAYERS)) {
+      if ((layerType != "add-activation") || numLayers === MAXLAYERS) {
         setNumLayers((prev) => prev + 1);
-      }
+      } 
       setLayers((prev) => [...prev, { type: layerType, params }]);
     }
   };
@@ -245,7 +252,7 @@ export default function Visualiser() {
     const layerLabelx = W / (2 * MAXLAYERS);
 
     // Layer Group
-    const existingGroup = root.select(`.layer-${numLayers - 1}`);
+    const existingGroup = root.select(`.layer-${Math.min(numLayers, MAXLAYERS) - 1}`);
     let layerGroup;
     let layerConnections: LayerConnections | undefined = undefined;
 
@@ -257,36 +264,37 @@ export default function Visualiser() {
         latestLayer.type === "add-activation" &&
         isActivationType(latestLayer.params)
       ) {
-
-        tensorLayers.push(setActivationLayer(latestLayer.params as ActivationType, tensorLayers[tensorLayers.length-1]));
+        tensorLayers.push(
+          setActivationLayer(
+            latestLayer.params as ActivationType,
+            tensorLayers[tensorLayers.length - 1]
+          )
+        );
         setTensorLayers([...tensorLayers]);
-        console.log("meow")
-        console.log(prevLayerDims)
+        console.log("meow");
+        console.log(prevLayerDims);
         if (prevLayerDims && isConvLayerDims(prevLayerDims)) {
           drawConvLayer(
-          W,
-          H,
-          prevLayerDims.depth,
-          prevLayerDims.width,
-          prevLayerDims.height,
-          MAXLAYERS,
-          layerGroup,
-          tensorLayers[tensorLayers.length-1].arraySync()
-        );
-
+            W,
+            H,
+            prevLayerDims.depth,
+            prevLayerDims.width,
+            prevLayerDims.height,
+            MAXLAYERS,
+            layerGroup,
+            tensorLayers[tensorLayers.length - 1].arraySync()
+          );
         } else if (prevLayerDims && isDenseLayerDims(prevLayerDims)) {
-          console.log("eherro")
+          console.log("eherro");
           drawNeurons(
-          W,
-          H,
-          prevLayerDims.neurons,
-          MAXLAYERS,
-          layerGroup,
-          tensorLayers[tensorLayers.length - 1]
-        )
+            W,
+            H,
+            prevLayerDims.neurons,
+            MAXLAYERS,
+            layerGroup,
+            tensorLayers[tensorLayers.length - 1]
+          );
         }
-        
-        
 
         let yText =
           layers[layers.length - 2].type == "add-downsampling" ||
@@ -359,11 +367,10 @@ export default function Visualiser() {
             downsample: true,
             dense: false,
           });
-          
+
           tensorLayers.push(setInputLayer(latestLayer.params as convLayerDims));
           setTensorLayers([...tensorLayers]);
-          console.log(tensorLayers)
-          
+          console.log(tensorLayers);
         } else {
           setAllowedLayerTypes({
             ...allowedLayerTypes,
@@ -374,14 +381,19 @@ export default function Visualiser() {
             dense: false,
           });
 
-          console.log(tensorLayers)
-          tensorLayers.push(setConvLayer(latestLayer.params as ConvParams, tensorLayers[tensorLayers.length-1]));
+          console.log(tensorLayers);
+          tensorLayers.push(
+            setConvLayer(
+              latestLayer.params as ConvParams,
+              tensorLayers[tensorLayers.length - 1]
+            )
+          );
           setTensorLayers([...tensorLayers]);
-          console.log(tensorLayers)
+          console.log(tensorLayers);
         }
 
-        console.log (tensorLayers[tensorLayers.length-1].arraySync())
-        console.log(tensorLayers[tensorLayers.length-1].shape)
+        console.log(tensorLayers[tensorLayers.length - 1].arraySync());
+        console.log(tensorLayers[tensorLayers.length - 1].shape);
         layerConnections = drawConvLayer(
           W,
           H,
@@ -390,16 +402,19 @@ export default function Visualiser() {
           latestLayer.params.height,
           MAXLAYERS,
           layerGroup,
-          tensorLayers[tensorLayers.length-1].arraySync()
+          tensorLayers[tensorLayers.length - 1].arraySync()
         );
-
       } else if (
         latestLayer.type === "add-upsampling" &&
         isUpsamplingParams(latestLayer.params) &&
         isConvLayerDims(prevLayerDims)
       ) {
-
-        tensorLayers.push(setUpsamplingLayer(latestLayer.params as UpsamplingParams, tensorLayers[tensorLayers.length-1]));
+        tensorLayers.push(
+          setUpsamplingLayer(
+            latestLayer.params as UpsamplingParams,
+            tensorLayers[tensorLayers.length - 1]
+          )
+        );
         setTensorLayers([...tensorLayers]);
 
         layerConnections = drawConvLayer(
@@ -410,7 +425,7 @@ export default function Visualiser() {
           prevLayerDims.height * latestLayer.params.scaleFactor,
           MAXLAYERS,
           layerGroup,
-          tensorLayers[tensorLayers.length-1].arraySync()
+          tensorLayers[tensorLayers.length - 1].arraySync()
         );
 
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Upsampling Layer`);
@@ -449,13 +464,17 @@ export default function Visualiser() {
         isDownsamplingParams(latestLayer.params) && // change param so it can draw
         prevLayerDims
       ) {
+        console.log(tensorLayers[tensorLayers.length - 1].arraySync());
 
-        console.log(tensorLayers[tensorLayers.length-1].arraySync())
-
-        tensorLayers.push(setDownsamplingLayer(latestLayer.params as DownsamplingParams, tensorLayers[tensorLayers.length-1]));
+        tensorLayers.push(
+          setDownsamplingLayer(
+            latestLayer.params as DownsamplingParams,
+            tensorLayers[tensorLayers.length - 1]
+          )
+        );
         setTensorLayers([...tensorLayers]);
-        
-        console.log(tensorLayers[tensorLayers.length-1].arraySync())
+
+        console.log(tensorLayers[tensorLayers.length - 1].arraySync());
         layerConnections = drawConvLayer(
           W,
           H,
@@ -464,7 +483,7 @@ export default function Visualiser() {
           latestLayer.params.outputDims.height,
           MAXLAYERS,
           layerGroup,
-          tensorLayers[tensorLayers.length-1].arraySync()
+          tensorLayers[tensorLayers.length - 1].arraySync()
         );
 
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Pooling Layer`);
@@ -489,7 +508,7 @@ export default function Visualiser() {
         });
 
         setAllowedLayerTypes({
-          conv: true,
+          conv: downsamplingType?.includes("Global")? false: true,
           activation: false,
           upsample: false,
           downsample: false,
@@ -500,8 +519,13 @@ export default function Visualiser() {
         isNumberParam(latestLayer.params) // change param so it can draw
       ) {
         var string = latestLayer.params == 1 ? "neuron" : "neurons";
-        
-        tensorLayers.push(setDenseLayer(latestLayer.params, tensorLayers[tensorLayers.length -1]));
+
+        tensorLayers.push(
+          setDenseLayer(
+            latestLayer.params,
+            tensorLayers[tensorLayers.length - 1]
+          )
+        );
         setTensorLayers([...tensorLayers]);
         layerConnections = drawNeurons(
           W,
@@ -570,6 +594,16 @@ export default function Visualiser() {
             validLayerTypes={allowedLayerTypes}
           />
         )}
+
+        { numLayers == MAXLAYERS && (
+          <VisualiserSmallPlusBtn
+            x={(W / MAXLAYERS) * (numLayers*0.95)}
+            y={H * 0.092}
+            onClick={() => handleMenuAction("add-activation")}
+          />
+        )}
+
+        {/* TODO: add extra menu button to basically make last layer activation */}
       </VisualiserCanvas>
 
       {Object.entries(modals).map(([key, open]) =>
