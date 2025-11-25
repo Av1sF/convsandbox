@@ -1,4 +1,14 @@
-import { ConvParams, LayerDims, MAX_DEPTH, MAX_FILTER_SIZE, MAX_FILTERS, MAX_HEIGHT, MAX_PADDING, MAX_STRIDE, MAX_WIDTH } from "@/utils/types";
+import {
+  ConvParams,
+  LayerDims,
+  MAX_DEPTH,
+  MAX_FILTER_SIZE,
+  MAX_FILTERS,
+  MAX_HEIGHT,
+  MAX_PADDING,
+  MAX_STRIDE,
+  MAX_WIDTH,
+} from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import { useState } from "react";
 
@@ -73,11 +83,11 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
     outputWidth = Math.floor(
       // prevDims.width / stride
       // (prevDims.width - filterSize + 2 * padding) / (stride + 1)
-      (((prevDims.width + 2*padding) - filterSize) / stride) + 1
+      (prevDims.width + 2 * padding - filterSize) / stride + 1
     );
     outputHeight = Math.floor(
-      // prevDims.height/ stride 
-      (((prevDims.height + 2*padding) - filterSize) / stride) + 1
+      // prevDims.height/ stride
+      (prevDims.height + 2 * padding - filterSize) / stride + 1
     );
     outputDepth = numFilters;
   }
@@ -242,30 +252,19 @@ const ConvLayerModal: React.FC<ConvModalProps> = ({
             <div className="space-y-3">
               {/* Output Width */}
               <label className="flex flex-col text-sm text-text-muted">
-                Width (max {MAX_WIDTH}):
+                Size (max {Math.min(MAX_WIDTH, MAX_HEIGHT)}):
                 <input
                   type="number"
-                  value={outputWidth}
-                  onChange={(e) =>
-                    handleOutputWidthChange(Number(e.target.value))
-                  }
-                  min={1}
-                  max={MAX_WIDTH}
-                  className="mt-1 border border-gray-300 rounded-md px-3 py-1 bg-gray-50"
-                />
-              </label>
+                  value={outputWidth} // or outputHeight — they're kept in sync
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    const clamped = Math.min(val, MAX_WIDTH, MAX_HEIGHT);
 
-              {/* Output Height */}
-              <label className="flex flex-col text-sm text-text-muted">
-                Height (max {MAX_HEIGHT}):
-                <input
-                  type="number"
-                  value={outputHeight}
-                  onChange={(e) =>
-                    handleOutputHeightChange(Number(e.target.value))
-                  }
+                    handleOutputWidthChange(clamped);
+                    handleOutputHeightChange(clamped);
+                  }}
                   min={1}
-                  max={MAX_HEIGHT}
+                  max={Math.min(MAX_WIDTH, MAX_HEIGHT)}
                   className="mt-1 border border-gray-300 rounded-md px-3 py-1 bg-gray-50"
                 />
               </label>
