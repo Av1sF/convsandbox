@@ -43,7 +43,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
     null
   );
   const [filterSize, setFilterSize] = useState<number>(2);
-  const [stride, setStride] = useState<number>(1);
+  const [stride, setStride] = useState<number>(2);
 
   const computeOutputDims = () => {
     // if (!selectedType) return null;
@@ -53,11 +53,12 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
       return { width: 1, height: 1, depth };
     }
 
-    const outW = Math.floor((width - filterSize + 1) / stride);
-    const outH = Math.floor((height - filterSize + 1) / stride);
+    // const outW = Math.floor((width - filterSize + 1) / stride);
+    const outW = Math.floor(((width - filterSize) / stride)) + 1
+    const outH = Math.floor(((height - filterSize) / stride)) + 1
     return {
-      width: Math.max(1, outW),
-      height: Math.max(1, outH),
+      width: outW,
+      height: outH,
       depth,
     };
   };
@@ -134,13 +135,13 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
                       </h3>
                       <div className="text-text space-y-2">
                         <MathJax>
-                          {`\\(H_{out} = \\frac{H_{in} - F + 1}{S} = 
-                        \\frac{${prevDims.height} - ${filterSize} + 1}{${stride}}
+                          {`\\(H_{out} = \\lfloor \\frac{H_{in} - \\color{#00BFA6}{F}}{\\color{#5073B3}{S}} \\rfloor + 1 = 
+                        \\lfloor \\frac{${prevDims.height} - \\color{#00BFA6}{${filterSize}}}{\\color{#5073B3}{${stride}}} \\rfloor  + 1
                         = ${outputDims.height}\\)`}
                         </MathJax>
                         <MathJax>
-                          {`\\(W_{out} = \\frac{W_{in} - F + 1}{S} = 
-                        \\frac{${prevDims.width} - ${filterSize} + 1}{${stride}}
+                          {`\\(W_{out} = \\lfloor \\frac{W_{in} - \\color{#00BFA6}{F}}{\\color{#5073B3}{S}}  \\rfloor + 1 = 
+                        \\lfloor \\frac{${prevDims.width} - \\color{#00BFA6}{${filterSize}}}{\\color{#5073B3}{${stride}}} \\rfloor + 1
                         = ${outputDims.width}\\)`}
                         </MathJax>
                         <MathJax>
@@ -158,7 +159,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
               <div className="flex flex-row space-x-6 px-4">
                 <div className="flex flex-col">
                   <label className="text-sm text-gray-600 font-medium mb-1">
-                    Filter Size (f) & Stride (s):
+                   <MathJax>{" Filter Size (\\(\\color{#00BFA6}{F}\\)) & Stride (\\(\\color{#5073B3}{S}\\)): "}</MathJax>
                   </label>
                   <input
                     type="number"
@@ -180,6 +181,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
               </div>
             )}
           </div>
+         
 
           {/* === RIGHT SIDE: Pooling Type Buttons === */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
