@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   ConvParams,
   MAX_DEPTH,
@@ -22,20 +22,20 @@ const UPSAMPLING_METHODS: {
   description: string;
   graph: React.ReactElement;
 }[] = [
-  {
-    type: "Bed of Nails",
-    title: "Bed of Nails",
-    description:
-      "Simplest upsampling: inserts zeros between input elements to increase spatial size.",
-    graph: (
-      <img
-        src={"/icons/bed-of-nails.svg"}
-        width="180"
-        height="100"
-        alt="bed-of-nails-icon"
-      />
-    ),
-  },
+  // {
+  //   type: "Bed of Nails",
+  //   title: "Bed of Nails",
+  //   description:
+  //     "Simplest upsampling: inserts zeros between input elements to increase spatial size.",
+  //   graph: (
+  //     <img
+  //       src={"/icons/bed-of-nails.svg"}
+  //       width="180"
+  //       height="100"
+  //       alt="bed-of-nails-icon"
+  //     />
+  //   ),
+  // },
   {
     type: "Nearest Neighbor",
     title: "Nearest Neighbor",
@@ -82,7 +82,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
     depth: prevDims.depth,
   };
 
-  var isOutputValid =
+  const isOutputValid =
     outputDims.width > 0 &&
     outputDims.height > 0 &&
     outputDims.depth > 0 &&

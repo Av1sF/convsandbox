@@ -78,7 +78,7 @@ export type LayerActionType =
   | "";
 
 export type UpsamplingType =
-  | "Bed of Nails"
+  // | "Bed of Nails"
   | "Nearest Neighbor"
   | "Bilinear Interpolation";
 
@@ -89,7 +89,6 @@ export type UpsamplingParams = {
 export type DownsamplingType =
   | "Max Pooling"
   | "Average Pooling"
-  | "Global Pooling"
   | "Global Max Pooling"
   | "Global Average Pooling";
 export interface DownsamplingParams {

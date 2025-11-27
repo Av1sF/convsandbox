@@ -39,26 +39,26 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
   onConfirm,
   prevDims = { width: 10, height: 10, depth: 3 },
 }) => {
-  const [selectedType, setSelectedType] = useState<DownsamplingType | null>(null);
+  const [selectedType, setSelectedType] = useState<DownsamplingType | null>(
+    null
+  );
   const [filterSize, setFilterSize] = useState<number>(2);
-  const [stride, setStride] = useState<number>(1);
+  const [stride, setStride] = useState<number>(2);
 
   const computeOutputDims = () => {
     // if (!selectedType) return null;
     const { width, height, depth } = prevDims;
 
-    if (
-      selectedType === "Global Max Pooling" ||
-      selectedType === "Global Average Pooling"
-    ) {
+    if (selectedType?.includes("Global")) {
       return { width: 1, height: 1, depth };
     }
 
-    const outW = Math.floor((width - filterSize + 1) / stride);
-    const outH = Math.floor((height - filterSize + 1) / stride);
+    // const outW = Math.floor((width - filterSize + 1) / stride);
+    const outW = Math.floor((width - filterSize) / stride) + 1;
+    const outH = Math.floor((height - filterSize) / stride) + 1;
     return {
-      width: Math.max(1, outW),
-      height: Math.max(1, outH),
+      width: outW,
+      height: outH,
       depth,
     };
   };
@@ -100,54 +100,62 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
                     Previous Layer Dimensions
                   </h3>
                   <p className="text-xs text-gray-700">
-                    <MathJax className="opacity-60">
+                    <MathJax dynamic className="opacity-60">
                       {"\\(H_{in} \\times W_{in} \\times D_{in}\\)"}
                     </MathJax>
                   </p>
                   <p className="text-sm text-text-muted">
-                    <MathJax>{` \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
+                    <MathJax
+                      dynamic
+                    >{` \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
                   </p>
 
                   <h3 className="mt-2 text-text-muted font-semibold">
                     Output Dimensions
                   </h3>
                   <p className="text-sm text-gray-700">
-                    <MathJax className="opacity-60">
+                    <MathJax dynamic className="opacity-60">
                       {"\\(H_{out} \\times W_{out} \\times D_{out}\\)"}
                     </MathJax>
                     {selectedType.includes("Global") ? (
                       <>
-                        <MathJax>{`\\(1 \\times 1 \\times ${outputDims?.depth}\\)`}</MathJax>
+                        <MathJax
+                          dynamic
+                        >{`\\(1 \\times 1 \\times ${outputDims?.depth}\\)`}</MathJax>
                       </>
                     ) : (
                       <>
                         <strong>
-                          <MathJax>{`\\(${outputDims?.height} \\times ${outputDims?.width} \\times ${outputDims?.depth}\\)`}</MathJax>
+                          <MathJax
+                            dynamic
+                          >{`\\(${outputDims?.height} \\times ${outputDims?.width} \\times ${outputDims?.depth}\\)`}</MathJax>
                         </strong>
                       </>
                     )}
                   </p>
 
-                  {!selectedType.includes("Global") && (<div className="mt-4">
-                    <h3 className="text-text mb-1 font-semibold">
-                      Computed With...
-                    </h3>
-                    <div className="text-text space-y-2">
-                      <MathJax>
-                        {`\\(H_{out} = \\frac{H_{in} - F + 1}{S} = 
-                        \\frac{${prevDims.height} - ${filterSize} + 1}{${stride}}
+                  {!selectedType.includes("Global") && (
+                    <div className="mt-4">
+                      <h3 className="text-text mb-1 font-semibold">
+                        Computed With...
+                      </h3>
+                      <div className="text-text space-y-2">
+                        <MathJax dynamic>
+                          {`\\(H_{out} = \\lfloor \\frac{H_{in} - \\color{#00BFA6}{F}}{\\color{#5073B3}{S}} \\rfloor + 1 = 
+                        \\lfloor \\frac{${prevDims.height} - \\color{#00BFA6}{${filterSize}}}{\\color{#5073B3}{${stride}}} \\rfloor  + 1
                         = ${outputDims.height}\\)`}
-                      </MathJax>
-                      <MathJax>
-                        {`\\(W_{out} = \\frac{W_{in} - F + 1}{S} = 
-                        \\frac{${prevDims.width} - ${filterSize} + 1}{${stride}}
+                        </MathJax>
+                        <MathJax dynamic>
+                          {`\\(W_{out} = \\lfloor \\frac{W_{in} - \\color{#00BFA6}{F}}{\\color{#5073B3}{S}}  \\rfloor + 1 = 
+                        \\lfloor \\frac{${prevDims.width} - \\color{#00BFA6}{${filterSize}}}{\\color{#5073B3}{${stride}}} \\rfloor + 1
                         = ${outputDims.width}\\)`}
-                      </MathJax>
-                      <MathJax>
-                        {`\\(D_{out} = D_{in} = ${outputDims.depth}\\)`}
-                      </MathJax>
+                        </MathJax>
+                        <MathJax dynamic>
+                          {`\\(D_{out} = D_{in} = ${outputDims.depth}\\)`}
+                        </MathJax>
+                      </div>
                     </div>
-                  </div>)}
+                  )}
                 </>
               )}
             </div>
@@ -157,28 +165,26 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
               <div className="flex flex-row space-x-6 px-4">
                 <div className="flex flex-col">
                   <label className="text-sm text-gray-600 font-medium mb-1">
-                    Filter Size (f):
+                    <MathJax dynamic>
+                      {
+                        " Filter Size (\\(\\color{#00BFA6}{F}\\)) & Stride (\\(\\color{#5073B3}{S}\\)): "
+                      }
+                    </MathJax>
                   </label>
                   <input
                     type="number"
-                    min={1}
-                    max={Math.min(prevDims.width, prevDims.height)}
                     value={filterSize}
-                    onChange={(e) => setFilterSize(Number(e.target.value))}
-                    className="border border-gray-300 rounded-md px-3 py-2 w-28 bg-gray-50"
-                  />
-                </div>
+                    onChange={(e) => {
+                      const val = Math.min(
+                        Number(e.target.value),
+                        prevDims.width,
+                        prevDims.height
+                      );
 
-                <div className="flex flex-col">
-                  <label className="text-sm text-gray-600 font-medium mb-1">
-                    Stride (s):
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={Math.min(prevDims.width, prevDims.height)}
-                    value={stride}
-                    onChange={(e) => setStride(Number(e.target.value))}
+                      setFilterSize(val);
+                      setStride(val);
+                    }}
+                    min={2}
                     className="border border-gray-300 rounded-md px-3 py-2 w-28 bg-gray-50"
                   />
                 </div>
