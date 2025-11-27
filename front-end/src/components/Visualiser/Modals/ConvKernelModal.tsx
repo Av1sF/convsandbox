@@ -70,10 +70,10 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
           <h3 className="text-base font-semibold mb-2">Output Dimensions</h3>
           <p>
             <strong>
-              <MathJax className="opacity-60">
+              <MathJax className="opacity-60" dynamic >
                 {"\\(H_{out} \\times W_{out} \\times D_{out}\\)"}
               </MathJax>
-              <MathJax>{`\\(${outH} \\times ${outW} \\times ${outD}\\)`}</MathJax>
+              <MathJax dynamic >{`\\(${outH} \\times ${outW} \\times ${outD}\\)`}</MathJax>
             </strong>
           </p>
           <br></br>
@@ -81,19 +81,19 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
             Computed With...{" "}
           </h3>
           <p className="text-base">
-            <MathJax>
+            <MathJax dynamic>
               {`\\(H_{out} = \\lfloor \\frac{H_{in} - {\\color{#00BFA6}{F}} + 2{\\color{#FC3E00}{P}}}{{\\color{#5073B3}{S}}} + 1 \\rfloor = 
                 \\lfloor \\frac{${prevDims.height} - {\\color{#00BFA6}{${filterSize}}} + 2({\\color{#FC3E00}{${padding}}})}{{\\color{#5073B3}{${stride}}}}  + 1 \\rfloor
                  = ${outH}\\)`}
-            </MathJax>
+            </MathJax >
 
-            <MathJax className="py-4">
+            <MathJax className="py-4" dynamic>
               {`\\(W_{out} = \\lfloor \\frac{W_{in} - {\\color{#00BFA6}{F}} + 2{\\color{#FC3E00}{P}}}{{\\color{#5073B3}{S}}} + 1 \\rfloor = 
                 \\lfloor \\frac{${prevDims.width} - {\\color{#00BFA6}{${filterSize}}} + 2({\\color{#FC3E00}{${padding}}})}{{\\color{#5073B3}{${stride}}}}  + 1 \\rfloor
                  = ${outW}\\)`}
             </MathJax>
 
-            <MathJax>{`\\(D_{out} = {\\color{#BB85FC}{K}} = {\\color{#BB85FC}{${numFilters}}}\\)`}</MathJax>
+            <MathJax dynamic>{`\\(D_{out} = {\\color{#BB85FC}{K}} = {\\color{#BB85FC}{${numFilters}}}\\)`}</MathJax>
           </p>
         </div>
 
@@ -110,9 +110,9 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
           )}
 
           <p className="text-sm text-text-muted">
-            <MathJax>{`Previous Layer Dimensions: \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
+            <MathJax dynamic>{`Previous Layer Dimensions: \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
           </p>
-          <MathJax>
+          <MathJax dynamic>
             <div className="space-y-3">
               {/* Number of Filters */}
               <label className="flex flex-col text-sm text-text-muted">
