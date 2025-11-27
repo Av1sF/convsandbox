@@ -54,8 +54,8 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
     }
 
     // const outW = Math.floor((width - filterSize + 1) / stride);
-    const outW = Math.floor(((width - filterSize) / stride)) + 1
-    const outH = Math.floor(((height - filterSize) / stride)) + 1
+    const outW = Math.floor((width - filterSize) / stride) + 1;
+    const outH = Math.floor((height - filterSize) / stride) + 1;
     return {
       width: outW,
       height: outH,
@@ -100,29 +100,35 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
                     Previous Layer Dimensions
                   </h3>
                   <p className="text-xs text-gray-700">
-                    <MathJax className="opacity-60">
+                    <MathJax dynamic className="opacity-60">
                       {"\\(H_{in} \\times W_{in} \\times D_{in}\\)"}
                     </MathJax>
                   </p>
                   <p className="text-sm text-text-muted">
-                    <MathJax>{` \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
+                    <MathJax
+                      dynamic
+                    >{` \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
                   </p>
 
                   <h3 className="mt-2 text-text-muted font-semibold">
                     Output Dimensions
                   </h3>
                   <p className="text-sm text-gray-700">
-                    <MathJax className="opacity-60">
+                    <MathJax dynamic className="opacity-60">
                       {"\\(H_{out} \\times W_{out} \\times D_{out}\\)"}
                     </MathJax>
                     {selectedType.includes("Global") ? (
                       <>
-                        <MathJax>{`\\(1 \\times 1 \\times ${outputDims?.depth}\\)`}</MathJax>
+                        <MathJax
+                          dynamic
+                        >{`\\(1 \\times 1 \\times ${outputDims?.depth}\\)`}</MathJax>
                       </>
                     ) : (
                       <>
                         <strong>
-                          <MathJax>{`\\(${outputDims?.height} \\times ${outputDims?.width} \\times ${outputDims?.depth}\\)`}</MathJax>
+                          <MathJax
+                            dynamic
+                          >{`\\(${outputDims?.height} \\times ${outputDims?.width} \\times ${outputDims?.depth}\\)`}</MathJax>
                         </strong>
                       </>
                     )}
@@ -134,17 +140,17 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
                         Computed With...
                       </h3>
                       <div className="text-text space-y-2">
-                        <MathJax>
+                        <MathJax dynamic>
                           {`\\(H_{out} = \\lfloor \\frac{H_{in} - \\color{#00BFA6}{F}}{\\color{#5073B3}{S}} \\rfloor + 1 = 
                         \\lfloor \\frac{${prevDims.height} - \\color{#00BFA6}{${filterSize}}}{\\color{#5073B3}{${stride}}} \\rfloor  + 1
                         = ${outputDims.height}\\)`}
                         </MathJax>
-                        <MathJax>
+                        <MathJax dynamic>
                           {`\\(W_{out} = \\lfloor \\frac{W_{in} - \\color{#00BFA6}{F}}{\\color{#5073B3}{S}}  \\rfloor + 1 = 
                         \\lfloor \\frac{${prevDims.width} - \\color{#00BFA6}{${filterSize}}}{\\color{#5073B3}{${stride}}} \\rfloor + 1
                         = ${outputDims.width}\\)`}
                         </MathJax>
-                        <MathJax>
+                        <MathJax dynamic>
                           {`\\(D_{out} = D_{in} = ${outputDims.depth}\\)`}
                         </MathJax>
                       </div>
@@ -159,7 +165,11 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
               <div className="flex flex-row space-x-6 px-4">
                 <div className="flex flex-col">
                   <label className="text-sm text-gray-600 font-medium mb-1">
-                   <MathJax>{" Filter Size (\\(\\color{#00BFA6}{F}\\)) & Stride (\\(\\color{#5073B3}{S}\\)): "}</MathJax>
+                    <MathJax dynamic>
+                      {
+                        " Filter Size (\\(\\color{#00BFA6}{F}\\)) & Stride (\\(\\color{#5073B3}{S}\\)): "
+                      }
+                    </MathJax>
                   </label>
                   <input
                     type="number"
@@ -181,7 +191,6 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
               </div>
             )}
           </div>
-         
 
           {/* === RIGHT SIDE: Pooling Type Buttons === */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
