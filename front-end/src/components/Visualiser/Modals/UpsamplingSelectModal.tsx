@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   ConvParams,
   MAX_DEPTH,
@@ -82,7 +82,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
     depth: prevDims.depth,
   };
 
-  var isOutputValid =
+  const isOutputValid =
     outputDims.width > 0 &&
     outputDims.height > 0 &&
     outputDims.depth > 0 &&

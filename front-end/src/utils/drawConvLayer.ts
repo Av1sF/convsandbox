@@ -51,8 +51,8 @@ export const drawConvLayer = (
 
   const actualX = match ? parseFloat(match[1]) : 0;
 
-  var xOffset;
-  var yOffset;
+  let xOffset;
+  let yOffset;
 
   const haschildren = !layerGroup.select("rect").empty() 
 
@@ -74,8 +74,8 @@ export const drawConvLayer = (
 
   console.log(tensor)
 
-  let totalConvHeight = rectHeight + (numDepth - 1) * yOffset;
-  let totalConvWidth = rectWidth + (numDepth - 1) * xOffset;
+  const totalConvHeight = rectHeight + (numDepth - 1) * yOffset;
+  const totalConvWidth = rectWidth + (numDepth - 1) * xOffset;
 
   const startX = canvasW / (2 * maxLayers) - 0.5 * totalConvWidth;
   const startY = canvasH / 2 - 0.5 * totalConvHeight;
@@ -110,7 +110,7 @@ export const drawConvLayer = (
       y: startY + j * yOffset + rectHeight / 2,
     });
 
-    var rightPointY;
+    let rightPointY;
     if (j != numDepth - 1) {
       rightPointY = startY + j * yOffset + 0.5 * yOffset;
     } else {
@@ -128,7 +128,7 @@ export const drawConvLayer = (
       for (let col = 0; col < numColumns; col++) {
         const x = startX + j * xOffset + col * cellWidth;
         const y = startY + j * yOffset + row * cellHeight;
-        var randomOpacity = Math.random(); 
+        let randomOpacity = Math.random(); 
   
         if (is3DTensor(tensor)) {
           if (isNumberParam(tensor[0][row][col][j])) {
@@ -175,7 +175,7 @@ export const drawConvLayer = (
     for (let j = 0; j < numDepth; j++) {
       for (let row=0; row < numRows; row++) {
         for (let col=0; col <numColumns; col++) {
-          var randomOpacity = 0
+          let randomOpacity = 0
           if (is3DTensor(tensor)) {
           if (isNumberParam(tensor[0][row][col][j])) {
             // negative opacity shit solution 
