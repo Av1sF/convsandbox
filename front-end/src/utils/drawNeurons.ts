@@ -8,17 +8,31 @@
  */
 
 import * as d3 from "d3";
+import { BaseType } from "d3";
 import { LayerConnections, MidPoint } from "./types";
+import { is2DTensor } from "./is2DTensor";
+
+const MAX_WEIGHT = 1.0;
+const MIN_WEIGHT = -1.0;
 
 export const drawNeurons = (
   canvasW: number,
   canvasH: number,
   numNeurons: number,
   maxLayers: number,
-  layerGroup: d3.Selection<SVGGElement, unknown, null, undefined>
+  layerGroup:
+    | d3.Selection<SVGGElement, unknown, null, undefined>
+    | d3.Selection<BaseType, unknown, null, undefined>,
+  tensor?:
+    | number
+    | number[]
+    | number[][]
+    | number[][][]
+    | number[][][][]
+    | number[][][][][]
+    | number[][][][][][]
 ): LayerConnections => {
   const circleRadius = Math.trunc((0.35 * canvasW) / (maxLayers * 10 + 5));
-  console.log(circleRadius)
   const verticalSpacing = circleRadius * 4;
   const totalHeight = (numNeurons - 1) * verticalSpacing;
 
@@ -34,32 +48,66 @@ export const drawNeurons = (
   );
   const actualX = match ? parseFloat(match[1]) : 0;
 
+  const haschildren = !layerGroup.select("circle").empty();
+
   for (let i = 0; i < numNeurons; i++) {
     const cy = startY + i * verticalSpacing;
     const cx = startX;
+    var randomOpacity = Math.random();
 
-    // Draw neuron (circle)
-    layerGroup
-      .append("circle")
-      .attr("cx", cx)
-      .attr("cy", cy)
-      .attr("r", circleRadius)
-      .attr("class", "fill-bg stroke-text")
-      .style("opacity", 0)
-      .transition()
-      .duration(400)
-      .delay(i * 100)
-      .style("opacity", 1);
+    if (is2DTensor(tensor)) {
+      randomOpacity = tensor[0][i];
+      randomOpacity += Math.abs(MIN_WEIGHT);
+      randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT;
+      if (randomOpacity > 1) {
+        randomOpacity = 1.0;
+      } else if (randomOpacity < 0) {
+        randomOpacity = 0.0;
+      }
+    }
 
-    // Left + right midpoints (for connections)
-    leftMidPoints.push({
-      x: cx - circleRadius + actualX,
-      y: cy,
-    });
-    rightMidPoints.push({
-      x: cx + circleRadius + actualX,
-      y: cy,
-    });
+    if (!haschildren) {
+      layerGroup
+        .append("circle")
+        .attr("cx", cx)
+        .attr("cy", cy)
+        .attr("r", circleRadius)
+        .attr("class", "fill-bg stroke-text")
+        .style("opacity", 0)
+        .transition()
+        .duration(400)
+        .delay(i * 100)
+        .style("opacity", 1);
+
+      layerGroup
+        .append("circle")
+        .attr("id", (d, i) => `neuron-${i}`)
+        .attr("cx", cx)
+        .attr("cy", cy)
+        .attr("r", circleRadius)
+        .attr("fill", "#5f6c7b")
+        .style("opacity", 0)
+        .transition()
+        .duration(400)
+        .delay(i * 100)
+        .style("opacity", randomOpacity);
+
+      // Left + right midpoints (for connections)
+      leftMidPoints.push({
+        x: cx - circleRadius + actualX,
+        y: cy,
+      });
+      rightMidPoints.push({
+        x: cx + circleRadius + actualX,
+        y: cy,
+      });
+    } else {
+      layerGroup.select(`#neuron-${i}`)
+        .transition()
+        .duration(400)
+        .delay(i * 100)
+        .style("opacity", randomOpacity);
+    }
   }
 
   return result;

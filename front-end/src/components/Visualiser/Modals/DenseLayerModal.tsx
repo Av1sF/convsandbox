@@ -22,14 +22,6 @@ const DenseLayerModal: React.FC<DenseLayerModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-fadeIn">
-        {/* === Close Button === */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-        >
-          x
-        </button>
 
         {/* === Header === */}
         <h2 className="text-xl font-semibold text-gray-800 mb-2">
