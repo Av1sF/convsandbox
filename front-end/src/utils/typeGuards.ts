@@ -23,7 +23,6 @@ export function isActivationType(value: any): value is ActivationType {
 
 export function isUpsamplingParams(value: any): value is UpsamplingParams {
   const validMethods: UpsamplingType[] = [
-    "Bed of Nails",
     "Nearest Neighbor",
     "Bilinear Interpolation",
   ];
