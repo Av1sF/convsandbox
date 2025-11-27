@@ -1,7 +1,5 @@
 "use client";
-import React, { useRef, useEffect, forwardRef } from "react";
-import * as d3 from "d3";
-
+import React, { forwardRef } from "react";
 type CanvasProps = {
   width?: number;
   height?: number;

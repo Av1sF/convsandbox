@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-import { MAXLAYERS, W, H } from "./types";
 
 export function addLayerLabel(
   x: number,

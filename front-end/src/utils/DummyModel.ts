@@ -1,5 +1,4 @@
 import * as tf from "@tensorflow/tfjs";
-import { is2DTensor } from "./is2DTensor";
 import {
   ActivationType,
   convLayerDims,

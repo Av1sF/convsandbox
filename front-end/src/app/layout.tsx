@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Work_Sans, Manrope, Roboto_Mono } from "next/font/google";
+import { Work_Sans, Manrope} from "next/font/google";
 
 export const metadata: Metadata = {
   title: "CNN Visualiser",

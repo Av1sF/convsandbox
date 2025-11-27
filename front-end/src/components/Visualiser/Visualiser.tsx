@@ -297,7 +297,7 @@ export default function Visualiser() {
           );
         }
 
-        let yText =
+        const yText =
           layers[layers.length - 2].type == "add-downsampling" ||
           layers[layers.length - 2].type == "add-upsampling"
             ? 0.81
@@ -511,7 +511,7 @@ export default function Visualiser() {
         latestLayer.type === "add-dense-layer" &&
         isNumberParam(latestLayer.params) // change param so it can draw
       ) {
-        var string = latestLayer.params == 1 ? "neuron" : "neurons";
+        const string = latestLayer.params == 1 ? "neuron" : "neurons";
 
         tensorLayers.push(
           setDenseLayer(

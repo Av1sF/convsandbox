@@ -1,4 +1,4 @@
-import { LayerActionType, LayerSelectionBtnProps } from "@/utils/types";
+import { LayerSelectionBtnProps } from "@/utils/types";
 
 export default function VisualiserSmallPlusBtn(props: LayerSelectionBtnProps) {
   return (

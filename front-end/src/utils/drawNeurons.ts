@@ -53,7 +53,7 @@ export const drawNeurons = (
   for (let i = 0; i < numNeurons; i++) {
     const cy = startY + i * verticalSpacing;
     const cx = startX;
-    var randomOpacity = Math.random();
+    let randomOpacity = Math.random();
 
     if (is2DTensor(tensor)) {
       randomOpacity = tensor[0][i];
