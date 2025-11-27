@@ -595,8 +595,6 @@ export default function Visualiser() {
             onClick={() => handleMenuAction("add-activation")}
           />
         )}
-
-        {/* TODO: add extra menu button to basically make last layer activation */}
       </VisualiserCanvas>
 
       {Object.entries(modals).map(([key, open]) =>
