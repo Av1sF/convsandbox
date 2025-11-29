@@ -12,8 +12,8 @@ import { BaseType } from "d3";
 import { LayerConnections, MidPoint } from "./types";
 import { is2DTensor } from "./is2DTensor";
 
-const MAX_WEIGHT = 1.0;
-const MIN_WEIGHT = -1.0;
+const MAX_WEIGHT = 100;
+const MIN_WEIGHT = -100;
 
 export const drawNeurons = (
   canvasW: number,

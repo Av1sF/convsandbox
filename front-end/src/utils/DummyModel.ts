@@ -12,8 +12,8 @@ const DATAFORMAT = "channelsLast";
 export function setInputLayer(params: convLayerDims): tf.Tensor {
   const inputVector: tf.Tensor =
     params.depth == 0
-      ? tf.randomUniform([params.height, params.width, 1, 1], 0, 1)
-      : tf.randomUniform([1, params.height, params.width, params.depth], 0, 1);
+      ? tf.randomUniform([params.height, params.width, 1, 1], -100, 100)
+      : tf.randomUniform([1, params.height, params.width, params.depth], -100, 100);
 
   return inputVector;
 }
@@ -40,8 +40,8 @@ export function setConvLayer(
       strides: params.stride,
       padding: "valid",
       dataFormat: DATAFORMAT,
-      biasInitializer: "randomNormal",
-      kernelInitializer: "randomNormal",
+      biasInitializer: "heNormal",
+      kernelInitializer: "heNormal",
     });
     output = layer.apply(padding ? padding.apply(prevTensor) : prevTensor);
 
@@ -76,8 +76,8 @@ export function setDenseLayer(
         : tf.layers.flatten().apply(prevLayer);
     const dense = tf.layers.dense({
       units: params,
-      biasInitializer: "randomNormal",
-      kernelInitializer: "randomNormal",
+      biasInitializer: "heNormal",
+      kernelInitializer: "heNormal",
     });
 
     const denseOutput = dense.apply(flatten);
@@ -88,9 +88,6 @@ export function setDenseLayer(
       return denseOutput;
     }
   }
-
-  // if prev is convLayerdims => flatten
-  // else chain the dense layers
 }
 
 export function setActivationLayer(

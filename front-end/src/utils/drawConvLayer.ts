@@ -16,8 +16,8 @@ import { isNumberParam } from './typeGuards';
 import { is3DTensor } from "./is3DTensor";
 import { is2DTensor } from "./is2DTensor";
 
-const MAX_WEIGHT = 1.0
-const MIN_WEIGHT = -1.0
+const MAX_WEIGHT = 100
+const MIN_WEIGHT = -100
 
 export const drawConvLayer = (
   canvasW: number,
