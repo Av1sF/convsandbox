@@ -557,8 +557,6 @@ export default function Visualiser() {
           drawLayerConnections(
             root,
             allLayerConnections,
-            layers[layers.length - 2].type,
-            latestLayer.type
           );
         }
       }

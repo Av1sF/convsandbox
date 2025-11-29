@@ -1,14 +1,11 @@
 import * as d3 from "d3";
-import { LayerActionType, LayerConnections } from "./types";
+import {LayerConnections } from "./types";
 
 function drawLayerConnections(
   svgRoot: d3.Selection<d3.BaseType, unknown, null, undefined>,
   allLayerConnections: LayerConnections[],
-  currLayerType: LayerActionType
 ) {
   if (allLayerConnections.length < 2) return;
-  // if (currLayerType != "add-activeation"
-  // ) {
     const [, prevRightPoints] =
       allLayerConnections[allLayerConnections.length - 2];
     const [nextLeftPoints] =
@@ -38,28 +35,6 @@ function drawLayerConnections(
           .attr("opacity", 0.15);
       }
     }
-  // } else {
-  //   const [, prevRightPoints] =
-  //     allLayerConnections[allLayerConnections.length - 2];
-  //   const [nextLeftPoints] =
-  //     allLayerConnections[allLayerConnections.length - 1];
-
-  //   for (let j = 0; j < prevRightPoints.length; j++) {
-  //     svgRoot
-  //       .append("line")
-  //       .attr("class", "layer-connection")
-  //       .attr("x1", prevRightPoints[j].x)
-  //       .attr("y1", prevRightPoints[j].y)
-  //       .attr("x2", nextLeftPoints[j].x)
-  //       .attr("y2", prevRightPoints[j].y)
-  //       .attr("stroke", "#888")
-  //       .attr("stroke-width", 1)
-  //       .attr("opacity", 0)
-  //       .transition()
-  //       .duration(300)
-  //       .attr("opacity", 0.15);
-  //   }
-  // }
 }
 
 export default drawLayerConnections;
