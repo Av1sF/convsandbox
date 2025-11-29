@@ -22,20 +22,6 @@ const UPSAMPLING_METHODS: {
   description: string;
   graph: React.ReactElement;
 }[] = [
-  // {
-  //   type: "Bed of Nails",
-  //   title: "Bed of Nails",
-  //   description:
-  //     "Simplest upsampling: inserts zeros between input elements to increase spatial size.",
-  //   graph: (
-  //     <img
-  //       src={"/icons/bed-of-nails.svg"}
-  //       width="180"
-  //       height="100"
-  //       alt="bed-of-nails-icon"
-  //     />
-  //   ),
-  // },
   {
     type: "Nearest Neighbor",
     title: "Nearest Neighbor",
@@ -92,7 +78,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-6">
-      <div className="bg-bg rounded-2xl shadow-xl w-full max-w-5xl p-8 animate-fadeIn relative max-h-[95vh] overflow-y-auto">
+      <div className="bg-bg rounded-2xl shadow-xl w-full max-w-3xl p-8 animate-fadeIn relative max-h-[95vh] overflow-y-auto">
         <h2 className="text-2xl font-semibold text-text mb-3">
           Select Upsampling Method
         </h2>
@@ -100,7 +86,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
           Choose how this layer will increase spatial resolution.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className={`grid grid-cols-1 md:grid-cols-${UPSAMPLING_METHODS.length} gap-6 mb-8`}>
           {UPSAMPLING_METHODS.map((method) => (
             <button
               key={method.type}

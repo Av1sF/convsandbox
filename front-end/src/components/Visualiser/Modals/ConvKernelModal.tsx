@@ -65,7 +65,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
-      <div className="bg-bg rounded-2xl p-6 w-full max-w-3xl flex flex-col md:flex-row gap-8">
+      <div className="bg-bg rounded-2xl p-6 w-full max-w-3xl flex flex-col md:flex-row gap-8 max-h-[95vh] overflow-y-auto">
         <div className="flex-1 text-sm text-text-muted">
           <h3 className="text-base font-semibold mb-2">Output Dimensions</h3>
           <p>

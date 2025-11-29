@@ -45,6 +45,8 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
   const [filterSize, setFilterSize] = useState<number>(2);
   const [stride, setStride] = useState<number>(2);
 
+  const maxSize = Math.max(prevDims.height, prevDims.width)
+
   const computeOutputDims = () => {
     // if (!selectedType) return null;
     const { width, height, depth } = prevDims;
@@ -76,8 +78,8 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl p-5 animate-fadeIn relative overflow-y-auto max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-4">
+      <div className="bg-bg rounded-2xl shadow-xl w-full max-w-5xl p-5 animate-fadeIn relative max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">
           Select Downsampling Method
         </h2>
@@ -175,16 +177,23 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
                     type="number"
                     value={filterSize}
                     onChange={(e) => {
-                      const val = Math.min(
-                        Number(e.target.value),
-                        prevDims.width,
-                        prevDims.height
-                      );
+                      let val = e.target.value;
 
-                      setFilterSize(val);
-                      setStride(val);
+                      // Remove everything except digits
+                      val = val.replace(/\D/g, "");
+
+                      // Convert to number (or 0 if empty)
+                      let num = Number(val) || 0;
+
+                      // Clamp to min/max
+                      num = Math.max(2, Math.min(num, maxSize));
+
+                      setFilterSize(num);
+                      setStride(num);
                     }}
                     min={2}
+                    max={maxSize}
+                    step={1} // Ensures arrow keys increment by 1
                     className="border border-gray-300 rounded-md px-3 py-2 w-28 bg-gray-50"
                   />
                 </div>
