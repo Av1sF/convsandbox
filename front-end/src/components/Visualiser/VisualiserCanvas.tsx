@@ -5,13 +5,14 @@ type CanvasProps = {
   height?: number;
   className?: string;
   children?: React.ReactNode;
+  onClick: React.MouseEventHandler<SVGSVGElement>; 
   id: string;
 };
 
 const VisualiserCanvas = forwardRef<SVGSVGElement, CanvasProps>(
-  ({ className = "", children }, ref) => {
+  ({ className = "", children, onClick}, ref) => {
     return (
-      <svg ref={ref} className={className}>
+      <svg ref={ref} className={className} onClick={onClick}>
         <g className="d3-root">{children}</g>
       </svg>
     );

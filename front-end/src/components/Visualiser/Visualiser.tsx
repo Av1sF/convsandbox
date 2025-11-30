@@ -44,6 +44,7 @@ import {
   setUpsamplingLayer,
 } from "@/utils/DummyModel";
 import VisualiserSmallPlusBtn from "./VisualiserSmallPlusBtn";
+import binSearchInterval from "@/utils/binSearchInterval";
 
 const W = 1183;
 const H = 500;
@@ -84,6 +85,9 @@ export default function Visualiser() {
 
   // Dummy Model
   const [tensorLayers, setTensorLayers] = useState<any[]>([]);
+
+  // Initiate Animate Click areas
+  const [animationAreas, setAnimationAreas] = useState<number[][]>([]);
 
   // Store dimensions of the last layer created
   const [prevLayerDims, setPrevLayerDims] = useState<
@@ -155,6 +159,25 @@ export default function Visualiser() {
         setNumLayers((prev) => prev + 1);
       }
       setLayers((prev) => [...prev, { type: layerType, params }]);
+    }
+  };
+
+  const handleVisualiserClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    const svg = e.currentTarget;
+
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+
+    const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+    const { x, y } = svgP;
+
+    const animationTriggerArea = animationAreas.length == 0? undefined: binSearchInterval(x, animationAreas)
+    if (animationTriggerArea) {
+      console.log("wowww in trigger area", animationTriggerArea, x)
+
+    } else {
+      console.log(x, y, "clickeddd");
     }
   };
 
@@ -263,8 +286,7 @@ export default function Visualiser() {
 
       if (
         latestLayer.type === "add-activation" &&
-        isActivationType(latestLayer.params)
-        && 
+        isActivationType(latestLayer.params) &&
         existingGroup.select(`#${activationType}`).empty()
       ) {
         tensorLayers.push(
@@ -286,6 +308,16 @@ export default function Visualiser() {
             layerGroup,
             tensorLayers[tensorLayers.length - 1].arraySync()
           );
+
+          if (layers[layers.length - 2].type == "add-conv-layer") {
+            setAnimationAreas((prev) => [
+              ...prev,
+              [
+                allLayerConnections[allLayerConnections.length - 2][1][0].x,
+                allLayerConnections[allLayerConnections.length - 1][0][0].x,
+              ],
+            ]);
+          }
         } else if (prevLayerDims && isDenseLayerDims(prevLayerDims)) {
           drawNeurons(
             W,
@@ -501,7 +533,11 @@ export default function Visualiser() {
         });
 
         setAllowedLayerTypes({
-          conv: latestLayer.params.outputDims.width == 1 && latestLayer.params.outputDims.height == 1 ? false : true,
+          conv:
+            latestLayer.params.outputDims.width == 1 &&
+            latestLayer.params.outputDims.height == 1
+              ? false
+              : true,
           activation: false,
           upsample: false,
           downsample: false,
@@ -554,15 +590,10 @@ export default function Visualiser() {
         allLayerConnections.push(layerConnections);
         setAllLayerConnections([...allLayerConnections]);
         if (allLayerConnections.length > 1) {
-          drawLayerConnections(
-            root,
-            allLayerConnections,
-          );
+          drawLayerConnections(root, allLayerConnections);
         }
       }
     }
-
-    // reset action after handling
     setAction("");
   }
 
@@ -571,6 +602,8 @@ export default function Visualiser() {
       <VisualiserCanvas
         id="canvas"
         ref={svgRef}
+        onClick={handleVisualiserClick} // do this onclick shit and make a list
+        // where u detect if it is in a polygon // and find the type
         className={`w-[1183px] h-[500px] d3-root`}
       >
         {/* Only render the button if fewer than max layers exist */}

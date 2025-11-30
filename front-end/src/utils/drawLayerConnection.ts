@@ -10,6 +10,8 @@ function drawLayerConnections(
       allLayerConnections[allLayerConnections.length - 2];
     const [nextLeftPoints] =
       allLayerConnections[allLayerConnections.length - 1];
+    
+  
 
     for (let i = 0; i < prevRightPoints.length; i++) {
       for (let j = 0; j < nextLeftPoints.length; j++) {
