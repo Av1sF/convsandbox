@@ -13,6 +13,7 @@ import {
   denseLayerDims,
   DownsamplingParams,
   DownsamplingType,
+  dummyModelOutputs,
   LayerActionType,
   LayerConnections,
   MAXLAYERS,
@@ -45,6 +46,7 @@ import {
 } from "@/utils/DummyModel";
 import VisualiserSmallPlusBtn from "./VisualiserSmallPlusBtn";
 import binSearchInterval from "@/utils/binSearchInterval";
+import * as tf from "@tensorflow/tfjs";
 
 const W = 1183;
 const H = 500;
@@ -84,10 +86,17 @@ export default function Visualiser() {
   const [layers, setLayers] = useState(initialLayers);
 
   // Dummy Model
-  const [tensorLayers, setTensorLayers] = useState<any[]>([]);
+  const [tensorLayers, setTensorLayers] = useState<dummyModelOutputs[]>([]);
 
   // Initiate Animate Click areas
-  const [animationAreas, setAnimationAreas] = useState<number[][]>([]);
+  interface animationTrigger {
+    layerNumber: number[];
+    triggerArea: number[];
+    animationType: string;
+  }
+  const [animationTriggers, setAnimationTriggers] = useState<
+    animationTrigger[]
+  >([]);
 
   // Store dimensions of the last layer created
   const [prevLayerDims, setPrevLayerDims] = useState<
@@ -102,7 +111,7 @@ export default function Visualiser() {
     dense: false,
   });
 
-  const [modals, setModals] = useState({
+  const [layerModals, setLayerModals] = useState({
     conv: false,
     activation: false,
     upsample: false,
@@ -110,15 +119,15 @@ export default function Visualiser() {
     dense: false,
   });
 
-  const openModal = (key: keyof typeof modals) =>
-    setModals((m) => ({ ...m, [key]: true }));
+  const openLayerModal = (key: keyof typeof layerModals) =>
+    setLayerModals((m) => ({ ...m, [key]: true }));
 
-  const closeModal = (key: keyof typeof modals) =>
-    setModals((m) => ({ ...m, [key]: false }));
+  const closeLayerModal = (key: keyof typeof layerModals) =>
+    setLayerModals((m) => ({ ...m, [key]: false }));
 
-  const allModalsClosed = Object.values(modals).every((m) => !m);
+  const allLayerModalsClosed = Object.values(layerModals).every((m) => !m);
 
-  const modalMap: Record<LayerActionType, keyof typeof modals> = {
+  const layerModalMap: Record<LayerActionType, keyof typeof layerModals> = {
     "": "conv",
     "add-conv-layer": "conv",
     "add-activation": "activation",
@@ -142,7 +151,7 @@ export default function Visualiser() {
   // Visualiser Menu handler
   const handleMenuAction = (type: LayerActionType) => {
     setAction(type);
-    openModal(modalMap[type]);
+    openLayerModal(layerModalMap[type]);
   };
 
   const addLayer = (
@@ -172,19 +181,26 @@ export default function Visualiser() {
     const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
     const { x, y } = svgP;
 
-    const animationTriggerArea = animationAreas.length == 0? undefined: binSearchInterval(x, animationAreas)
+    const animationTriggerArea =
+      animationTriggers.length == 0
+        ? undefined
+        : binSearchInterval(
+            x,
+            animationTriggers.map((a) => a.triggerArea)
+          );
     if (animationTriggerArea) {
-      console.log("wowww in trigger area", animationTriggerArea, x)
-
-    } else {
-      console.log(x, y, "clickeddd");
+      // to know the right animation to trigger and the information needed
+      // what type of animation it will be
+      // what layers in tensorLayers will I need to generate this information
+      // so for conv i need kernel bias before and after & also padded matrix.
+      console.log("wowww in trigger area", animationTriggerArea, x);
     }
   };
 
   // Convolutional Layer Modal handler
   const handleConvConfirm = (params: ConvParams) => {
     addLayer(params, "add-conv-layer");
-    closeModal("conv");
+    closeLayerModal("conv");
 
     // Viz only officially starts iff first layer is created
     if (!started) {
@@ -195,35 +211,39 @@ export default function Visualiser() {
   // Activation Modal handler
   const handleActivationSelect = (activation: ActivationType) => {
     addLayer(activation, "add-activation");
-    closeModal("activation");
+    closeLayerModal("activation");
     setActivationType(activation);
   };
 
   // Upsampling Modal handler
   const handleUpsamplingSelect = (params: UpsamplingParams) => {
     addLayer(params, "add-upsampling");
-    closeModal("upsample");
+    closeLayerModal("upsample");
     setUpsamplingType(params.method);
   };
 
   // Downsampling Modal handler
   const handleDownsamplingSelect = (params: DownsamplingParams) => {
     addLayer(params, "add-downsampling");
-    closeModal("downsample");
+    closeLayerModal("downsample");
     setDownsamplingType(params.type);
   };
 
   // Dense layer Modal handler
   const handleDenseNeuronSelect = (params: number) => {
     addLayer(params, "add-dense-layer");
-    closeModal("dense");
+    closeLayerModal("dense");
   };
-  const modalComponents = {
+
+  const animationModalComponents = {
+    conv: <div key="conv-animation">meow</div>,
+  };
+  const layerModalComponents = {
     conv: (
       <div key="conv">
         <ConvLayerModal
           prevDims={prevLayerDims as convLayerDims}
-          onClose={() => closeModal("conv")}
+          onClose={() => closeLayerModal("conv")}
           onConfirm={handleConvConfirm}
           hasStarted={started}
         />
@@ -232,7 +252,7 @@ export default function Visualiser() {
     activation: (
       <div key="activation">
         <ActivationSelectModal
-          onClose={() => closeModal("activation")}
+          onClose={() => closeLayerModal("activation")}
           onSelect={handleActivationSelect}
         />
       </div>
@@ -241,7 +261,7 @@ export default function Visualiser() {
       <div key="upsample">
         <UpsamplingSelectModal
           prevDims={prevLayerDims as convLayerDims}
-          onClose={() => closeModal("upsample")}
+          onClose={() => closeLayerModal("upsample")}
           onConfirm={handleUpsamplingSelect}
         />
       </div>
@@ -250,7 +270,7 @@ export default function Visualiser() {
       <div key="downsample">
         <DownsamplingSelectModal
           prevDims={prevLayerDims as convLayerDims}
-          onClose={() => closeModal("downsample")}
+          onClose={() => closeLayerModal("downsample")}
           onConfirm={handleDownsamplingSelect}
         />
       </div>
@@ -258,7 +278,7 @@ export default function Visualiser() {
     dense: (
       <div key="dense">
         <DenseLayerModal
-          onClose={() => closeModal("dense")}
+          onClose={() => closeLayerModal("dense")}
           onConfirm={handleDenseNeuronSelect}
         />
       </div>
@@ -266,7 +286,7 @@ export default function Visualiser() {
   };
 
   // -- Render Logic --
-  if (action != initialAction && allModalsClosed && started) {
+  if (action != initialAction && allLayerModalsClosed && started) {
     if (layers.length === 0) return;
 
     const latestLayer = layers[layers.length - 1];
@@ -289,15 +309,22 @@ export default function Visualiser() {
         isActivationType(latestLayer.params) &&
         existingGroup.select(`#${activationType}`).empty()
       ) {
-        tensorLayers.push(
-          setActivationLayer(
-            latestLayer.params as ActivationType,
-            tensorLayers[tensorLayers.length - 1]
-          )
-        );
         setTensorLayers([...tensorLayers]);
 
         if (prevLayerDims && isConvLayerDims(prevLayerDims)) {
+          tensorLayers.push(
+            setActivationLayer(
+              latestLayer.params as ActivationType,
+              tensorLayers[tensorLayers.length - 1].output,
+              undefined, 
+                 {
+                  height: prevLayerDims.height,
+                  width: prevLayerDims.width,
+                  depth: prevLayerDims.depth,
+                },
+            )
+          );
+
           drawConvLayer(
             W,
             H,
@@ -306,26 +333,43 @@ export default function Visualiser() {
             prevLayerDims.height,
             MAXLAYERS,
             layerGroup,
-            tensorLayers[tensorLayers.length - 1].arraySync()
+            tensorLayers[tensorLayers.length - 1].output.arraySync()
           );
 
           if (layers[layers.length - 2].type == "add-conv-layer") {
-            setAnimationAreas((prev) => [
+            setAnimationTriggers((prev) => [
               ...prev,
-              [
-                allLayerConnections[allLayerConnections.length - 2][1][0].x,
-                allLayerConnections[allLayerConnections.length - 1][0][0].x,
-              ],
+              {
+                // Activation    convolution     input layer
+                layerNumber: [
+                  layers.length - 1,
+                  layers.length - 2,
+                  layers.length - 3,
+                ],
+                triggerArea: [
+                  allLayerConnections[allLayerConnections.length - 2][1][0].x,
+                  allLayerConnections[allLayerConnections.length - 1][0][0].x,
+                ],
+                animationType: "conv",
+              },
             ]);
           }
         } else if (prevLayerDims && isDenseLayerDims(prevLayerDims)) {
+          tensorLayers.push(
+            setActivationLayer(
+              latestLayer.params as ActivationType,
+              tensorLayers[tensorLayers.length - 1].output,
+              prevLayerDims.neurons
+            )
+          );
+
           drawNeurons(
             W,
             H,
             prevLayerDims.neurons,
             MAXLAYERS,
             layerGroup,
-            tensorLayers[tensorLayers.length - 1]
+            tensorLayers[tensorLayers.length - 1].output.arraySync()
           );
         }
 
@@ -416,7 +460,7 @@ export default function Visualiser() {
           tensorLayers.push(
             setConvLayer(
               latestLayer.params as ConvParams,
-              tensorLayers[tensorLayers.length - 1]
+              tensorLayers[tensorLayers.length - 1].output
             )
           );
           setTensorLayers([...tensorLayers]);
@@ -430,7 +474,7 @@ export default function Visualiser() {
           latestLayer.params.height,
           MAXLAYERS,
           layerGroup,
-          tensorLayers[tensorLayers.length - 1].arraySync()
+          tensorLayers[tensorLayers.length - 1].output.arraySync()
         );
       } else if (
         latestLayer.type === "add-upsampling" &&
@@ -440,7 +484,7 @@ export default function Visualiser() {
         tensorLayers.push(
           setUpsamplingLayer(
             latestLayer.params as UpsamplingParams,
-            tensorLayers[tensorLayers.length - 1]
+            tensorLayers[tensorLayers.length - 1].output
           )
         );
         setTensorLayers([...tensorLayers]);
@@ -448,12 +492,12 @@ export default function Visualiser() {
         layerConnections = drawConvLayer(
           W,
           H,
-          prevLayerDims.depth,
-          prevLayerDims.width * latestLayer.params.scaleFactor,
-          prevLayerDims.height * latestLayer.params.scaleFactor,
+          latestLayer.params.outputDims.depth,
+          latestLayer.params.outputDims.width,
+          latestLayer.params.outputDims.height,
           MAXLAYERS,
           layerGroup,
-          tensorLayers[tensorLayers.length - 1].arraySync()
+          tensorLayers[tensorLayers.length - 1].output.arraySync()
         );
 
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Upsampling Layer`);
@@ -468,17 +512,11 @@ export default function Visualiser() {
           layerLabelx,
           H * 0.85,
           layerGroup,
-          `${prevLayerDims.height * latestLayer.params.scaleFactor} x ${
-            prevLayerDims.width * latestLayer.params.scaleFactor
-          } x ${prevLayerDims.depth}`,
+          `${latestLayer.params.outputDims.height} x ${latestLayer.params.outputDims.width} x ${latestLayer.params.outputDims.depth}`,
           14
         );
 
-        setPrevLayerDims({
-          width: prevLayerDims.width * latestLayer.params.scaleFactor,
-          height: prevLayerDims.height * latestLayer.params.scaleFactor,
-          depth: prevLayerDims.depth,
-        });
+        setPrevLayerDims(latestLayer.params.outputDims);
 
         setAllowedLayerTypes({
           conv: true,
@@ -495,7 +533,7 @@ export default function Visualiser() {
         tensorLayers.push(
           setDownsamplingLayer(
             latestLayer.params as DownsamplingParams,
-            tensorLayers[tensorLayers.length - 1]
+            tensorLayers[tensorLayers.length - 1].output
           )
         );
         setTensorLayers([...tensorLayers]);
@@ -508,7 +546,7 @@ export default function Visualiser() {
           latestLayer.params.outputDims.height,
           MAXLAYERS,
           layerGroup,
-          tensorLayers[tensorLayers.length - 1].arraySync()
+          tensorLayers[tensorLayers.length - 1].output.arraySync()
         );
 
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Pooling Layer`);
@@ -552,7 +590,7 @@ export default function Visualiser() {
         tensorLayers.push(
           setDenseLayer(
             latestLayer.params,
-            tensorLayers[tensorLayers.length - 1]
+            tensorLayers[tensorLayers.length - 1].output
           )
         );
         setTensorLayers([...tensorLayers]);
@@ -562,7 +600,7 @@ export default function Visualiser() {
           latestLayer.params,
           MAXLAYERS,
           layerGroup,
-          tensorLayers[tensorLayers.length - 1]
+          tensorLayers[tensorLayers.length - 1].output.arraySync()
         );
 
         addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Dense Layer`);
@@ -628,8 +666,8 @@ export default function Visualiser() {
         )}
       </VisualiserCanvas>
 
-      {Object.entries(modals).map(([key, open]) =>
-        open ? modalComponents[key as keyof typeof modals] : null
+      {Object.entries(layerModals).map(([key, open]) =>
+        open ? layerModalComponents[key as keyof typeof layerModals] : null
       )}
     </div>
   );

@@ -47,7 +47,7 @@ export const drawNeurons = (
     layerGroup.attr("transform")
   );
   const actualX = match ? parseFloat(match[1]) : 0;
-
+  console.log(tensor)
   const haschildren = !layerGroup.select("circle").empty();
 
   for (let i = 0; i < numNeurons; i++) {
@@ -59,6 +59,7 @@ export const drawNeurons = (
       randomOpacity = tensor[0][i];
       randomOpacity += Math.abs(MIN_WEIGHT);
       randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT;
+
       if (randomOpacity > 1) {
         randomOpacity = 1.0;
       } else if (randomOpacity < 0) {

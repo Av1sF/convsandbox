@@ -62,7 +62,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
   );
   const [scale, setScale] = useState<number>(2);
 
-  const outputDims: ConvParams = {
+  const outputDims = {
     width: prevDims.width * scale,
     height: prevDims.height * scale,
     depth: prevDims.depth,
@@ -148,7 +148,11 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
             disabled={!selectedMethod || !isOutputValid}
             onClick={() => {
               if (selectedMethod && isOutputValid)
-                onConfirm({ method: selectedMethod, scaleFactor: scale });
+                onConfirm({ method: selectedMethod, scaleFactor: scale, outputDims: {
+              height: prevDims.height * scale,
+              width: prevDims.width * scale, 
+              depth: prevDims.depth,
+              }});
             }}
             className={`px-4 py-2 rounded-lg transition text-white ${
               !selectedMethod || !isOutputValid
