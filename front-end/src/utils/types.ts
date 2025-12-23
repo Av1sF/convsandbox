@@ -1,9 +1,9 @@
 import { Tensor } from "@tensorflow/tfjs";
 
 export const MAXLAYERS = 6;
-export const MAX_WIDTH = 25;
-export const MAX_HEIGHT = 25;
-export const MAX_DEPTH = 5;
+export const MAX_WIDTH = 15;
+export const MAX_HEIGHT = 15;
+export const MAX_DEPTH = 3;
 export const MAX_FILTERS = MAX_DEPTH;
 export const MAX_FILTER_SIZE = 11;
 export const MAX_PADDING = 10;
@@ -20,18 +20,17 @@ export type validLayerTypes = {
   dense: boolean;
 };
 
-export type convLayerDims = {
+export type LayerDims = {
   width: number;
   height: number;
   depth: number;
-  type?: string;
 };
+
+export type convLayerDims = LayerDims & { type?: string };
 
 export type denseLayerDims = {
   neurons: number;
 };
-
-export type LayerDims = convLayerDims;
 
 export interface LayerSelectionBtnProps {
   onClick: (e: React.MouseEvent) => void;
@@ -79,9 +78,7 @@ export type LayerActionType =
   | "add-dense-layer"
   | "";
 
-export type UpsamplingType =
-  // | "Bed of Nails"
-  "Nearest Neighbor" | "Bilinear Interpolation";
+export type UpsamplingType = "Nearest Neighbor" | "Bilinear Interpolation";
 
 export type UpsamplingParams = {
   method: UpsamplingType;
@@ -102,44 +99,45 @@ export interface DownsamplingParams {
   outputDims: { width: number; height: number; depth: number };
 }
 
-// dummy model 
-export interface dummyModelInput {
-  output: Tensor;
+// dummy model
+interface baseDummyModelParam {
+  output: Tensor; 
+}
+
+export interface dummyModelInput extends baseDummyModelParam {
   dims: { height: number; width: number; depth: number };
 }
 
-export interface dummyModelConv {
-  output: Tensor;
+export interface dummyModelConv extends baseDummyModelParam {
+  padSize: number; 
+  stride: number; 
   padded: Tensor;
+  filterSize: number; 
   kernel: Tensor;
   bias: Tensor;
   dims: { height: number; width: number; depth: number };
 }
 
-export interface dummyModelDense {
-  output: Tensor;
+export interface dummyModelDense extends baseDummyModelParam {
   weights: Tensor;
   bias: Tensor;
   flatten: Tensor;
   neurons: number;
 }
 
-export interface dummyModelActivation {
-  output: Tensor;
+export interface dummyModelActivation extends baseDummyModelParam{
   type: ActivationType;
   dims?: { height: number; width: number; depth: number };
   neurons?: number;
 }
 
-export interface dummyModelUpsample {
-  output: Tensor;
+export interface dummyModelUpsample extends baseDummyModelParam{
   type: UpsamplingType;
   scaleFactor: number;
   dims: { height: number; width: number; depth: number };
 }
 
-export interface dummyModelDownsample {
-  output: Tensor;
+export interface dummyModelDownsample extends baseDummyModelParam{
   type: DownsamplingType;
   stride?: number;
   filterSize?: number;

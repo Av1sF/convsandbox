@@ -15,7 +15,7 @@ import { is2DTensor } from "./is2DTensor";
 const MAX_WEIGHT = 100;
 const MIN_WEIGHT = -100;
 
-export const drawNeurons = (
+export const drawBiases = (
   canvasW: number,
   canvasH: number,
   numNeurons: number,
@@ -33,8 +33,8 @@ export const drawNeurons = (
     | number[][][][][]
     | number[][][][][][]
 ): LayerConnections => {
-  const circleRadius = Math.trunc((0.35 * canvasW) / (maxLayers * 10 + 5));
-  const verticalSpacing = circleRadius * 4;
+  const circleRadius = Math.trunc((0.5 * canvasW) / (maxLayers * 10 + 5));
+  const verticalSpacing = circleRadius * 7;
   const totalHeight = (numNeurons - 1) * verticalSpacing;
 
   const startX = canvasW / (2 * maxLayers); // roughly same X positioning as conv layer
@@ -82,7 +82,7 @@ export const drawNeurons = (
 
       layerGroup
         .append("circle")
-        .attr("id", (d, i) => `neuron-${i}`)
+        .attr("id", (d, _) => `neuron-${i}`)
         .attr("cx", cx)
         .attr("cy", cy)
         .attr("r", circleRadius)

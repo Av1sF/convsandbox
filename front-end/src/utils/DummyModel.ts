@@ -60,23 +60,12 @@ export function setConvLayer(
   });
 
   const output = conv.apply(padded) as tf.Tensor;
-  //   // get conv layer Shape/Dimensions WRITE ASSERTION THIS IS SAME AS PARAMS
-  // console.log(JSON.stringify(output.shape));
-  //   // this.layers.push(output)
-  //   // print output conv layer values
-  //   // console.log(this.layers)
-  //   // output.print();
-
-  //   // // print and show kernel values
-  console.log(conv.getWeights()[0].print());
-
-  //   // // print and show bias value
-  console.log(conv.getWeights()[1].print());
-  // }
-  //     }
 
   return {
+    stride: params.stride,
+    filterSize: params.filterSize,
     output: output,
+    padSize: params.padding,
     padded: padded,
     kernel: conv.getWeights()[0],
     bias: conv.getWeights()[1],
@@ -113,12 +102,6 @@ export function setDenseLayer(
     bias: dense.getWeights()[1],
   };
 
-  // return denseOutput instanceof tf.Tensor? denseOutput: random2DTensor(params);
-  // if (denseOutput instanceof tf.Tensor) {
-  //   // console.log(denseOutput.arraySync())
-  //   // console.log(dense.getWeights()[0].print());
-  //   return denseOutput;
-  // }
 }
 
 export function setActivationLayer(
@@ -130,7 +113,7 @@ export function setActivationLayer(
   switch (params) {
     case "Sigmoid":
       return {
-        output: prevLayer.logSigmoid(),
+        output: prevLayer.sigmoid(),
         type: params,
         neurons: neurons,
         dims: dims,

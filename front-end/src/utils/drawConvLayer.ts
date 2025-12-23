@@ -12,32 +12,38 @@
 
 import { BaseType } from "d3";
 import { LayerConnections, MidPoint } from "./types";
-import { isNumberParam } from './typeGuards';
+import { isNumberParam } from "./typeGuards";
 import { is3DTensor } from "./is3DTensor";
 import { is2DTensor } from "./is2DTensor";
 
-const MAX_WEIGHT = 100
-const MIN_WEIGHT = -100
+const MAX_WEIGHT = 100;
+const MIN_WEIGHT = -100;
 
 export const drawConvLayer = (
   canvasW: number,
   canvasH: number,
-  numDepth: number,
-  numColumns: number,
-  numRows: number,
   maxLayers: number,
   layerGroup:
+    | d3.Selection<SVGSVGElement | null, unknown, null, undefined>
     | d3.Selection<SVGGElement, unknown, null, undefined>
     | d3.Selection<BaseType, unknown, null, undefined>,
-  tensor?: number | number[] | number[][] | number[][][] | number[][][][] | number[][][][][] | number[][][][][][]
+  tensor:
+    | number
+    | number[]
+    | number[][]
+    | number[][][]
+    | number[][][][]
+    | number[][][][][]
+    | number[][][][][][]
 ) => {
-  console.log(tensor)
-  const rectWidth = Math.trunc(
-    (numColumns / 25) * ((0.63 * canvasW) / maxLayers)
-  );
-  const rectHeight = Math.trunc(
-    (numRows / 25) * ((0.63 * canvasW) / maxLayers)
-  );
+  if (!is3DTensor(tensor)) return;
+  const numColumns = tensor[0].length;
+  const numRows = tensor[0][0].length;
+  const numDepth = tensor[0][0][0].length;
+
+  const rectWidth = Math.trunc((0.7 * canvasW) / maxLayers);
+
+  const rectHeight = Math.trunc((0.7 * canvasW) / maxLayers);
 
   const leftMidPoints: MidPoint[] = [];
   const rightMidPoints: MidPoint[] = [];
@@ -51,28 +57,16 @@ export const drawConvLayer = (
 
   const actualX = match ? parseFloat(match[1]) : 0;
 
-  let xOffset;
+  const xOffset = 0;
   let yOffset;
 
-  const haschildren = !layerGroup.select("rect").empty() 
-
-  if (numColumns <= 5) {
-    xOffset = rectWidth * 0.8;
-  } else if (5 < numColumns && numColumns <= 10) {
-    xOffset = Math.trunc(rectWidth * 0.4);
-  } else {
-    xOffset = Math.trunc(rectWidth * 0.1);
-  }
-
-  if (numColumns <= 5) {
-    yOffset = rectHeight * 0.6;
+  if (numRows <= 5) {
+    yOffset = rectHeight * 1.5;
   } else if (numRows <= 10) {
-    yOffset = Math.trunc(rectHeight * 0.4);
+    yOffset = Math.trunc(rectHeight * 1.3);
   } else {
-    yOffset = Math.trunc(rectHeight * 0.2);
+    yOffset = Math.trunc(rectHeight * 1.1);
   }
-
-  console.log(tensor)
 
   const totalConvHeight = rectHeight + (numDepth - 1) * yOffset;
   const totalConvWidth = rectWidth + (numDepth - 1) * xOffset;
@@ -82,9 +76,7 @@ export const drawConvLayer = (
 
   const rectStartYs = [];
 
-  if (! haschildren) {
-
-    for (let i = 0; i < numDepth; i++) {
+  for (let i = 0; i < numDepth; i++) {
     rectStartYs.push(startY + i * yOffset);
   }
 
@@ -110,51 +102,44 @@ export const drawConvLayer = (
       y: startY + j * yOffset + rectHeight / 2,
     });
 
-    let rightPointY;
-    if (j != numDepth - 1) {
-      rightPointY = startY + j * yOffset + 0.5 * yOffset;
-    } else {
-      rightPointY = startY + j * yOffset + rectHeight / 2;
-    }
+
     rightMidPoints.push({
-      x: Math.min(
-        startX + j * xOffset + actualX + rectWidth,
-        startX + actualX + rectWidth + (numDepth - 1) * xOffset
-      ),
-      y: rightPointY,
+      x:  startX + j * xOffset + actualX + rectWidth,
+      y: startY + j * yOffset + rectHeight / 2,
     });
 
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numColumns; col++) {
         const x = startX + j * xOffset + col * cellWidth;
         const y = startY + j * yOffset + row * cellHeight;
-        let randomOpacity = Math.random(); 
-  
+        let randomOpacity = Math.random();
+
         if (is3DTensor(tensor)) {
           if (isNumberParam(tensor[0][row][col][j])) {
-            // negative opacity shit solution 
-            // what to do -> future map them to a RGB range 
-            // more than 1 -> another shade -> etc... 
+            // negative opacity shit solution
+            // what to do -> future map them to a RGB range
+            // more than 1 -> another shade -> etc...
             randomOpacity = tensor[0][row][col][j];
-            randomOpacity += Math.abs(MIN_WEIGHT)
-            randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT
+            
+            randomOpacity += Math.abs(MIN_WEIGHT);
+            randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT;
             if (randomOpacity > 1) {
-              randomOpacity = 1.0
+              randomOpacity = 1.0;
             } else if (randomOpacity < 0) {
-              randomOpacity = 0.0 
+              randomOpacity = 0.0;
             }
           }
-        } else if (is2DTensor(tensor)) {
-          randomOpacity = tensor[row][j]
-          randomOpacity += Math.abs(MIN_WEIGHT)
-            randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT
-            if (randomOpacity > 1) {
-              randomOpacity = 1.0
-            } else if (randomOpacity < 0) {
-              randomOpacity = 0.0 
-            }
-        }
 
+        } else if (is2DTensor(tensor)) {
+          randomOpacity = tensor[row][j];
+          randomOpacity += Math.abs(MIN_WEIGHT);
+          randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT;
+          if (randomOpacity > 1) {
+            randomOpacity = 1.0;
+          } else if (randomOpacity < 0) {
+            randomOpacity = 0.0;
+          }
+        }
         layerGroup
           .append("rect")
           .attr("x", x)
@@ -171,51 +156,6 @@ export const drawConvLayer = (
       }
     }
   }
-  } else {
-    for (let j = 0; j < numDepth; j++) {
-      for (let row=0; row < numRows; row++) {
-        for (let col=0; col <numColumns; col++) {
-          let randomOpacity = 0
-          if (is3DTensor(tensor)) {
-          if (isNumberParam(tensor[0][row][col][j])) {
-            // negative opacity shit solution 
-            // what to do -> future map them to a RGB range 
-            // more than 1 -> another shade -> etc... 
-            randomOpacity = tensor[0][row][col][j];
-            randomOpacity += Math.abs(MIN_WEIGHT)
-            randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT
-            if (randomOpacity > 1) {
-              randomOpacity = 1.0
-            } else if (randomOpacity < 0) {
-              randomOpacity = 0.0 
-            }
-          }
-        } else if (is2DTensor(tensor)) {
-          randomOpacity = tensor[row][j]
-          randomOpacity += Math.abs(MIN_WEIGHT)
-            randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT
-            if (randomOpacity > 1) {
-              randomOpacity = 1.0
-            } else if (randomOpacity < 0) {
-              randomOpacity = 0.0 
-          }
-        }
-
-        layerGroup.select(`#square-${row}-${col}-${j}`)
-        .transition()
-        .duration(400)
-        .delay((row * numColumns + col) * 10)
-        .style("opacity", randomOpacity);
-        
-        }
-      }
-    }
-
-
-
-  }
-
-  
 
   return result;
 };

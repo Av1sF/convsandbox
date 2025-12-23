@@ -1,7 +1,7 @@
 function binSearchInterval(
   n: number,
   intervals: number[][]
-): number[] | undefined {
+): number | undefined {
   if (!intervals || intervals.length === 0) return undefined;
 
   const mid = Math.floor(intervals.length / 2);
@@ -12,7 +12,7 @@ function binSearchInterval(
   } else if (n < low) {
     return binSearchInterval(n, intervals.slice(0, mid));
   } else {
-    return intervals[mid];
+    return mid;
   }
 }
 

@@ -1,4 +1,3 @@
-// ConvInitModal.tsx
 import { useState } from "react";
 import { MAX_WIDTH, MAX_HEIGHT, MAX_DEPTH, ConvParams } from "@/utils/types";
 
@@ -24,7 +23,11 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
     onConfirm({
       width: size,
       height: size,
-      depth,
+      depth: depth,
+      stride: 0,
+      numFilters: 0, 
+      padding: 0, 
+      filterSize: 0,
     });
   };
 

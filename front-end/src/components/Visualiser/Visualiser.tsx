@@ -3,9 +3,9 @@ import { useRef, useState } from "react";
 import VisualiserCanvas from "./VisualiserCanvas";
 import VisualiserMenuBtn from "./VisualiserMenuBtn";
 import * as d3 from "d3";
-import { drawConvLayer } from "@/utils/drawConvLayer";
-import ConvLayerModal from "./Modals/ConvLayerModal";
-import ActivationSelectModal from "./Modals/ActivationSelectModal";
+import { drawStackedConvLayer } from "@/utils/drawStackedConvLayer";
+import ConvLayerModal from "./LayerModals/ConvLayerModal";
+import ActivationSelectModal from "./LayerModals/ActivationSelectModal";
 import {
   ActivationType,
   convLayerDims,
@@ -30,10 +30,10 @@ import {
   isNumberParam,
   isUpsamplingParams,
 } from "@/utils/typeGuards";
-import UpsamplingSelectModal from "./Modals/UpsamplingSelectModal";
+import UpsamplingSelectModal from "./LayerModals/UpsamplingSelectModal";
 import drawLayerConnections from "@/utils/drawLayerConnection";
-import DownsamplingSelectModal from "./Modals/DownsamplingSelectModal";
-import DenseLayerModal from "./Modals/DenseLayerModal";
+import DownsamplingSelectModal from "./LayerModals/DownsamplingSelectModal";
+import DenseLayerModal from "./LayerModals/DenseLayerModal";
 import { drawNeurons } from "@/utils/drawNeurons";
 import { addLayerLabel } from "@/utils/addLayerLabel";
 import {
@@ -46,7 +46,7 @@ import {
 } from "@/utils/DummyModel";
 import VisualiserSmallPlusBtn from "./VisualiserSmallPlusBtn";
 import binSearchInterval from "@/utils/binSearchInterval";
-import * as tf from "@tensorflow/tfjs";
+import ConvAnimationModal from "./AnimationModals/ConvAnimationModal";
 
 const W = 1183;
 const H = 500;
@@ -73,6 +73,7 @@ export default function Visualiser() {
   const [allLayerConnections, setAllLayerConnections] = useState<
     LayerConnections[]
   >([]);
+
   const initialLayers: Layer[] = [];
   const initialAction = "";
 
@@ -92,11 +93,14 @@ export default function Visualiser() {
   interface animationTrigger {
     layerNumber: number[];
     triggerArea: number[];
-    animationType: string;
+    animationType: keyof typeof animationModals;
   }
   const [animationTriggers, setAnimationTriggers] = useState<
     animationTrigger[]
   >([]);
+
+  const [currAnimationTrigger, setCurrAnimationTrigger] =
+    useState<animationTrigger>();
 
   // Store dimensions of the last layer created
   const [prevLayerDims, setPrevLayerDims] = useState<
@@ -110,6 +114,16 @@ export default function Visualiser() {
     downsample: false,
     dense: false,
   });
+
+  const [animationModals, setAnimationModals] = useState({
+    conv: false,
+  });
+
+  const openAnimationModal = (key: keyof typeof animationModals) => {
+    setAnimationModals((m) => ({ ...m, [key]: true }));
+  };
+  const closeAnimationModal = (key: keyof typeof animationModals) =>
+    setAnimationModals((m) => ({ ...m, [key]: false }));
 
   const [layerModals, setLayerModals] = useState({
     conv: false,
@@ -181,20 +195,24 @@ export default function Visualiser() {
     const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
     const { x, y } = svgP;
 
-    const animationTriggerArea =
-      animationTriggers.length == 0
-        ? undefined
-        : binSearchInterval(
-            x,
-            animationTriggers.map((a) => a.triggerArea)
-          );
-    if (animationTriggerArea) {
-      // to know the right animation to trigger and the information needed
-      // what type of animation it will be
-      // what layers in tensorLayers will I need to generate this information
-      // so for conv i need kernel bias before and after & also padded matrix.
-      console.log("wowww in trigger area", animationTriggerArea, x);
+    const triggerIndex = binSearchInterval(
+      x,
+      animationTriggers.map((a) => a.triggerArea)
+    );
+
+    if (triggerIndex != undefined) {
+      setCurrAnimationTrigger(animationTriggers[triggerIndex]);
+      // const currAnimationTrigger = animationTriggers[triggerIndex]
+      // openLayerModal(layerModalMap[type]);
+      openAnimationModal(animationTriggers[triggerIndex].animationType);
+      // console.log(currAnimationTrigger)
+      console.log("tried to open");
     }
+    //   // to know the right animation to trigger and the information needed
+    //   // what type of animation it will be
+    //   // what layers in tensorLayers will I need to generate this information
+    //   // so for conv i need kernel bias before and after & also padded matrix.
+    //   console.log("wowww in trigger area", animationTriggerArea, x);
   };
 
   // Convolutional Layer Modal handler
@@ -236,8 +254,21 @@ export default function Visualiser() {
   };
 
   const animationModalComponents = {
-    conv: <div key="conv-animation">meow</div>,
+    conv: (
+      <div key="conv-animation">
+        {/* {currAnimationTrigger?.animationType}
+      {currAnimationTrigger?.layerNumber} */}
+        <ConvAnimationModal
+          onClose={() => closeAnimationModal("conv")}
+          layerIndex={
+            currAnimationTrigger ? currAnimationTrigger.layerNumber : []
+          }
+          tensorLayers={tensorLayers}
+        />
+      </div>
+    ),
   };
+
   const layerModalComponents = {
     conv: (
       <div key="conv">
@@ -309,23 +340,21 @@ export default function Visualiser() {
         isActivationType(latestLayer.params) &&
         existingGroup.select(`#${activationType}`).empty()
       ) {
-        setTensorLayers([...tensorLayers]);
-
         if (prevLayerDims && isConvLayerDims(prevLayerDims)) {
           tensorLayers.push(
             setActivationLayer(
               latestLayer.params as ActivationType,
               tensorLayers[tensorLayers.length - 1].output,
-              undefined, 
-                 {
-                  height: prevLayerDims.height,
-                  width: prevLayerDims.width,
-                  depth: prevLayerDims.depth,
-                },
+              undefined,
+              {
+                height: prevLayerDims.height,
+                width: prevLayerDims.width,
+                depth: prevLayerDims.depth,
+              }
             )
           );
 
-          drawConvLayer(
+          drawStackedConvLayer(
             W,
             H,
             prevLayerDims.depth,
@@ -372,6 +401,7 @@ export default function Visualiser() {
             tensorLayers[tensorLayers.length - 1].output.arraySync()
           );
         }
+        setTensorLayers([...tensorLayers]);
 
         const yText =
           layers[layers.length - 2].type == "add-downsampling" ||
@@ -466,7 +496,7 @@ export default function Visualiser() {
           setTensorLayers([...tensorLayers]);
         }
 
-        layerConnections = drawConvLayer(
+        layerConnections = drawStackedConvLayer(
           W,
           H,
           latestLayer.params.depth,
@@ -489,7 +519,7 @@ export default function Visualiser() {
         );
         setTensorLayers([...tensorLayers]);
 
-        layerConnections = drawConvLayer(
+        layerConnections = drawStackedConvLayer(
           W,
           H,
           latestLayer.params.outputDims.depth,
@@ -538,7 +568,7 @@ export default function Visualiser() {
         );
         setTensorLayers([...tensorLayers]);
 
-        layerConnections = drawConvLayer(
+        layerConnections = drawStackedConvLayer(
           W,
           H,
           latestLayer.params.outputDims.depth,
@@ -640,8 +670,7 @@ export default function Visualiser() {
       <VisualiserCanvas
         id="canvas"
         ref={svgRef}
-        onClick={handleVisualiserClick} // do this onclick shit and make a list
-        // where u detect if it is in a polygon // and find the type
+        onClick={handleVisualiserClick} 
         className={`w-[1183px] h-[500px] d3-root`}
       >
         {/* Only render the button if fewer than max layers exist */}
@@ -668,6 +697,12 @@ export default function Visualiser() {
 
       {Object.entries(layerModals).map(([key, open]) =>
         open ? layerModalComponents[key as keyof typeof layerModals] : null
+      )}
+
+      {Object.entries(animationModals).map(([key, open]) =>
+        open
+          ? animationModalComponents[key as keyof typeof animationModals]
+          : null
       )}
     </div>
   );
