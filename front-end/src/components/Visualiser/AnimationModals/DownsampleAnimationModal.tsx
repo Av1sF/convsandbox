@@ -138,29 +138,31 @@ const DownsampleAnimationModal: React.FC<Props> = ({
           .attr("class", `filter`)
           .attr("transform", `translate(${startX}, 0)`);
 
-        // draw lines 
-        if(inputLines && outputLines) {
+        // draw lines
+        if (inputLines && outputLines) {
           for (let i = 0; i < (inputLines[1] as MidPoint[]).length; i++) {
-          const p1 = inputLines[1][i]
-          const p2 = outputLines[0][i];
+            const p1 = inputLines[1][i];
+            const p2 = outputLines[0][i];
 
-          root.append("line")
-          .attr("x1", p1.x)      
-          .attr("y1", p1.y)    
-          .attr("x2", p1.x + 165)  
-          .attr("y2", p2.y)         
-          .attr("stroke", convColourScheme[i]) 
-          .attr("stroke-width", 2) 
-          .attr("opacity", 0.5);
+            root
+              .append("line")
+              .attr("x1", p1.x)
+              .attr("y1", p1.y)
+              .attr("x2", p1.x + 165)
+              .attr("y2", p2.y)
+              .attr("stroke", convColourScheme[i])
+              .attr("stroke-width", 2)
+              .attr("opacity", 0.5);
 
-          root.append("line")
-          .attr("x1", p1.x + 350)    
-          .attr("y1", p2.y)      
-          .attr("x2", p2.x )  
-          .attr("y2", p2.y)  
-          .attr("stroke", convColourScheme[i])
-          .attr("stroke-width", 2) 
-          .attr("opacity", 0.5);
+            root
+              .append("line")
+              .attr("x1", p1.x + 350)
+              .attr("y1", p2.y)
+              .attr("x2", p2.x)
+              .attr("y2", p2.y)
+              .attr("stroke", convColourScheme[i])
+              .attr("stroke-width", 2)
+              .attr("opacity", 0.5);
           }
         }
 
@@ -277,21 +279,22 @@ const DownsampleAnimationModal: React.FC<Props> = ({
                 }
 
                 if (currOutputi == 0 && currOutputj == 0) {
-                  inputFilterGroup.append("text")
-                  .attr("x", -62)
-                  .attr("y", startY + 40 + c * 10)
-                  .attr("width", 30)
-                  .attr("height", 30)
-                  .attr("id", (d, i) => `diagramatic-right-bracket`)
-                  .append("tspan")
-                  .attr("font-size", 20)
-                  .attr("class", `font-main`)
-                  .text(`${poolingFunction}`)
-                  .append("tspan")
-                  .attr("font-size", 60)
-                  .attr("class", "font-main")
-                  .text("[‎ ‎ ‎‎‎ ‎  ‎‎ ‎ ‎ ]")
-                  .style("opacity", 1)
+                  inputFilterGroup
+                    .append("text")
+                    .attr("x", -62)
+                    .attr("y", startY + 40 + c * 10)
+                    .attr("width", 30)
+                    .attr("height", 30)
+                    .attr("id", (d, i) => `diagramatic-right-bracket`)
+                    .append("tspan")
+                    .attr("font-size", 20)
+                    .attr("class", `font-main`)
+                    .text(`${poolingFunction}`)
+                    .append("tspan")
+                    .attr("font-size", 60)
+                    .attr("class", "font-main")
+                    .text("[‎ ‎ ‎‎‎ ‎  ‎‎ ‎ ‎ ]")
+                    .style("opacity", 1);
                 }
 
                 // create group
@@ -324,6 +327,133 @@ const DownsampleAnimationModal: React.FC<Props> = ({
         }
       } else {
         // GLOBAL
+
+        var currOutputi = 0;
+        var batchWindowDelay = 0;
+        var currOutputj = 0;
+
+        const inputGroup = root
+          .append("g")
+          .attr("class", `input`)
+          .attr("transform", `translate(200, 0)`);
+        
+        const outputGroup = root
+          .append("g")
+          .attr("class", `output`)
+          .attr("transform", `translate(450, 0)`);
+
+        for (let c = 0; c < inputConvShape[3]; c++) {
+          // animate filter window
+          var filteredInput: number[][] = [];
+          for (let dy = 0; dy < inputConvShape[1]; dy++) {
+            filteredInput[dy] = [];
+            for (let dx = 0; dx < inputConvShape[2]; dx++) {
+              var tensor = inputConv.output.arraySync();
+              if (is3DTensor(tensor)) {
+                if (isNumberParam(tensor[0][dy][dx][c])) {
+                  filteredInput[dy][dx] = tensor[0][dy][dx][c];
+                }
+              }
+            }
+          }
+
+          var pooledOutput = [[(poolingConv.output.arraySync() as number[][])[0][c]]]
+
+          var outputConv = drawConvNotation(
+          convColourScheme[c],
+          700,
+          280,
+          10, //max layers
+          0,
+          200 + c * 100,
+          0,
+          0,
+          c,
+          outputGroup,
+          1000 + batchWindowDelay * 2000,
+          pooledOutput,
+          true
+        );
+          
+          inputGroup
+            .append("text")
+            .attr("x", -65)
+            .attr("y", 220 + 40 + c * 100)
+            .attr("width", 30)
+            .attr("height", 30)
+            .attr("id", (d, i) => `diagramatic-right-bracket`)
+            .append("tspan")
+            .attr("font-size", 20)
+            .attr("class", `font-main`)
+            .text(`${poolingFunction}`)
+            .append("tspan")
+            .attr("font-size", 60)
+            .attr("class", "font-main")
+            .text("[‎ ‎ ‎‎‎ ‎  ‎‎ ‎ ‎ ]")
+            .style("opacity", 1);
+
+          // create group
+          var filterInput = drawConvNotation(
+            convColourScheme[c],
+            700,
+            280,
+            10, //max layers
+            0,
+            200 + c * 100,
+            0,
+            0,
+            c,
+            inputGroup,
+            1000 + batchWindowDelay * 2000,
+            filteredInput,
+            true
+          );
+
+
+          // add lines 
+          const p1X = inputGroup.select(`#k-${c}`).attr("x") + 240
+          const p2X = outputGroup.select(`#k-${c}`).attr("x") + 100
+          const pY =  +inputGroup.select(`#k-${c}`).attr("y") + 0.5* (+inputGroup.select(`#k-${c}`).attr("height") )
+
+          inputGroup
+              .append("line")
+              .attr("x1", p1X)
+              .attr("y1", pY)
+              .attr("x2", p2X )
+              .attr("y2", pY)
+              .attr("stroke", convColourScheme[c])
+              .attr("stroke-width", 2)
+              .attr("opacity", 0.5);
+
+        }
+
+        const inputLabelX =
+          parseInt(inputGroup.select(`#k-0`).attr("x")) +
+          parseInt(inputGroup.select(`#k-0`).attr("width")) * 0.5;
+
+        inputGroup
+          .append("text")
+          .attr("x", inputLabelX)
+          .attr("y", 500 * 0.05)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("opacity", 0.8)
+          .attr("fill", "#333")
+          .text("Input");
+
+        const outputLabelX =
+          parseInt(outputGroup.select(`#k-0`).attr("x")) +
+          parseInt(outputGroup.select(`#k-0`).attr("width")) * 0.5;
+
+        outputGroup
+          .append("text")
+          .attr("x", outputLabelX)
+          .attr("y", 500 * 0.05)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("opacity", 0.8)
+          .attr("fill", "#333")
+          .text("Pooled Output");
       }
     }
   }, [modalSvgRef.current]);
