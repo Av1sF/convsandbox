@@ -1051,10 +1051,7 @@ const ConvAnimationModal: React.FC<Props> = ({
         .transition()
         .delay(batchWindowDelay * 2000)
         .remove();
-      // sliding window
-      // calculate which cells are use in calculation get the indexes
-      // this allows tensor value retrieval and also cell highlight retrieval
-      // 5 primary colours to use
+
     }
   }, [modalSvgRef.current]);
 
