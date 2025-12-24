@@ -1,18 +1,22 @@
 function binSearchInterval(
   n: number,
-  intervals: number[][]
+  intervals: number[][],
+  high: number,
+  low: number
 ): number | undefined {
   if (!intervals || intervals.length === 0) return undefined;
 
-  const mid = Math.floor(intervals.length / 2);
-  const [low, high] = intervals[mid];
+  if (high >= low) {
+    const mid = low + Math.floor((high - low) / 2);
+    const [lb, ub] = intervals[mid];
 
-  if (n > high) {
-    return binSearchInterval(n, intervals.slice(mid + 1));
-  } else if (n < low) {
-    return binSearchInterval(n, intervals.slice(0, mid));
-  } else {
-    return mid;
+    if (n > ub) {
+      return binSearchInterval(n, intervals, mid + 1, high);
+    } else if (n < lb) {
+      return binSearchInterval(n, intervals, low, mid - 1);
+    } else {
+      return mid;
+    }
   }
 }
 

@@ -3,7 +3,7 @@ import { Tensor } from "@tensorflow/tfjs";
 export const MAXLAYERS = 6;
 export const MAX_WIDTH = 15;
 export const MAX_HEIGHT = 15;
-export const MAX_DEPTH = 3;
+export const MAX_DEPTH = 5;
 export const MAX_FILTERS = MAX_DEPTH;
 export const MAX_FILTER_SIZE = 11;
 export const MAX_PADDING = 10;

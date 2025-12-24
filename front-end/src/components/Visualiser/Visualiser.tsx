@@ -197,22 +197,26 @@ export default function Visualiser() {
 
     const triggerIndex = binSearchInterval(
       x,
-      animationTriggers.map((a) => a.triggerArea)
+      animationTriggers.map((a) => a.triggerArea),
+      animationTriggers.length - 1,
+      0
     );
-
+    console.log(animationTriggers.map((a) => a.triggerArea))
     if (triggerIndex != undefined) {
+      console.log(triggerIndex)
       setCurrAnimationTrigger(animationTriggers[triggerIndex]);
       // const currAnimationTrigger = animationTriggers[triggerIndex]
       // openLayerModal(layerModalMap[type]);
       openAnimationModal(animationTriggers[triggerIndex].animationType);
       // console.log(currAnimationTrigger)
-      console.log("tried to open");
+
     }
     //   // to know the right animation to trigger and the information needed
     //   // what type of animation it will be
     //   // what layers in tensorLayers will I need to generate this information
     //   // so for conv i need kernel bias before and after & also padded matrix.
-    //   console.log("wowww in trigger area", animationTriggerArea, x);
+    // ok last animation row is glitched out idk why 
+      console.log("wowww in trigger area", x);
   };
 
   // Convolutional Layer Modal handler
@@ -382,6 +386,13 @@ export default function Visualiser() {
                 animationType: "conv",
               },
             ]);
+
+            console.log("meow")
+            console.log("layers", layers.length - 1,
+                  layers.length - 2,
+                  layers.length - 3,)
+            console.log("trigger areas", allLayerConnections[allLayerConnections.length - 2][1][0].x,
+                  allLayerConnections[allLayerConnections.length - 1][0][0].x, )
           }
         } else if (prevLayerDims && isDenseLayerDims(prevLayerDims)) {
           tensorLayers.push(

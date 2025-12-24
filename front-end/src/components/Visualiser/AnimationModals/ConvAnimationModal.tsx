@@ -29,6 +29,7 @@ const ConvAnimationModal: React.FC<Props> = ({
   layerIndex,
   onClose,
 }) => {
+  console.log(layerIndex)
   const initialRef = null;
   const modalSvgRef = useRef<SVGSVGElement | null>(initialRef);
 
@@ -1035,29 +1036,6 @@ const ConvAnimationModal: React.FC<Props> = ({
              .transition()
             .delay(1000)
             .remove()
-            
-
-            // formulaGroup.select(`#formula-visual`)
-            // // .select("#text-output-index")
-            //   .append("text")
-            //   .attr("x", lastKernelx+330+10)
-            // .attr("y", lastKernely - 5)
-            // .attr("width", 60)
-            // .attr("height", 60)
-            //   .append("tspan")
-            // .attr("baseline-shift", "sub")
-            // .attr("font-size",  8)
-            // .text(`${currOutputi+1},${currOutputj+1},${1}`)
-            // .select(`#text-output-index`)
-            // .attr("opacity", 0)
-            // .transition()
-            // .duration(0)
-            // .delay(1000 + batchWindowDelay * 2000)
-            // .attr("opacity", 1)
-            //  .transition()
-            // .delay(1000)
-            // .remove()
-
       
 
             batchWindowDelay += 1;
@@ -1107,9 +1085,9 @@ const ConvAnimationModal: React.FC<Props> = ({
 
         <div className="mt-6 sm:mt-0">
           <h1 className="text-text">Applying Convolutions...</h1>
-          <div className="relative max-h-1/3 max-w-[2000px] overflow-auto border border-accent">
+          <div className="relative max-h-1/3 max-w-[2100px] overflow-auto border border-accent">
             <MathJax>
-              <svg ref={modalSvgRef} className="w-[2000px] h-[650px] "></svg>
+              <svg ref={modalSvgRef} className="w-[2100px] h-[650px] "></svg>
             </MathJax>
           </div>
         </div>
