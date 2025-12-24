@@ -25,12 +25,12 @@ const POOLING_OPTIONS: {
   {
     type: "Global Max Pooling",
     description:
-      "Reduces each feature map to a single value (used before fully connected layers).",
+      "Reduces each channel to a single value (used before fully connected layers) by finding the max value in each channel.",
   },
   {
     type: "Global Average Pooling",
     description:
-      "Reduces each feature map to a single value (used before fully connected layers).",
+      "Reduces each feature map to a single value (used before fully connected layers) by averaging all values in each channel.",
   },
 ];
 

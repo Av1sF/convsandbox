@@ -10,7 +10,7 @@
  * @param tensor
  */
 
-import { BaseType, } from "d3";
+import { BaseType } from "d3";
 import { isNumberParam } from "./typeGuards";
 import { is2DTensor } from "./is2DTensor";
 
@@ -18,7 +18,7 @@ const MAX_WEIGHT = 100;
 const MIN_WEIGHT = -100;
 
 export const drawConvNotation = (
-  color: string, 
+  color: string,
   canvasW: number,
   canvasH: number,
   maxLayers: number,
@@ -26,7 +26,7 @@ export const drawConvNotation = (
   startY: number,
   i: number,
   j: number,
-  l: number, 
+  l: number,
   layerGroup:
     | d3.Selection<SVGSVGElement | null, unknown, null, undefined>
     | d3.Selection<SVGGElement, unknown, null, undefined>
@@ -39,7 +39,8 @@ export const drawConvNotation = (
     | number[][][]
     | number[][][][]
     | number[][][][][]
-    | number[][][][][][]
+    | number[][][][][][],
+  last?: boolean
 ) => {
   if (!is2DTensor(tensor)) return;
 
@@ -74,7 +75,6 @@ export const drawConvNotation = (
   const haschildren = !layerGroup.select(`#k-${l}`).empty();
 
   if (!haschildren) {
-   
     rect
       .append("rect")
       .attr("id", (d, _) => `k-${l}`)
@@ -85,7 +85,7 @@ export const drawConvNotation = (
       .attr("class", "fill-bg stroke-text")
       // .attr("fill", color)
       .style("opacity", 1);
-  } 
+  }
 
   for (let row = 0; row < filterSize; row++) {
     for (let col = 0; col < filterSize; col++) {
@@ -106,10 +106,10 @@ export const drawConvNotation = (
           } else if (randomOpacity < 0) {
             randomOpacity = 0.0;
           }
-       
         }
       } else {
       }
+      if (!last) {
         const cell = layerGroup
           .append("g")
           .attr("id", (d, _) => `square-${row}-${col}`);
@@ -128,27 +128,29 @@ export const drawConvNotation = (
           .style("opacity", randomOpacity)
           .transition()
           .delay(1000)
-          .remove()
-          
-          if (filterSize < 4) {
-            cell.append("text")
+          .remove();
+
+        if (filterSize < 4) {
+          cell
+            .append("text")
             .attr("x", x + 0.25 * cellWidth)
-            .attr("y", y + 0.5 * cellHeight-4)
+            .attr("y", y + 0.5 * cellHeight - 4)
             .attr("width", cellWidth)
             .attr("text-anchor", "left")
-            .attr("font-size", filterSize == 3? 5: 8)
+            .attr("font-size", filterSize == 3 ? 5 : 8)
             .attr("height", cellHeight)
             .transition()
             .duration(0)
             .delay(delay)
-            .text(`${(tensor[row][col]).toFixed(2)}`)
+            .text(`${tensor[row][col].toFixed(2)}`)
             .transition()
             .delay(1000)
-            .remove()
+            .remove();
 
-            cell.append("text")
+          cell
+            .append("text")
             .attr("id", (d, _) => `text-${row}-${col}`)
-            .attr("x", x + 0.25 * cellWidth +3)
+            .attr("x", x + 0.25 * cellWidth + 3)
             .attr("y", y + 0.5 * cellHeight + 7)
             .attr("width", cellWidth)
             .attr("height", cellHeight)
@@ -158,42 +160,116 @@ export const drawConvNotation = (
             .text("x")
             .append("tspan")
             .attr("baseline-shift", "sub")
-            .attr("font-size", filterSize === 3? 5:  8)
-            .text(`${i+row+1},${j+col+1},${l+1}`)
-          
-          cell.select(`#text-${row}-${col}`)
+            .attr("font-size", filterSize === 3 ? 5 : 8)
+            .text(`${i + row + 1},${j + col + 1},${l + 1}`);
+
+          cell
+            .select(`#text-${row}-${col}`)
             .attr("opacity", 0)
             .transition()
             .duration(0)
             .delay(delay)
             .attr("opacity", 1)
-             .transition()
+            .transition()
             .delay(1000)
-            .remove()
+            .remove();
+        }
+      } else {
+        const cell = layerGroup
+          .append("g")
+          .attr("id", (d, _) => `square-${row}-${col}`);
 
-          }
-    }
-  }
-
-   
-    rect
-      .append("rect")
-      .attr("id", (d, _) => `k-${l}-color`)
-      .attr("x", startX)
-      .attr("y", startY)
-      .attr("width", rectWidth)
-      .attr("height", rectHeight)
-      // .attr("class", "fill-bg stroke-text")
-      .attr("fill", color)
-      
-      .style("opacity", 0)
+        cell
+          .append("rect")
+          .attr("x", x)
+          .attr("y", y)
+          .attr("width", cellWidth)
+          .attr("height", cellHeight)
+          .attr("fill", "#5f6c7b")
+          .style("opacity", 0)
           .transition()
           .duration(0)
           .delay(delay)
-          .style("opacity", 0.7)
-          .transition()
-          .delay(1000)
-          .remove();
+          .style("opacity", randomOpacity);
+
+        if (filterSize < 4) {
+          cell
+            .append("text")
+            .attr("x", x + 0.25 * cellWidth)
+            .attr("y", y + 0.5 * cellHeight - 4)
+            .attr("width", cellWidth)
+            .attr("text-anchor", "left")
+            .attr("font-size", filterSize == 3 ? 5 : 8)
+            .attr("height", cellHeight)
+            .transition()
+            .duration(0)
+            .delay(delay)
+            .text(`${tensor[row][col].toFixed(2)}`);
+
+          cell
+            .append("text")
+            .attr("id", (d, _) => `text-${row}-${col}`)
+            .attr("x", x + 0.25 * cellWidth + 3)
+            .attr("y", y + 0.5 * cellHeight + 7)
+            .attr("width", cellWidth)
+            .attr("height", cellHeight)
+            .attr("text-anchor", "left")
+            .append("tspan")
+            .attr("font-size", 8)
+            .text("x")
+            .append("tspan")
+            .attr("baseline-shift", "sub")
+            .attr("font-size", filterSize === 3 ? 5 : 8)
+            .text(`${i + row + 1},${j + col + 1},${l + 1}`);
+
+          cell
+            .select(`#text-${row}-${col}`)
+            .attr("opacity", 0)
+            .transition()
+            .duration(0)
+            .delay(delay)
+            .attr("opacity", 1);
+        }
+      }
+    }
+  }
+
+
+  if (!last) {
+  rect
+    .append("rect")
+    .attr("id", (d, _) => `k-${l}-color`)
+    .attr("x", startX)
+    .attr("y", startY)
+    .attr("width", rectWidth)
+    .attr("height", rectHeight)
+    // .attr("class", "fill-bg stroke-text")
+    .attr("fill", color)
+
+    .style("opacity", 0)
+    .transition()
+    .duration(0)
+    .delay(delay)
+    .style("opacity", 0.7)
+    .transition()
+    .delay(1000)
+    .remove();
+  } else {
+    rect
+    .append("rect")
+    .attr("id", (d, _) => `k-${l}-color`)
+    .attr("x", startX)
+    .attr("y", startY)
+    .attr("width", rectWidth)
+    .attr("height", rectHeight)
+    .attr("fill", color)
+    .style("opacity", 0)
+    .transition()
+    .duration(0)
+    .delay(delay)
+    .style("opacity", 0.7)
+ 
+  }
 
   return rect;
 };

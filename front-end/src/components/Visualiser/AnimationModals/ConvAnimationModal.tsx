@@ -29,7 +29,6 @@ const ConvAnimationModal: React.FC<Props> = ({
   layerIndex,
   onClose,
 }) => {
-  console.log(layerIndex)
   const initialRef = null;
   const modalSvgRef = useRef<SVGSVGElement | null>(initialRef);
 
@@ -521,7 +520,7 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("class", `formula`)
         .attr("transform", `translate(1000, 10)`);
 
-      const formulaText = [
+      var formulaText = [
         "Let \\(H_1\\) contain \\(H_{ij1}\\) outputs (All values of output channel \\(H_1\\))",
         `Let \\(K\\) be a kernel in Filter \\(F_{1}\\) and \\(K \\in \\mathbb{R}^{p \\times p}\\) `,
         `Let \\(D\\) denote the number of kernels in filter \\(F_{1}\\)`,
@@ -537,12 +536,18 @@ const ConvAnimationModal: React.FC<Props> = ({
         `The convolution operation looks similar to the generalised deep neural network...`,
         `\\( H = \\alpha(\\Omega \\cdot X + B) \\) </br>`,
         "A single output in \\(H_1\\) can be calculated via...",
-        `\\( H_{ij1} =  \\alpha \\Bigl[\\sum_{l=1}^{D} \\sum_{m=1}^{p} \\sum_{n=1}^{p} (w_{mnl} \\times x_{i+m+p+1, j+n-p+1, l}) + \\beta_{${1}} \\Bigr] \\)`,
-        // `diagram of the kernels n shi`,
-        // ` then show it being put through an activation function finally`,
-        // ` then show output...`
       ]
-        .map((s) => `<span>${s}</span>`)
+
+      if (inputConv.stride == 1) {
+        formulaText.push(`\\( H_{ij1} =  \\alpha \\Bigl[\\sum_{l=1}^{D} \\sum_{m=1}^{p} \\sum_{n=1}^{p} (w_{mnl} \\times x_{i+m+p+1, j+n-p+1, l}) + \\beta_{${1}} \\Bigr] \\)`,)
+      } 
+
+      if (inputConv.filterSize > 3) {
+        formulaText.push(`(If your filter size is less than 4x4 you can see the values of the weights and input, currently they are hidden due to size)`,)
+      } else {
+        formulaText.push(`(Please note that final calculation results are rounded to 1dp and computing truncation is used)`,)
+      }
+      const formulaParagraph = formulaText.map((s) => `<span>${s}</span>`)
         .join("<br/>");
 
       formulaGroup
@@ -554,20 +559,15 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("font-size", 14)
         .append("xhtml:div")
         .style("color", "#333")
-        .html(formulaText);
+        .html(formulaParagraph)
 
       formulaGroup
         .append("g")
         .attr("class", "visual")
         .attr("id", (d, i) => `formula-visual`)
         .attr("transform", `translate(0, 370)`)
-        // .append("foreignObject")
         .attr("width", 700)
         .attr("height", 280);
-      // .attr("font-size", 14)
-      // .append("xhtml:div")
-      // .style("color", "#333")
-      // .html("hi");
 
       // vvv FOR EACH FILTER... vvv
 
@@ -1068,7 +1068,11 @@ const ConvAnimationModal: React.FC<Props> = ({
         "
       >
         <button
-          onClick={onClose}
+          onClick={() => {
+          const root = d3.select(modalSvgRef.current);
+          root.selectAll("*").remove();
+          onClose();
+          }}
           className="
             absolute top-3 right-4 
             text-2xl sm:text-xl 
