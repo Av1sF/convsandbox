@@ -47,6 +47,7 @@ import {
 import VisualiserSmallPlusBtn from "./VisualiserSmallPlusBtn";
 import binSearchInterval from "@/utils/binSearchInterval";
 import ConvAnimationModal from "./AnimationModals/ConvAnimationModal";
+import DenseAnimationModal from "./AnimationModals/DenseAnimationModal";
 import DownsampleAnimationModal from "./AnimationModals/DownsampleAnimationModal";
 
 const W = 1183;
@@ -119,6 +120,7 @@ export default function Visualiser() {
   const [animationModals, setAnimationModals] = useState({
     conv: false,
     downsample: false, 
+    dense: false, 
   });
 
   const openAnimationModal = (key: keyof typeof animationModals) => {
@@ -275,6 +277,17 @@ export default function Visualiser() {
 
       </div>
     ),
+    dense: (
+      <div key="dense-animation">
+        <DenseAnimationModal
+          onClose={() => closeAnimationModal("dense")}
+          layerIndex={
+            currAnimationTrigger ? currAnimationTrigger.layerNumber : []
+          }
+          tensorLayers={tensorLayers}
+        />
+      </div>
+    )
   };
 
   const layerModalComponents = {
@@ -635,8 +648,6 @@ export default function Visualiser() {
             animationType: "downsample",
           },
         ]);
-
-        console.log("DOWNSAMPLE ADDED TO ANIMATIION TRIGGERS ")
           
       } else if (
         latestLayer.type === "add-dense-layer" &&
@@ -679,6 +690,27 @@ export default function Visualiser() {
         setPrevLayerDims({
           neurons: latestLayer.params,
         });
+
+        setAnimationTriggers((prev) => [
+          ...prev,
+          {
+            // dense  input layer
+            layerNumber: [
+              layers.length - 1,
+              layers.length - 2,
+            ],
+            triggerArea: [
+              allLayerConnections[allLayerConnections.length - 2][1][0].x,
+              allLayerConnections[allLayerConnections.length - 1][0][0].x,
+            ],
+            animationType: "dense",
+          },
+        ]);
+
+        console.log("dense layer logged",  [
+              tensorLayers[layers.length - 1], // flattened + dense 
+              tensorLayers[layers.length - 2] // input 
+            ])
       }
 
       if (layerConnections) {

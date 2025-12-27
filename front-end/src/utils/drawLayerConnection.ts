@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import {LayerConnections } from "./types";
 
 function drawLayerConnections(
-  svgRoot: d3.Selection<d3.BaseType, unknown, null, undefined>,
+  svgRoot: | d3.Selection<d3.BaseType, unknown, null, undefined> | d3.Selection<SVGSVGElement | null, unknown, null, undefined>,
   allLayerConnections: LayerConnections[],
 ) {
   if (allLayerConnections.length < 2) return;
