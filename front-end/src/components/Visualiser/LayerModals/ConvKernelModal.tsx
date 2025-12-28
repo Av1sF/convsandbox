@@ -60,6 +60,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
       padding,
       filterSize,
       numFilters,
+      inChannels: prevDims.depth, 
     });
   };
 

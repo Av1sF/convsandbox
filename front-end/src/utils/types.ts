@@ -12,6 +12,17 @@ export const MAX_SCALE_FACTOR = 25;
 export const W = 1183;
 export const H = 500;
 
+export interface Layer {
+  type: LayerActionType;
+  params?:
+    | ConvParams
+    | ActivationType
+    | UpsamplingParams
+    | DownsamplingParams
+    | number
+    | undefined;
+}
+
 export type validLayerTypes = {
   conv: boolean;
   activation: boolean;
@@ -62,6 +73,7 @@ export interface ConvParams {
   numFilters: number;
   padding: number;
   filterSize: number;
+  inChannels: number;
 }
 
 export type MidPoint = { x: number; y: number };

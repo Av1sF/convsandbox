@@ -28,6 +28,7 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
       numFilters: 0, 
       padding: 0, 
       filterSize: 0,
+      inChannels: 0, 
     });
   };
 

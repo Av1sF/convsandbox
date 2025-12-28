@@ -14,6 +14,7 @@ import {
   DownsamplingParams,
   DownsamplingType,
   dummyModelOutputs,
+  Layer,
   LayerActionType,
   LayerConnections,
   MAXLAYERS,
@@ -49,20 +50,11 @@ import binSearchInterval from "@/utils/binSearchInterval";
 import ConvAnimationModal from "./AnimationModals/ConvAnimationModal";
 import DenseAnimationModal from "./AnimationModals/DenseAnimationModal";
 import DownsampleAnimationModal from "./AnimationModals/DownsampleAnimationModal";
+import { ParameterCount } from "./AnimationModals/CalculationModals/ParameterCount";
 
 const W = 1183;
 const H = 500;
 
-interface Layer {
-  type: LayerActionType;
-  params?:
-    | ConvParams
-    | ActivationType
-    | UpsamplingParams
-    | DownsamplingParams
-    | number
-    | undefined;
-}
 
 export default function Visualiser() {
   // -- Constants --
@@ -470,7 +462,7 @@ export default function Visualiser() {
         latestLayer.type === "add-conv-layer" &&
         isConvParams(latestLayer.params)
       ) {
-        addLayerLabel(layerLabelx, H * 0.15, layerGroup, `Convolutional Layer`);
+        addLayerLabel(layerLabelx, H * 0.15, layerGroup, `${layers.length == 1? "Input" : "Convolutional Layer"}`);
 
         addLayerLabel(
           layerLabelx,
@@ -707,10 +699,6 @@ export default function Visualiser() {
           },
         ]);
 
-        console.log("dense layer logged",  [
-              tensorLayers[layers.length - 1], // flattened + dense 
-              tensorLayers[layers.length - 2] // input 
-            ])
       }
 
       if (layerConnections) {
@@ -719,6 +707,8 @@ export default function Visualiser() {
         if (allLayerConnections.length > 1) {
           drawLayerConnections(root, allLayerConnections);
         }
+        console.log(layers)
+        console.log("tensor", tensorLayers)
       }
     }
     setAction("");
@@ -753,6 +743,8 @@ export default function Visualiser() {
           />
         )}
       </VisualiserCanvas>
+
+      {numLayers > 0 && (<ParameterCount layers={layers} tensorLayers={tensorLayers}/>)}
 
       {Object.entries(layerModals).map(([key, open]) =>
         open ? layerModalComponents[key as keyof typeof layerModals] : null

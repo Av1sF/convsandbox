@@ -48,7 +48,6 @@ const DenseAnimationModal: React.FC<Props> = ({
   const modalSvgRef = useRef<SVGSVGElement | null>(initialRef);
 
   const convColourScheme = d3.schemeObservable10.slice(0, 5);
-  // const outputColourScheme = d3.schemeObservable10.slice(5, 11);
 
   let didInit = false;
   useEffect(() => {
