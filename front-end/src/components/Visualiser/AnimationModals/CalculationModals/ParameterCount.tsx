@@ -30,8 +30,8 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
     setParamCalculation([
       {
         type: "Input",
-        variables: "",
-        calculation: "=0",
+        variables: "No trainable parameters.",
+        calculation: "\\( = 0 \\)",
       },
     ]);
 
@@ -78,7 +78,6 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           ]);
 
           totalp += denseNumParams;
-          //   setTotalParams(totalParams + denseNumParams);
         }
       } else if (layerType == "add-downsampling") {
         setParamCalculation((prev) => [
@@ -111,7 +110,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
         // style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
         onClick={() => setIsModalOpen(true)}
       >
-        number of parameters: {totalParams}
+        Number of parameters: {totalParams}
       </span>
 
       {isModalOpen && (
@@ -119,33 +118,82 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4"
           onClick={() => setIsModalOpen(false)}
         >
-          <div className="bg-bg rounded-2xl p-6 w-full max-w-md">
-            <h1 className="text-text">
-              Counting the number of trainable Parameters...
+          <div className="bg-bg rounded-2xl p-7 w-full max-w-1/2 max-h-3/4 text-text overflow-auto">
+            <h1 className="text-text text-2xl font-bold pb-3 ">
+              Calculating the number of trainable Parameters...
             </h1>
-            {/* <p> add the shit where it lists the formulas </p> */}
+            <MathJax>
+              <p className="pb-2 text-text-muted">
+                To calculate the total number of trainable parameters in a 2D
+                Convolutional Neural Network, only the convolutional and
+                fully-connected dense layers need to be considered, as they are
+                the only operations containing trainable weights and parameters.
+              </p>
+              <p className="font-semibold text-xl pb-1">Parameter formulas:</p>
+
+              <div className="indent-2 pb-3">
+                <span className="font-semibold">
+                  Fully-connected (Dense) Layer
+                </span>
+                <ul className="list-inside indent-6 pb-1 text-text-muted">
+                  <li>• Number of Input neurons ({`\\(I\\)`})</li>
+                  <li>• Number of Output neurons ({`\\(C_{in} \\)`})</li>
+                  <li>• Number of Filters (Output Channels) ({`\\(O \\)`})</li>
+                </ul>
+                <p className=" indent-4 pb-2 text-text-muted">
+                  If the previous layer is a 3D layer, then a flatten operation
+                  is applied. Hence, the number of input neurons will be{" "}
+                  <span>{`\\(H \\times W \\times D\\)`}</span>.
+                </p>
+                <p className=" indent-4 text-black">
+                  <span>{`\\( Parameters = (I \\times O) + O\\)`}</span>
+                </p>
+              </div>
+
+              <div className="indent-2 pb-2 ">
+                <span className="font-semibold">Convolutional Layer</span>
+                <ul className="list-inside indent-6 pb-2 text-text-muted">
+                  <li>• Filter Size ({`\\(k \\)`})</li>
+                  <li>
+                    • Number of Input Channels (Depth of previous layer) (
+                    {`\\(C_{in} \\)`})
+                  </li>
+                  <li>
+                    • Number of Filters (Output Channels) ({`\\(C_{out} \\)`})
+                  </li>
+                  <li>• Bias (1 Bias per Filter)</li>
+                </ul>
+
+                <p className=" indent-4 text-black">
+                  <span>{`\\( Parameters = (k \\times k \\times C_{in} + 1) \\times C_{out}\\)`}</span>
+                </p>
+              </div>
+            </MathJax>
+            <br />
+
+            <p className="font-semibold text-xl pb-1">
+              Traininable parameters for each layer...
+            </p>
             <MathJax>
               <div>
                 {paramCalculation.map((p, i) => (
-                  <div key={i} style={{ marginBottom: "1rem" }}>
-                    <div
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: "1.1em",
-                        marginBottom: "0.25rem",
-                      }}
-                    >
+                  <div key={i} className="pb-2 indent-6">
+                    <div className="font-bold">
                       {i + 1}. {p.type}
                     </div>
-                    <p>{p.variables}</p>
-                    <p>
-                      <span>{p.calculation}</span>
-                    </p>
+
+                    <div className="indent-11 text-text-muted">
+                      <p>{p.variables}</p>
+                      <p className="text-black">
+                        <span>{p.calculation}</span>
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
             </MathJax>
-            <div className="flex items-end justify-end">
+            <div className="flex items-end justify-end pt-6">
+              <br />
               <button onClick={() => setIsModalOpen(false)} className=" p-3">
                 Close
               </button>
