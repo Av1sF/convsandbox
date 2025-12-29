@@ -38,7 +38,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
       Math.floor((prevDims.height + 2 * padding - filterSize) / stride + 1)
     );
     setOutD(numFilters);
-  }, [filterSize, stride, padding, numFilters,  prevDims]);
+  }, [filterSize, stride, padding, numFilters, prevDims]);
 
   const isValid =
     outW > 0 &&
@@ -60,7 +60,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
       padding,
       filterSize,
       numFilters,
-      inChannels: prevDims.depth, 
+      inChannels: prevDims.depth,
     });
   };
 
@@ -68,13 +68,24 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
       <div className="bg-bg rounded-2xl p-6 w-full max-w-3xl flex flex-col md:flex-row gap-8 max-h-[95vh] overflow-y-auto">
         <div className="flex-1 text-sm text-text-muted">
+          <p className="text-sm text-text-muted px-2 pt-2 pb-5">
+            A convolution transforms an input vector into an output vector such
+            that each output element is a weighted sum of nearby input elements.
+            Each weighted sum is determined by a convolutional filter. The
+            filter size, number of filters, stride, and padding around the input
+            vector determine the size of our output vector. This is how we
+            compute our output dimensions.
+          </p>
+
           <h3 className="text-lg font-bold mb-2">Output Dimensions</h3>
           <p>
             <strong>
-              <MathJax className="opacity-60" dynamic >
+              <MathJax className="opacity-60" dynamic>
                 {"\\(H_{out} \\times W_{out} \\times D_{out}\\)"}
               </MathJax>
-              <MathJax dynamic >{`\\(${outH} \\times ${outW} \\times ${outD}\\)`}</MathJax>
+              <MathJax
+                dynamic
+              >{`\\(${outH} \\times ${outW} \\times ${outD}\\)`}</MathJax>
             </strong>
           </p>
           <br></br>
@@ -86,7 +97,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
               {`\\(H_{out} = \\lfloor \\frac{H_{in} - {\\color{#00BFA6}{F}} + 2{\\color{#FC3E00}{P}}}{{\\color{#5073B3}{S}}} + 1 \\rfloor = 
                 \\lfloor \\frac{${prevDims.height} - {\\color{#00BFA6}{${filterSize}}} + 2({\\color{#FC3E00}{${padding}}})}{{\\color{#5073B3}{${stride}}}}  + 1 \\rfloor
                  = ${outH}\\)`}
-            </MathJax >
+            </MathJax>
 
             <MathJax className="py-4" dynamic>
               {`\\(W_{out} = \\lfloor \\frac{W_{in} - {\\color{#00BFA6}{F}} + 2{\\color{#FC3E00}{P}}}{{\\color{#5073B3}{S}}} + 1 \\rfloor = 
@@ -94,7 +105,9 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
                  = ${outW}\\)`}
             </MathJax>
 
-            <MathJax dynamic>{`\\(D_{out} = {\\color{#BB85FC}{K}} = {\\color{#BB85FC}{${numFilters}}}\\)`}</MathJax>
+            <MathJax
+              dynamic
+            >{`\\(D_{out} = {\\color{#BB85FC}{K}} = {\\color{#BB85FC}{${numFilters}}}\\)`}</MathJax>
           </p>
         </div>
 
@@ -111,7 +124,9 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
           )}
 
           <p className="text-sm text-text-muted">
-            <MathJax dynamic>{`Previous Layer Dimensions: \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
+            <MathJax
+              dynamic
+            >{`Previous Layer Dimensions: \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
           </p>
           <MathJax dynamic>
             <div className="space-y-3">
@@ -136,7 +151,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
               <label className="flex flex-col text-sm text-text-muted">
                 <span>{"Filter Size (\\(\\color{#00BFA6}{F}\\))"}</span>
                 <p className="text-xs text-stroke opacity-60">
-                  Kernel/filter size is currently {filterSize}×{filterSize}
+                  Kernel size is currently {filterSize}×{filterSize}
                 </p>
                 <input
                   type="number"
