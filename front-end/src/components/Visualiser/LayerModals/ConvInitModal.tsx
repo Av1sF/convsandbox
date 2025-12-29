@@ -35,10 +35,10 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
       <div className="bg-bg rounded-2xl p-6 w-full max-w-md">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-xl font-semibold">Set Input Dimensions</h2>
-          <p>Pick the dimensions of your input layer!</p>
-          <p className="text-xs">
+        <form onSubmit={handleSubmit} className="space-y-1">
+          <h2 className="text-xl text-text font-semibold">Set Input Dimensions</h2>
+          <p className="text-text-muted">Pick the dimensions of your input layer!</p>
+          <p className="text-xs text-text-muted pb-5">
             In practice, this could be the size of an image and each
             channel/depth would correspond to a colour channel.{" "}
           </p>
@@ -66,7 +66,7 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
             />
           </label>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-8">
             <button
               type="button"
               onClick={onClose}
