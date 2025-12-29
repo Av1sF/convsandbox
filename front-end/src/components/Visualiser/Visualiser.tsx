@@ -351,8 +351,9 @@ export default function Visualiser() {
       if (
         latestLayer.type === "add-activation" &&
         isActivationType(latestLayer.params) &&
-        existingGroup.select(`#${activationType}`).empty()
+        existingGroup.select(`#${(activationType as string).replaceAll(' ', '-')}`).empty()
       ) {
+        console.log("meow")
         if (prevLayerDims && isConvLayerDims(prevLayerDims)) {
           tensorLayers.push(
             setActivationLayer(
