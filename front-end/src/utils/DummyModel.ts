@@ -29,11 +29,7 @@ function random3DTensor(
   width: number,
   depth: number
 ): tf.Tensor {
-  return tf.randomUniform([1, height, width, depth], -100, 100);
-}
-
-function random2DTensor(neurons: number): tf.Tensor {
-  return tf.randomUniform([1, neurons], -100, 100);
+  return tf.randomUniform([1, height, width, depth], -1.25, 1.25);
 }
 
 export function setConvLayer(

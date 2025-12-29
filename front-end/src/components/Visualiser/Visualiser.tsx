@@ -70,8 +70,6 @@ export default function Visualiser() {
   const initialLayers: Layer[] = [];
   const initialAction = "";
 
-  const [gradientDrawn, setGradientDrawn] = useState<boolean>(false);
-
   const [started, setStarted] = useState<boolean>(false);
   const [action, setAction] = useState<LayerActionType>(initialAction);
 
@@ -201,8 +199,6 @@ export default function Visualiser() {
 
     if (triggerIndex != undefined) {
       setCurrAnimationTrigger(animationTriggers[triggerIndex]);
-      // const currAnimationTrigger = animationTriggers[triggerIndex]
-      // openLayerModal(layerModalMap[type]);
       openAnimationModal(animationTriggers[triggerIndex].animationType);
     }
   };
@@ -254,7 +250,7 @@ export default function Visualiser() {
         .attr("x", 950)
         .attr("y", 500)
         .attr("text-anchor", "middle")
-        .text("100")
+        .text("2.00")
         .attr("font-size", "12px")
         .attr("fill", "#333");
 
@@ -263,10 +259,10 @@ export default function Visualiser() {
         .attr("x", 1150)
         .attr("y", 500)
         .attr("text-anchor", "middle")
-        .text("-100")
+        .text("-2.00")
         .attr("font-size", "12px")
         .attr("fill", "#333");
-      
+
       svg
         .append("text")
         .attr("x", 1050)
@@ -414,7 +410,6 @@ export default function Visualiser() {
           .select(`#${(activationType as string).replaceAll(" ", "-")}`)
           .empty()
       ) {
-        console.log("meow");
         if (prevLayerDims && isConvLayerDims(prevLayerDims)) {
           tensorLayers.push(
             setActivationLayer(
@@ -772,12 +767,12 @@ export default function Visualiser() {
   }
 
   return (
-    <div className="w-full md:w-[1183px] h-[540px] rounded-md border border-bg-alt overflow-auto md:overflow-hidden">
+    <div className="w-full md:w-[1183px] h-[550px] rounded-md border border-bg-alt overflow-auto md:overflow-hidden ">
       <VisualiserCanvas
         id="canvas"
         ref={svgRef}
         onClick={handleVisualiserClick}
-        className={`w-[1183px] h-[500px] d3-root`}
+        className={`w-[1183px] h-[500px] d3-root `}
       >
         {/* Only render the button if fewer than max layers exist */}
         {numLayers < MAXLAYERS && (
@@ -794,7 +789,11 @@ export default function Visualiser() {
 
         {numLayers == MAXLAYERS && (
           <VisualiserSmallPlusBtn
-            x={(W / MAXLAYERS) * (numLayers * 0.95)}
+            x={
+              layers[layers.length - 1].type != "add-activation"
+                ? (W / MAXLAYERS) * (numLayers * 0.95) + 17
+                : (W / MAXLAYERS) * (numLayers * 0.95)
+            }
             y={H * 0.092}
             onClick={() => handleMenuAction("add-activation")}
           />

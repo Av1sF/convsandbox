@@ -14,8 +14,8 @@ import { BaseType } from "d3";
 import { isNumberParam } from "./typeGuards";
 import { is2DTensor } from "./is2DTensor";
 
-const MAX_WEIGHT = 100;
-const MIN_WEIGHT = -100;
+const MAX_WEIGHT = 2;
+const MIN_WEIGHT = -2;
 
 export const drawConvNotation = (
   color: string,
