@@ -770,7 +770,7 @@ export default function Visualiser() {
   }
 
   return (
-    <div className="w-full md:w-[1183px] h-[550px] rounded-md border border-bg-alt overflow-auto md:overflow-hidden ">
+    <div className="w-full caret-transparent md:w-[1183px] h-[550px] rounded-md border border-bg-alt overflow-auto md:overflow-hidden ">
       <VisualiserCanvas
         id="canvas"
         ref={svgRef}

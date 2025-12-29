@@ -17,6 +17,7 @@ import { drawKernelsNotations } from "@/utils/drawKernelsNotation";
 import { is3DTensor } from "@/utils/is3DTensor";
 import { isNumberParam } from "@/utils/typeGuards";
 import { drawConvNotation } from "@/utils/drawConvNotation";
+import { formatDimsFromTensorShape } from "@/utils/formatDimsFromTensorShape";
 
 interface Props {
   onClose: () => void;
@@ -84,6 +85,20 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("opacity", 0.8)
         .attr("fill", "#333")
         .text("Input Layer");
+
+      paddedGroup
+        .append("text")
+        .attr(
+          "x",
+          paddedGroup.select(`#rect-0`).attr("x") +
+            0.5 * +paddedGroup.select(`#rect-0`).attr("width")
+        )
+        .attr("y", 600)
+        .attr("text-anchor", "left")
+        .attr("font-size", 14)
+        .attr("opacity", 0.8)
+        .attr("fill", "#333")
+        .text(`${formatDimsFromTensorShape(inputConvShape)}`);
 
       paddedGroup
         .append("text")
@@ -202,6 +217,21 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("opacity", 0.8)
         .attr("fill", "#333")
         .text("Filters");
+
+      kernelGroup
+        .append("text")
+        .attr("x", kernelLabelX)
+        .attr("y", 600)
+        .attr("text-anchor", "middle")
+        .attr("font-size", 14)
+        .attr("opacity", 0.8)
+        .attr("fill", "#333")
+        .text(
+          `${formatDimsFromTensorShape(
+            (tensorLayers[layerIndex[1]] as dummyModelConv).kernel
+              .shape as number[]
+          )}`
+        );
 
       kernelGroup
         .append("text")
@@ -356,6 +386,32 @@ const ConvAnimationModal: React.FC<Props> = ({
         .text("Bias");
 
       biasGroup
+        .append("text")
+        .attr("x", biasLabelx)
+        .attr("y", 600)
+        .attr("text-anchor", "middle")
+        .attr("font-size", 14)
+        .attr("opacity", 0.8)
+        .attr("fill", "#333")
+        .text(
+          `${
+            (
+              (
+                tensorLayers[layerIndex[1]] as dummyModelConv
+              ).bias.arraySync() as number[]
+            ).length
+          } ${
+            (
+              (
+                tensorLayers[layerIndex[1]] as dummyModelConv
+              ).bias.arraySync() as number[]
+            ).length > 1
+              ? "biases"
+              : "bias"
+          }`
+        );
+
+      biasGroup
         .append("foreignObject")
         .attr("x", biasLabelx - 7)
         .attr("y", parseInt(root.select(`#neuron-0`).attr("cy")) - 45)
@@ -495,6 +551,16 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("opacity", 0.8)
         .attr("fill", "#333")
         .text("Activation");
+
+      activationGroup
+        .append("text")
+        .attr("x", actiLabelX)
+        .attr("y", 600)
+        .attr("text-anchor", "middle")
+        .attr("font-size", 14)
+        .attr("opacity", 0.8)
+        .attr("fill", "#333")
+        .text(`${formatDimsFromTensorShape(outputConvShape)}`);
 
       activationGroup
         .append("text")
@@ -1134,8 +1200,8 @@ const ConvAnimationModal: React.FC<Props> = ({
                 .duration(0)
                 .delay(1000 + batchWindowDelay * 2000)
                 .style("fill-opacity", randomOpacity)
-                .attr("stroke-opacity", 1)
-          
+                .attr("stroke-opacity", 1);
+
               formulaGroup
                 .select(`#formula-visual`)
                 .append("text")
@@ -1155,8 +1221,7 @@ const ConvAnimationModal: React.FC<Props> = ({
                 .transition()
                 .duration(0)
                 .delay(1000 + batchWindowDelay * 2000)
-                .attr("opacity", 1)
-            
+                .attr("opacity", 1);
 
               let outputRandomOpacity = Math.random();
 
@@ -1201,8 +1266,7 @@ const ConvAnimationModal: React.FC<Props> = ({
                 .duration(0)
                 .delay(1000 + batchWindowDelay * 2000)
                 .style("fill-opacity", outputRandomOpacity)
-                .attr("stroke-opacity", 1)
-           
+                .attr("stroke-opacity", 1);
 
               formulaGroup
                 .select(`#formula-visual`)
@@ -1223,8 +1287,7 @@ const ConvAnimationModal: React.FC<Props> = ({
                 .transition()
                 .duration(0)
                 .delay(1000 + batchWindowDelay * 2000)
-                .attr("opacity", 1)
-             
+                .attr("opacity", 1);
 
               formulaGroup
                 .select(`#formula-visual`)
@@ -1242,8 +1305,7 @@ const ConvAnimationModal: React.FC<Props> = ({
                 .transition()
                 .duration(0)
                 .delay(1000 + batchWindowDelay * 2000)
-                .attr("opacity", 1)
-            
+                .attr("opacity", 1);
 
               formulaGroup
                 .select(`#formula-visual`)
@@ -1261,8 +1323,7 @@ const ConvAnimationModal: React.FC<Props> = ({
                 .transition()
                 .duration(0)
                 .delay(1000 + batchWindowDelay * 2000)
-                .attr("opacity", 1)
-            
+                .attr("opacity", 1);
             }
 
             batchWindowDelay += 1;
@@ -1311,8 +1372,20 @@ const ConvAnimationModal: React.FC<Props> = ({
         </button>
 
         <div className="mt-6 sm:mt-0">
-          <h1 className="text-text">Applying Convolutions...</h1>
-          <div className="relative max-h-1/3 max-w-[2100px] overflow-auto border border-accent">
+          <h1 className="text-text text-2xl pb-3 font-semibold">
+            Applying Convolutions...
+          </h1>
+          <p className="text-base text-text-muted px-2 pb-5">
+            A convolution transforms an input vector into an output vector such
+            that each output element is a weighted sum of nearby input elements.
+            Each weighted sum is determined by a convolutional filter. A
+            convolutional filter contains several kernels, where the number of
+            kernels corresponds directly to the number of input channels.
+            Multiple filters can be used, and the number of filters equals the
+            number of output channels. Each filter performs a convolution
+            operation over the entire input vector.
+          </p>
+          <div className="relative max-h-1/3 max-w-[2100px] overflow-auto ">
             <MathJax>
               <svg ref={modalSvgRef} className="w-[2100px] h-[650px] "></svg>
             </MathJax>
