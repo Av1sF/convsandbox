@@ -741,18 +741,20 @@ export default function Visualiser() {
           neurons: latestLayer.params,
         });
 
-        setAnimationTriggers((prev) => [
-          ...prev,
-          {
-            // dense  input layer
-            layerNumber: [layers.length - 1, layers.length - 2],
-            triggerArea: [
-              allLayerConnections[allLayerConnections.length - 2][1][0].x,
-              allLayerConnections[allLayerConnections.length - 1][0][0].x,
-            ],
-            animationType: "dense",
-          },
-        ]);
+        if (layers[layers.length - 2].type == "add-downsampling") {
+          setAnimationTriggers((prev) => [
+            ...prev,
+            {
+              // dense  input layer
+              layerNumber: [layers.length - 1, layers.length - 2],
+              triggerArea: [
+                allLayerConnections[allLayerConnections.length - 2][1][0].x,
+                allLayerConnections[allLayerConnections.length - 1][0][0].x,
+              ],
+              animationType: "dense",
+            },
+          ]);
+        }
       }
 
       if (layerConnections) {
