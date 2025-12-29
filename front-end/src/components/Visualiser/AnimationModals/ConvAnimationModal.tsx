@@ -39,6 +39,13 @@ const ConvAnimationModal: React.FC<Props> = ({
     number,
     number
   ];
+
+  const outputConvShape = inputConv.output.shape as [
+    number,
+    number,
+    number,
+    number
+  ];
   const convColourScheme = d3.schemeObservable10.slice(0, 5);
   const outputColourScheme = d3.schemeObservable10.slice(5, 11);
   const activationFormulaLatex: Record<ActivationType, string> = {
@@ -101,6 +108,7 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("height", 20)
         .attr("font-size", 14)
         .append("xhtml:div")
+        .style("position", "fixed")
         .style("color", "#333")
         .style("opacity", "1")
         .html("<span>\\(X\\)</span>");
@@ -119,6 +127,7 @@ const ConvAnimationModal: React.FC<Props> = ({
           .attr("height", 20)
           .attr("font-size", 10)
           .append("xhtml:div")
+          .style("position", "fixed")
           .style("color", "#333")
           .style("opacity", "0.6")
           .html(`<span>\\(X_{${i + 1}}\\)</span>`);
@@ -232,6 +241,7 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("height", 20)
         .attr("font-size", 14)
         .append("xhtml:div")
+        .style("position", "fixed")
         .style("color", "#333")
         .style("opacity", "1")
         .style("font-weight", "bold")
@@ -251,6 +261,7 @@ const ConvAnimationModal: React.FC<Props> = ({
           .attr("height", 20)
           .attr("font-size", 10)
           .append("xhtml:div")
+          .style("position", "fixed")
           .style("color", "#333")
           .style("opacity", "0.6")
           .html(`<span>\\(F_{${i + 1}}\\)</span>`);
@@ -352,6 +363,7 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("height", 20)
         .attr("font-size", 14)
         .append("xhtml:div")
+        .style("position", "fixed")
         .style("color", "#333")
         .style("opacity", "1")
         .html(`<span>\\(B\\)</span>`);
@@ -383,6 +395,7 @@ const ConvAnimationModal: React.FC<Props> = ({
           .attr("height", 20)
           .attr("font-size", 10)
           .append("xhtml:div")
+          .style("position", "fixed")
           .style("color", "#333")
           .style("opacity", "0.6")
           .html(`<span>\\(\\beta_{${i + 1}}\\)</span>`);
@@ -424,6 +437,7 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("height", 20)
         .attr("font-size", 10)
         .append("xhtml:div")
+        .style("position", "fixed")
         .style("color", "#333")
         .style("opacity", "1")
         .html(`<span>\\(\\Omega \\cdot X + B\\)</span>`);
@@ -462,6 +476,7 @@ const ConvAnimationModal: React.FC<Props> = ({
           .attr("height", 20)
           .attr("font-size", 10)
           .append("xhtml:div")
+          .style("position", "fixed")
           .style("color", "#333")
           .style("opacity", "0.6")
           .html(`<span>\\(H_{${i + 1}}\\)</span>`);
@@ -499,6 +514,7 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("height", 20)
         .attr("font-size", 10)
         .append("xhtml:div")
+        .style("position", "fixed")
         .style("color", "#333")
         .style("opacity", "1")
         .html(`<span>\\(\\alpha(\\Omega \\cdot X + B\\))</span>`);
@@ -511,6 +527,7 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("height", 20)
         .attr("font-size", 14)
         .append("xhtml:div")
+        .style("position", "fixed")
         .style("color", "#333")
         .style("opacity", "1")
         .html(`<span>\\(H\\)</span>`);
@@ -536,18 +553,25 @@ const ConvAnimationModal: React.FC<Props> = ({
         `The convolution operation looks similar to the generalised deep neural network...`,
         `\\( H = \\alpha(\\Omega \\cdot X + B) \\) </br>`,
         "A single output in \\(H_1\\) can be calculated via...",
-      ]
+      ];
 
       if (inputConv.stride == 1) {
-        formulaText.push(`\\( H_{ij1} =  \\alpha \\Bigl[\\sum_{l=1}^{D} \\sum_{m=1}^{p} \\sum_{n=1}^{p} (w_{mnl} \\times x_{i+m+p+1, j+n-p+1, l}) + \\beta_{${1}} \\Bigr] \\)`,)
-      } 
+        formulaText.push(
+          `\\( H_{ij1} =  \\alpha \\Bigl[\\sum_{l=1}^{D} \\sum_{m=1}^{p} \\sum_{n=1}^{p} (w_{mnl} \\times x_{i+m+p+1, j+n-p+1, l}) + \\beta_{${1}} \\Bigr] \\)`
+        );
+      }
 
       if (inputConv.filterSize > 3) {
-        formulaText.push(`(If your filter size is less than 4x4 you can see the values of the weights and input, currently they are hidden due to size)`,)
+        formulaText.push(
+          `(If your filter size is less than 4x4 you can see the values of the weights and input, currently they are hidden due to size)`
+        );
       } else {
-        formulaText.push(`(Please note that final calculation results are rounded to 1dp and computing truncation is used)`,)
+        formulaText.push(
+          `(Please note that final calculation results are rounded to 1dp and computing truncation is used)`
+        );
       }
-      const formulaParagraph = formulaText.map((s) => `<span>${s}</span>`)
+      const formulaParagraph = formulaText
+        .map((s) => `<span>${s}</span>`)
         .join("<br/>");
 
       formulaGroup
@@ -558,8 +582,9 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("height", 500)
         .attr("font-size", 14)
         .append("xhtml:div")
+        .style("position", "fixed")
         .style("color", "#333")
-        .html(formulaParagraph)
+        .html(formulaParagraph);
 
       formulaGroup
         .append("g")
@@ -710,9 +735,6 @@ const ConvAnimationModal: React.FC<Props> = ({
         0
       );
 
-      // add plus
-
-      // add times
       var currOutputi = 0;
       var currOutputj = 0;
       for (let i = 0; i < inputConvShape[1]; i += inputConv.stride) {
@@ -857,34 +879,45 @@ const ConvAnimationModal: React.FC<Props> = ({
                 k,
                 equationVisualiserGroup,
                 1000 + batchWindowDelay * 2000,
-                filteredInput
+                filteredInput,
+                currOutputi == outputConvShape[1] - 1 &&
+                  currOutputj == outputConvShape[2] - 1
+                  ? true
+                  : undefined
               );
             }
 
-            // console.log("curr index", currOutputi, currOutputj);
-            // console.log(
-              // (
-              //   tensorLayers[layerIndex[0]].output.arraySync() as number[][][][]
-              // )[0][currOutputi][currOutputj][0]
-            // );
+            if (
+              !(
+                currOutputi == outputConvShape[1] - 1 &&
+                currOutputj == outputConvShape[2] - 1
+              )
+            ) {
+              var lastKernel = formulaGroup
+                .select(`#formula-visual`)
+                .select(`#diagramatic-right-bracket`);
+              const lastKernelx = +lastKernel.attr("x");
+              const lastKernely = +lastKernel.attr("y");
 
-            var lastKernel = formulaGroup
-              .select(`#formula-visual`)
-              .select(`#diagramatic-right-bracket`);
-            const lastKernelx = +lastKernel.attr("x");
-            const lastKernely = +lastKernel.attr("y");
+              let randomOpacity = Math.random();
 
-            let randomOpacity = Math.random();
-            
-              if (isNumberParam((
-                tensorLayers[layerIndex[0]].output.arraySync() as number[][][][]
-              )[0][currOutputi][currOutputj][0])) {
+              if (
+                isNumberParam(
+                  (
+                    tensorLayers[
+                      layerIndex[0]
+                    ].output.arraySync() as number[][][][]
+                  )[0][currOutputi][currOutputj][0]
+                )
+              ) {
                 // negative opacity shit solution
                 // what to do -> future map them to a RGB range
                 // more than 1 -> another shade -> etc...
                 randomOpacity = (
-                tensorLayers[layerIndex[1]].output.arraySync() as number[][][][]
-              )[0][currOutputi][currOutputj][0];
+                  tensorLayers[
+                    layerIndex[1]
+                  ].output.arraySync() as number[][][][]
+                )[0][currOutputi][currOutputj][0];
                 randomOpacity += Math.abs(-100);
                 randomOpacity /= Math.abs(-100) + 100;
                 if (randomOpacity > 1) {
@@ -893,13 +926,13 @@ const ConvAnimationModal: React.FC<Props> = ({
                   randomOpacity = 0.0;
                 }
               }
-            formulaGroup
-            .select(`#formula-visual`)
-            .append("rect")
-                .attr("x", lastKernelx+157)
-                .attr("y", lastKernely-50)
-                .attr("width", 60 )
-                .attr("height", 60 )
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("rect")
+                .attr("x", lastKernelx + 157)
+                .attr("y", lastKernely - 50)
+                .attr("width", 60)
+                .attr("height", 60)
                 .attr("fill", "#5f6c7b")
                 .attr("stroke", "#094067")
                 .attr("stroke-opacity", 0)
@@ -914,38 +947,49 @@ const ConvAnimationModal: React.FC<Props> = ({
                 .delay(1000)
                 .remove();
 
-            formulaGroup
-            .select(`#formula-visual`)
-            .append("text")
-            .attr("x", lastKernelx+157+4)
-            .attr("y", lastKernely - 15)
-            .attr("width", 60 )
-            .attr("height", 60 )
-            .attr("font-size", 20)
-            .text(`${((
-                tensorLayers[layerIndex[1]].output.arraySync() as number[][][][]
-              )[0][currOutputi][currOutputj][0]).toFixed(1)}`)
-              .attr("opacity", 0)
-            .transition()
-            .duration(0)
-            .delay(1000 + batchWindowDelay * 2000)
-            .attr("opacity", 1)
-             .transition()
-            .delay(1000)
-            .remove()
-           
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("text")
+                .attr("x", lastKernelx + 157 + 4)
+                .attr("y", lastKernely - 15)
+                .attr("width", 60)
+                .attr("height", 60)
+                .attr("font-size", 20)
+                .text(
+                  `${(
+                    tensorLayers[
+                      layerIndex[1]
+                    ].output.arraySync() as number[][][][]
+                  )[0][currOutputi][currOutputj][0].toFixed(1)}`
+                )
+                .attr("opacity", 0)
+                .transition()
+                .duration(0)
+                .delay(1000 + batchWindowDelay * 2000)
+                .attr("opacity", 1)
+                .transition()
+                .delay(1000)
+                .remove();
 
-            let outputRandomOpacity = Math.random();
-            
-              if (isNumberParam((
-                tensorLayers[layerIndex[0]].output.arraySync() as number[][][][]
-              )[0][currOutputi][currOutputj][0])) {
+              let outputRandomOpacity = Math.random();
+
+              if (
+                isNumberParam(
+                  (
+                    tensorLayers[
+                      layerIndex[0]
+                    ].output.arraySync() as number[][][][]
+                  )[0][currOutputi][currOutputj][0]
+                )
+              ) {
                 // negative opacity shit solution
                 // what to do -> future map them to a RGB range
                 // more than 1 -> another shade -> etc...
                 outputRandomOpacity = (
-                tensorLayers[layerIndex[0]].output.arraySync() as number[][][][]
-              )[0][currOutputi][currOutputj][0];
+                  tensorLayers[
+                    layerIndex[0]
+                  ].output.arraySync() as number[][][][]
+                )[0][currOutputi][currOutputj][0];
                 outputRandomOpacity += Math.abs(-100);
                 outputRandomOpacity /= Math.abs(-100) + 100;
                 if (outputRandomOpacity > 1) {
@@ -954,13 +998,13 @@ const ConvAnimationModal: React.FC<Props> = ({
                   outputRandomOpacity = 0.0;
                 }
               }
-            formulaGroup
-            .select(`#formula-visual`)
-            .append("rect")
-                .attr("x", lastKernelx+330)
-                .attr("y", lastKernely-50)
-                .attr("width", 60 )
-                .attr("height", 60 )
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("rect")
+                .attr("x", lastKernelx + 330)
+                .attr("y", lastKernely - 50)
+                .attr("width", 60)
+                .attr("height", 60)
                 .attr("fill", "#5f6c7b")
                 .attr("stroke", "#094067")
                 .attr("stroke-opacity", 0)
@@ -975,68 +1019,251 @@ const ConvAnimationModal: React.FC<Props> = ({
                 .delay(1000)
                 .remove();
 
-            formulaGroup
-            .select(`#formula-visual`)
-            .append("text")
-            .attr("x", lastKernelx+330+10)
-            .attr("y", lastKernely - 15)
-            .attr("width", 60 )
-            .attr("height", 60 )
-            .attr("font-size", 20)
-            .text(`${((
-                tensorLayers[layerIndex[0]].output.arraySync() as number[][][][]
-              )[0][currOutputi][currOutputj][0]).toFixed(1)}`)
-              .attr("opacity", 0)
-            .transition()
-            .duration(0)
-            .delay(1000 + batchWindowDelay * 2000)
-            .attr("opacity", 1)
-             .transition()
-            .delay(1000)
-            .remove();
-            
-            formulaGroup
-            .select(`#formula-visual`)
-            .append("text")
-            .attr("id", (d, _) => `text-output-index`)
-            .attr("x", lastKernelx+330+13)
-            .attr("y", lastKernely + 3 )
-            .attr("width", 60)
-            .attr("height", 60)
-            .attr("text-anchor", "left")
-            .append("tspan")
-            .attr("font-size", 14)
-            .text("h")
-            .attr("opacity", 0)
-            .transition()
-            .duration(0)
-            .delay(1000 + batchWindowDelay * 2000)
-            .attr("opacity", 1)
-             .transition()
-            .delay(1000)
-            .remove()
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("text")
+                .attr("x", lastKernelx + 330 + 10)
+                .attr("y", lastKernely - 15)
+                .attr("width", 60)
+                .attr("height", 60)
+                .attr("font-size", 20)
+                .text(
+                  `${(
+                    tensorLayers[
+                      layerIndex[0]
+                    ].output.arraySync() as number[][][][]
+                  )[0][currOutputi][currOutputj][0].toFixed(1)}`
+                )
+                .attr("opacity", 0)
+                .transition()
+                .duration(0)
+                .delay(1000 + batchWindowDelay * 2000)
+                .attr("opacity", 1)
+                .transition()
+                .delay(1000)
+                .remove();
 
-             formulaGroup
-            .select(`#formula-visual`)
-            .append("text")
-            .attr("id", (d, _) => `text-output-index`)
-            .attr("x", lastKernelx+330+24)
-            .attr("y", lastKernely + 5)
-            .attr("width", 60)
-            .attr("height", 60)
-            .attr("text-anchor", "left")
-            .append("tspan")
-            .attr("font-size", 10)
-            .text(`${currOutputi+1},${currOutputj+1},${1}`)
-            .attr("opacity", 0)
-            .transition()
-            .duration(0)
-            .delay(1000 + batchWindowDelay * 2000)
-            .attr("opacity", 1)
-             .transition()
-            .delay(1000)
-            .remove()
-      
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("text")
+                .attr("id", (d, _) => `text-output-index`)
+                .attr("x", lastKernelx + 330 + 13)
+                .attr("y", lastKernely + 3)
+                .attr("width", 60)
+                .attr("height", 60)
+                .attr("text-anchor", "left")
+                .append("tspan")
+                .attr("font-size", 14)
+                .text("h")
+                .attr("opacity", 0)
+                .transition()
+                .duration(0)
+                .delay(1000 + batchWindowDelay * 2000)
+                .attr("opacity", 1)
+                .transition()
+                .delay(1000)
+                .remove();
+
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("text")
+                .attr("id", (d, _) => `text-output-index`)
+                .attr("x", lastKernelx + 330 + 24)
+                .attr("y", lastKernely + 5)
+                .attr("width", 60)
+                .attr("height", 60)
+                .attr("text-anchor", "left")
+                .append("tspan")
+                .attr("font-size", 10)
+                .text(`${currOutputi + 1},${currOutputj + 1},${1}`)
+                .attr("opacity", 0)
+                .transition()
+                .duration(0)
+                .delay(1000 + batchWindowDelay * 2000)
+                .attr("opacity", 1)
+                .transition()
+                .delay(1000)
+                .remove();
+            } else {
+              var lastKernel = formulaGroup
+                .select(`#formula-visual`)
+                .select(`#diagramatic-right-bracket`);
+              const lastKernelx = +lastKernel.attr("x");
+              const lastKernely = +lastKernel.attr("y");
+
+              let randomOpacity = Math.random();
+
+              if (
+                isNumberParam(
+                  (
+                    tensorLayers[
+                      layerIndex[0]
+                    ].output.arraySync() as number[][][][]
+                  )[0][currOutputi][currOutputj][0]
+                )
+              ) {
+                // negative opacity shit solution
+                // what to do -> future map them to a RGB range
+                // more than 1 -> another shade -> etc...
+                randomOpacity = (
+                  tensorLayers[
+                    layerIndex[1]
+                  ].output.arraySync() as number[][][][]
+                )[0][currOutputi][currOutputj][0];
+                randomOpacity += Math.abs(-100);
+                randomOpacity /= Math.abs(-100) + 100;
+                if (randomOpacity > 1) {
+                  randomOpacity = 1.0;
+                } else if (randomOpacity < 0) {
+                  randomOpacity = 0.0;
+                }
+              }
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("rect")
+                .attr("x", lastKernelx + 157)
+                .attr("y", lastKernely - 50)
+                .attr("width", 60)
+                .attr("height", 60)
+                .attr("fill", "#5f6c7b")
+                .attr("stroke", "#094067")
+                .attr("stroke-opacity", 0)
+                .attr("stroke-width", 1)
+                .style("fill-opacity", 0)
+                .transition()
+                .duration(0)
+                .delay(1000 + batchWindowDelay * 2000)
+                .style("fill-opacity", randomOpacity)
+                .attr("stroke-opacity", 1)
+          
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("text")
+                .attr("x", lastKernelx + 157 + 4)
+                .attr("y", lastKernely - 15)
+                .attr("width", 60)
+                .attr("height", 60)
+                .attr("font-size", 20)
+                .text(
+                  `${(
+                    tensorLayers[
+                      layerIndex[1]
+                    ].output.arraySync() as number[][][][]
+                  )[0][currOutputi][currOutputj][0].toFixed(1)}`
+                )
+                .attr("opacity", 0)
+                .transition()
+                .duration(0)
+                .delay(1000 + batchWindowDelay * 2000)
+                .attr("opacity", 1)
+            
+
+              let outputRandomOpacity = Math.random();
+
+              if (
+                isNumberParam(
+                  (
+                    tensorLayers[
+                      layerIndex[0]
+                    ].output.arraySync() as number[][][][]
+                  )[0][currOutputi][currOutputj][0]
+                )
+              ) {
+                // negative opacity shit solution
+                // what to do -> future map them to a RGB range
+                // more than 1 -> another shade -> etc...
+                outputRandomOpacity = (
+                  tensorLayers[
+                    layerIndex[0]
+                  ].output.arraySync() as number[][][][]
+                )[0][currOutputi][currOutputj][0];
+                outputRandomOpacity += Math.abs(-100);
+                outputRandomOpacity /= Math.abs(-100) + 100;
+                if (outputRandomOpacity > 1) {
+                  outputRandomOpacity = 1.0;
+                } else if (outputRandomOpacity < 0) {
+                  outputRandomOpacity = 0.0;
+                }
+              }
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("rect")
+                .attr("x", lastKernelx + 330)
+                .attr("y", lastKernely - 50)
+                .attr("width", 60)
+                .attr("height", 60)
+                .attr("fill", "#5f6c7b")
+                .attr("stroke", "#094067")
+                .attr("stroke-opacity", 0)
+                .attr("stroke-width", 1)
+                .style("fill-opacity", 0)
+                .transition()
+                .duration(0)
+                .delay(1000 + batchWindowDelay * 2000)
+                .style("fill-opacity", outputRandomOpacity)
+                .attr("stroke-opacity", 1)
+           
+
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("text")
+                .attr("x", lastKernelx + 330 + 10)
+                .attr("y", lastKernely - 15)
+                .attr("width", 60)
+                .attr("height", 60)
+                .attr("font-size", 20)
+                .text(
+                  `${(
+                    tensorLayers[
+                      layerIndex[0]
+                    ].output.arraySync() as number[][][][]
+                  )[0][currOutputi][currOutputj][0].toFixed(1)}`
+                )
+                .attr("opacity", 0)
+                .transition()
+                .duration(0)
+                .delay(1000 + batchWindowDelay * 2000)
+                .attr("opacity", 1)
+             
+
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("text")
+                .attr("id", (d, _) => `text-output-index`)
+                .attr("x", lastKernelx + 330 + 13)
+                .attr("y", lastKernely + 3)
+                .attr("width", 60)
+                .attr("height", 60)
+                .attr("text-anchor", "left")
+                .append("tspan")
+                .attr("font-size", 14)
+                .text("h")
+                .attr("opacity", 0)
+                .transition()
+                .duration(0)
+                .delay(1000 + batchWindowDelay * 2000)
+                .attr("opacity", 1)
+            
+
+              formulaGroup
+                .select(`#formula-visual`)
+                .append("text")
+                .attr("id", (d, _) => `text-output-index`)
+                .attr("x", lastKernelx + 330 + 24)
+                .attr("y", lastKernely + 5)
+                .attr("width", 60)
+                .attr("height", 60)
+                .attr("text-anchor", "left")
+                .append("tspan")
+                .attr("font-size", 10)
+                .text(`${currOutputi + 1},${currOutputj + 1},${1}`)
+                .attr("opacity", 0)
+                .transition()
+                .duration(0)
+                .delay(1000 + batchWindowDelay * 2000)
+                .attr("opacity", 1)
+            
+            }
 
             batchWindowDelay += 1;
             currOutputj++;
@@ -1051,7 +1278,6 @@ const ConvAnimationModal: React.FC<Props> = ({
         .transition()
         .delay(batchWindowDelay * 2000)
         .remove();
-
     }
   }, [modalSvgRef.current]);
 
@@ -1069,9 +1295,9 @@ const ConvAnimationModal: React.FC<Props> = ({
       >
         <button
           onClick={() => {
-          const root = d3.select(modalSvgRef.current);
-          root.selectAll("*").remove();
-          onClose();
+            const root = d3.select(modalSvgRef.current);
+            root.selectAll("*").remove();
+            onClose();
           }}
           className="
             absolute top-3 right-4 

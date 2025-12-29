@@ -254,7 +254,7 @@ export const drawKernelsNotations = (
                 .attr("font-size", (filterSize == 3? 6: 10))
                 .style("color", "#333")
                 .style("opacity", "1")
-                .html(`<div style="line-height:${(filterSize == 3? 6: 10)}px;"><span>${tensor[row][col][f][j].toFixed(2)} </br> \\(w_{${row+1}${col+1}${col+1}}\\)</span></div>`)
+                .html(`<div style="line-height:${(filterSize == 3? 6: 10)}px; position: fixed;"><span>${tensor[row][col][f][j].toFixed(2)} </br> \\(w_{${row+1}${col+1}${col+1}}\\)</span></div>`)
 
               }
             }
