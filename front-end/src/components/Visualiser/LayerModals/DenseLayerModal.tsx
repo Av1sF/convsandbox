@@ -20,7 +20,7 @@ const DenseLayerModal: React.FC<DenseLayerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 backdrop-blur-[1px] p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-fadeIn">
 
         {/* === Header === */}

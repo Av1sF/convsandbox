@@ -126,6 +126,16 @@ const DenseAnimationModal: React.FC<Props> = ({
           .attr("opacity", 0.8)
           .attr("fill", "#333")
           .text("Fully-Connected Output");
+
+        outputGroup
+          .append("text")
+          .attr("x", outputLabelX)
+          .attr("y", 500 * 0.05 + 20)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 12)
+          .attr("opacity", 0.8)
+          .attr("fill", "#333")
+          .text("(before activation is applied)");
         
         outputGroup
           .append("text")
@@ -239,7 +249,7 @@ const DenseAnimationModal: React.FC<Props> = ({
       <div
         className="
           bg-bg rounded-2xl 
-          w-full max-w-[80hh] 
+         max-w-[80hh] 
           max-h-[90vh] sm:max-h-[95vh]
           overflow-y-auto 
           p-4 sm:p-6 
@@ -264,12 +274,16 @@ const DenseAnimationModal: React.FC<Props> = ({
         </button>
 
         <div className="mt-6 sm:mt-0">
-          <h1 className="text-text">
-            Transitioning from convolutional to fully-connected components with the flattening operation... 
+          <h1 className="text-text text-2xl pb-3 font-semibold">
+            Flattening: Transitioning from Convolutional to Fully-Connected Layers
           </h1>
-          <div className="relative max-h-1/3 max-w-[2100px] overflow-auto border border-accent">
+
+          <p className="text-base text-text-muted px-2 pb-5">
+            The curves display the weights connecting one neuron from the flattened layer to the dense layer.
+          </p>
+          <div className="relative max-h-[700px] max-w-[1100px] overflow-auto">
             <MathJax>
-              <svg ref={modalSvgRef} className="w-[2100px] h-[650px] "></svg>
+              <svg ref={modalSvgRef} className="w-[1100px] h-[650px] "></svg>
             </MathJax>
           </div>
         </div>
