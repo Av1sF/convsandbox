@@ -55,7 +55,6 @@ import { ParameterCount } from "./AnimationModals/CalculationModals/ParameterCou
 const W = 1183;
 const H = 500;
 
-
 export default function Visualiser() {
   // -- Constants --
   const svgRef = useRef<SVGSVGElement>(null!);
@@ -70,6 +69,8 @@ export default function Visualiser() {
 
   const initialLayers: Layer[] = [];
   const initialAction = "";
+
+  const [gradientDrawn, setGradientDrawn] = useState<boolean>(false);
 
   const [started, setStarted] = useState<boolean>(false);
   const [action, setAction] = useState<LayerActionType>(initialAction);
@@ -111,8 +112,8 @@ export default function Visualiser() {
 
   const [animationModals, setAnimationModals] = useState({
     conv: false,
-    downsample: false, 
-    dense: false, 
+    downsample: false,
+    dense: false,
   });
 
   const openAnimationModal = (key: keyof typeof animationModals) => {
@@ -204,7 +205,6 @@ export default function Visualiser() {
       // openLayerModal(layerModalMap[type]);
       openAnimationModal(animationTriggers[triggerIndex].animationType);
     }
-
   };
 
   // Convolutional Layer Modal handler
@@ -215,6 +215,66 @@ export default function Visualiser() {
     // Viz only officially starts iff first layer is created
     if (!started) {
       setStarted(true);
+
+      const gradient = svg
+        .append("defs")
+        .append("linearGradient")
+        .attr("id", "opacityGradient")
+        .attr("x1", "0%") // Start at the left edge
+        .attr("y1", "0%")
+        .attr("x2", "100%") // End at the right edge
+        .attr("y2", "0%");
+
+      // Two stops: full opacity at top, transparent at bottom
+      gradient
+        .append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#5f6c7b")
+        .attr("stop-opacity", 1);
+
+      gradient
+        .append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "#5f6c7b")
+        .attr("stop-opacity", 0);
+
+      // Draw the gradient bar (200px tall, centered vertically)
+      svg
+        .append("rect")
+        .attr("x", 950)
+        .attr("y", 460)
+        .attr("width", 200)
+        .attr("height", 25)
+        .attr("id", "Gradient")
+        .style("fill", "url(#opacityGradient)");
+
+      // Add value labels
+      svg
+        .append("text")
+        .attr("x", 950)
+        .attr("y", 500)
+        .attr("text-anchor", "middle")
+        .text("100")
+        .attr("font-size", "12px")
+        .attr("fill", "#333");
+
+      svg
+        .append("text")
+        .attr("x", 1150)
+        .attr("y", 500)
+        .attr("text-anchor", "middle")
+        .text("-100")
+        .attr("font-size", "12px")
+        .attr("fill", "#333");
+      
+      svg
+        .append("text")
+        .attr("x", 1050)
+        .attr("y", 500)
+        .attr("text-anchor", "middle")
+        .text("0")
+        .attr("font-size", "12px")
+        .attr("fill", "#333");
     }
   };
 
@@ -266,7 +326,6 @@ export default function Visualiser() {
           }
           tensorLayers={tensorLayers}
         />
-
       </div>
     ),
     dense: (
@@ -279,7 +338,7 @@ export default function Visualiser() {
           tensorLayers={tensorLayers}
         />
       </div>
-    )
+    ),
   };
 
   const layerModalComponents = {
@@ -351,9 +410,11 @@ export default function Visualiser() {
       if (
         latestLayer.type === "add-activation" &&
         isActivationType(latestLayer.params) &&
-        existingGroup.select(`#${(activationType as string).replaceAll(' ', '-')}`).empty()
+        existingGroup
+          .select(`#${(activationType as string).replaceAll(" ", "-")}`)
+          .empty()
       ) {
-        console.log("meow")
+        console.log("meow");
         if (prevLayerDims && isConvLayerDims(prevLayerDims)) {
           tensorLayers.push(
             setActivationLayer(
@@ -463,7 +524,12 @@ export default function Visualiser() {
         latestLayer.type === "add-conv-layer" &&
         isConvParams(latestLayer.params)
       ) {
-        addLayerLabel(layerLabelx, H * 0.15, layerGroup, `${layers.length == 1? "Input" : "Convolutional Layer"}`);
+        addLayerLabel(
+          layerLabelx,
+          H * 0.15,
+          layerGroup,
+          `${layers.length == 1 ? "Input" : "Convolutional Layer"}`
+        );
 
         addLayerLabel(
           layerLabelx,
@@ -630,10 +696,7 @@ export default function Visualiser() {
           ...prev,
           {
             // downsample  input layer
-            layerNumber: [
-              layers.length - 1,
-              layers.length - 2,
-            ],
+            layerNumber: [layers.length - 1, layers.length - 2],
             triggerArea: [
               allLayerConnections[allLayerConnections.length - 2][1][0].x,
               allLayerConnections[allLayerConnections.length - 1][0][0].x,
@@ -641,7 +704,6 @@ export default function Visualiser() {
             animationType: "downsample",
           },
         ]);
-          
       } else if (
         latestLayer.type === "add-dense-layer" &&
         isNumberParam(latestLayer.params) // change param so it can draw
@@ -688,10 +750,7 @@ export default function Visualiser() {
           ...prev,
           {
             // dense  input layer
-            layerNumber: [
-              layers.length - 1,
-              layers.length - 2,
-            ],
+            layerNumber: [layers.length - 1, layers.length - 2],
             triggerArea: [
               allLayerConnections[allLayerConnections.length - 2][1][0].x,
               allLayerConnections[allLayerConnections.length - 1][0][0].x,
@@ -699,7 +758,6 @@ export default function Visualiser() {
             animationType: "dense",
           },
         ]);
-
       }
 
       if (layerConnections) {
@@ -708,19 +766,17 @@ export default function Visualiser() {
         if (allLayerConnections.length > 1) {
           drawLayerConnections(root, allLayerConnections);
         }
-        console.log(layers)
-        console.log("tensor", tensorLayers)
       }
     }
     setAction("");
   }
 
   return (
-    <div className="w-full md:w-[1183px] md:h-[90vh] h-[500px] rounded-md border border-bg-alt overflow-auto md:overflow-hidden">
+    <div className="w-full md:w-[1183px] h-[540px] rounded-md border border-bg-alt overflow-auto md:overflow-hidden">
       <VisualiserCanvas
         id="canvas"
         ref={svgRef}
-        onClick={handleVisualiserClick} 
+        onClick={handleVisualiserClick}
         className={`w-[1183px] h-[500px] d3-root`}
       >
         {/* Only render the button if fewer than max layers exist */}
@@ -745,7 +801,9 @@ export default function Visualiser() {
         )}
       </VisualiserCanvas>
 
-      {numLayers > 0 && (<ParameterCount layers={layers} tensorLayers={tensorLayers}/>)}
+      {numLayers > 0 && (
+        <ParameterCount layers={layers} tensorLayers={tensorLayers} />
+      )}
 
       {Object.entries(layerModals).map(([key, open]) =>
         open ? layerModalComponents[key as keyof typeof layerModals] : null

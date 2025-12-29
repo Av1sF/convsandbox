@@ -68,11 +68,13 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
 
         if (inputNeurons) {
           const denseNumParams = outputNeurons * inputNeurons + outputNeurons;
+          const neuronWording =
+            Math.max(outputNeurons, inputNeurons) > 1 ? "Neurons" : "Neuron";
           setParamCalculation((prev) => [
             ...prev,
             {
               type: `Fully-Connected Dense Layer`,
-              variables: `${inputNeurons} Inputs and ${outputNeurons} Output Neurons`,
+              variables: `${inputNeurons} Inputs and ${outputNeurons} Output ${neuronWording}`,
               calculation: `\\( (${inputNeurons} \\times ${outputNeurons}) + ${outputNeurons} = ${denseNumParams}\\)`,
             },
           ]);
@@ -105,13 +107,15 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
 
   return (
     <>
-      <span
-        className="cursor-pointer text-text hover:text-accent"
-        // style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
-        onClick={() => setIsModalOpen(true)}
-      >
-        Number of parameters: {totalParams}
-      </span>
+      <p className="pl-4">
+        <span
+          className="cursor-pointer text-text hover:text-accent"
+          // style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
+          onClick={() => setIsModalOpen(true)}
+        >
+          Number of parameters: {totalParams}
+        </span>
+      </p>
 
       {isModalOpen && (
         <div
@@ -194,7 +198,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
             </MathJax>
             <div className="flex items-end justify-end pt-6">
               <br />
-              <button onClick={() => setIsModalOpen(false)} className=" p-3">
+              <button onClick={() => setIsModalOpen(false)} className=" p-3 bg-accent px-4 py-2 text-white rounded-lg">
                 Close
               </button>
             </div>
