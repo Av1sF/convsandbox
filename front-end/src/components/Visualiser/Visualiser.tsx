@@ -67,6 +67,8 @@ export default function Visualiser() {
     LayerConnections[]
   >([]);
 
+  const [menuAnnotation, setMenuAnnotation] = useState<string>("");
+
   const initialLayers: Layer[] = [];
   const initialAction = "";
 
@@ -491,11 +493,16 @@ export default function Visualiser() {
         if (isConvLayerDims(prevLayerDims)) {
           setAllowedLayerTypes({
             ...allowedLayerTypes,
+            conv: true,
             activation: false,
             upsample: true,
             downsample: true,
             dense: true,
           });
+
+          setMenuAnnotation(
+            "Upsampling restores resolution, pooling downsamples for features, dense layers classify/regress."
+          );
         } else if (isDenseLayerDims(prevLayerDims)) {
           setAllowedLayerTypes({
             ...allowedLayerTypes,
@@ -505,6 +512,7 @@ export default function Visualiser() {
             dense: true,
             conv: false,
           });
+          setMenuAnnotation("");
         }
       }
     } else {
@@ -550,6 +558,10 @@ export default function Visualiser() {
             dense: false,
           });
 
+          setMenuAnnotation(
+            "After input, a convolution is normally applied to extract features from raw pixels. But feel free to experiment!"
+          );
+
           tensorLayers.push(setInputLayer(latestLayer.params as convLayerDims));
           setTensorLayers([...tensorLayers]);
         } else {
@@ -561,6 +573,10 @@ export default function Visualiser() {
             downsample: false,
             dense: false,
           });
+
+          setMenuAnnotation(
+            "Applying activations introduces non-linearity; otherwise, the CNN collapses to linear regression."
+          );
 
           tensorLayers.push(
             setConvLayer(
@@ -630,6 +646,9 @@ export default function Visualiser() {
           downsample: false,
           dense: true,
         });
+        setMenuAnnotation(
+          "Convolution immediately after upsampling fixes blurry or weird pixelated patterns, adjusts channel dimensions for the next layer, and refinement for better feature extraction."
+        );
       } else if (
         latestLayer.type === "add-downsampling" &&
         isDownsamplingParams(latestLayer.params) && // change param so it can draw
@@ -687,6 +706,19 @@ export default function Visualiser() {
           dense: true,
         });
 
+        if (
+          latestLayer.params.outputDims.width == 1 &&
+          latestLayer.params.outputDims.height == 1
+        ) {
+          setMenuAnnotation(
+            "No further spatial features can be extracted via convolutions at 1×1×n, but a fully connected (dense) layer can still be applied. This is useful for classifcation and regression."
+          );
+        } else {
+          setMenuAnnotation(
+            "We can add more convolutions for further feature extraction, use dense layers for classification/regression, or output convolutions directly for segmentation, super-resolution, or style transfer."
+          );
+        }
+
         setAnimationTriggers((prev) => [
           ...prev,
           {
@@ -737,16 +769,26 @@ export default function Visualiser() {
           dense: false,
         });
 
+        setMenuAnnotation(
+          "Applying activations introduces non-linearity; otherwise, the CNN collapses to linear regression."
+        );
+
         setPrevLayerDims({
           neurons: latestLayer.params,
         });
 
-        if (layers[layers.length - 2].type == "add-downsampling" || layers[layers.length - 3].type == "add-conv-layer") {
+        if (
+          layers[layers.length - 2].type == "add-downsampling" ||
+          layers[layers.length - 3].type == "add-conv-layer"
+        ) {
           setAnimationTriggers((prev) => [
             ...prev,
             {
               // dense  input layer
-              layerNumber: layers[layers.length - 2].type == "add-downsampling"? [layers.length - 1, layers.length - 2] : [layers.length - 1, layers.length - 3],
+              layerNumber:
+                layers[layers.length - 2].type == "add-downsampling"
+                  ? [layers.length - 1, layers.length - 2]
+                  : [layers.length - 1, layers.length - 3],
               triggerArea: [
                 allLayerConnections[allLayerConnections.length - 2][1][0].x,
                 allLayerConnections[allLayerConnections.length - 1][0][0].x,
@@ -754,7 +796,7 @@ export default function Visualiser() {
               animationType: "dense",
             },
           ]);
-          console.log("meow")
+          console.log("meow");
         }
       }
 
@@ -787,6 +829,7 @@ export default function Visualiser() {
             onAction={handleMenuAction}
             showLabel={!started}
             validLayerTypes={allowedLayerTypes}
+            annotation={menuAnnotation}
           />
         )}
 

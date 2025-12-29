@@ -63,6 +63,7 @@ export interface VisualiserMenuBtnProps {
   onAction: (action: LayerActionType) => void;
   showLabel: boolean;
   validLayerTypes: validLayerTypes;
+  annotation?: string; 
 }
 
 export interface ConvParams {
