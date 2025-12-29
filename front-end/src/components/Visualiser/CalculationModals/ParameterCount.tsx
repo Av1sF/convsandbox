@@ -1,7 +1,7 @@
 import { ConvParams, dummyModelOutputs, Layer } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import React, { useEffect, useState } from "react";
-import { dummyModelDense } from "../../../../utils/types";
+import { dummyModelDense } from "../../../utils/types";
 
 interface Props {
   layers: Layer[];
@@ -122,7 +122,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4"
           onClick={() => setIsModalOpen(false)}
         >
-          <div className="bg-bg rounded-2xl p-7 w-full max-w-1/2 max-h-3/4 text-text overflow-auto">
+          <div className="bg-bg rounded-2xl p-7 w-full max-w-[80vh] md:max-w-1/2 max-h-3/4 text-text overflow-auto">
             <h1 className="text-text text-2xl font-bold pb-3 ">
               Calculating the number of trainable Parameters...
             </h1>
@@ -196,9 +196,9 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
                 ))}
               </div>
             </MathJax>
-            <div className="flex items-end justify-end pt-6">
+            <div className="flex justify-end mt-8">
               <br />
-              <button onClick={() => setIsModalOpen(false)} className=" p-3 bg-accent px-4 py-2 text-white rounded-lg">
+              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg border border-gray-400 text-text-muted hover:bg-gray-100 transition">
                 Close
               </button>
             </div>

@@ -49,8 +49,8 @@ export const drawFlattenedVector = (
 
   const numRows = tensor[0].length;
 
-  const rectHeight =
-    Math.trunc(canvasH) / (MAX_DEPTH * MAX_WIDTH * MAX_HEIGHT*0.5);
+  const rectHeight = numRows <= MAX_DEPTH * MAX_WIDTH * MAX_HEIGHT*0.5?
+    Math.trunc(canvasH) / (MAX_DEPTH * MAX_WIDTH * MAX_HEIGHT*0.5): Math.trunc(canvasH) / (1.5*MAX_DEPTH * MAX_WIDTH * MAX_HEIGHT);
   const rectWidth = Math.trunc(0.8 * canvasW);
 
   const totalRectHeight = rectHeight * numRows;
@@ -59,7 +59,7 @@ export const drawFlattenedVector = (
   const startY = canvasH / 2 - 0.5 * totalRectHeight;
 
   // Draw n number of rectangles
-  for (let i = 0; i < numRows; i++) {
+  for (let i = 0; i < Math.min(numRows, MAX_DEPTH * MAX_WIDTH * MAX_HEIGHT * 0.75); i++) {
     let randomOpacity = Math.random();
 
     if (is2DTensor(tensor)) {

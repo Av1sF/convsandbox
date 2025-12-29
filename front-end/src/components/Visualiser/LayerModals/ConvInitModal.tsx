@@ -50,7 +50,7 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
               min={1}
               max={Math.min(MAX_WIDTH, MAX_HEIGHT)}
               onChange={(e) => setSize(Number(e.target.value))}
-              className="mt-1 border px-3 py-1 rounded-md"
+              className="mt-1 border border-gray-300 rounded-md px-3 py-1 bg-gray-50"
             />
           </label>
 
@@ -62,7 +62,7 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
               min={1}
               max={MAX_DEPTH}
               onChange={(e) => setDepth(Number(e.target.value))}
-              className="mt-1 border px-3 py-1 rounded-md"
+              className="mt-1 border border-gray-300 rounded-md px-3 py-1 bg-gray-50"
             />
           </label>
 

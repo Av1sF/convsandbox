@@ -82,7 +82,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
         <h2 className="text-2xl font-semibold text-text mb-3">
           Select Upsampling Method
         </h2>
-        <p className="text-sm text-gray-500 mb-6">
+        <p className="text-sm text-text-muted mb-6">
           Choose how this layer will increase spatial resolution.
         </p>
 
@@ -93,15 +93,15 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
               onClick={() => setSelectedMethod(method.type)}
               className={`flex flex-col items-center border rounded-2xl p-5 transition ${
                 selectedMethod === method.type
-                  ? "border-blue-500 bg-blue-50 shadow-md"
+                  ? "border-accent bg-blue-50 shadow-md"
                   : "border-gray-300 bg-gray-50 hover:bg-gray-100"
               }`}
             >
               <div className="mb-3">{method.graph}</div>
-              <h3 className="font-semibold text-gray-800 text-center">
+              <h3 className="font-semibold text-text text-center">
                 {method.title}
               </h3>
-              <p className="text-xs text-gray-600 text-center mt-1">
+              <p className="text-xs text-text-muted text-center mt-1">
                 {method.description}
               </p>
             </button>
@@ -110,7 +110,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
 
         {/* Scale factor input */}
         <div className="flex flex-col md:flex-row md:items-center md:gap-6">
-          <label className="text-sm text-gray-700 font-medium">
+          <label className="text-sm text-text-muted font-medium">
             Scale Factor:
             <input
               type="number"
@@ -122,7 +122,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
             />
           </label>
 
-          <div className="text-sm text-gray-600 mt-2 md:mt-0">
+          <div className="text-sm text-text-muted mt-2 md:mt-0">
             Output:{" "}
             <strong>
               {outputDims.width}×{outputDims.height}×{outputDims.depth}
@@ -132,7 +132,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
 
         {!isOutputValid && (
           <p className="text-accent-warm text-sm mt-3 font-medium">
-            ⚠️ Output Dimension Error: Must not exceed {MAX_HEIGHT}x{MAX_WIDTH}x
+            🛑 Output Dimension Invalid: Must not exceed {MAX_HEIGHT}x{MAX_WIDTH}x
             {MAX_DEPTH}
           </p>
         )}
@@ -140,7 +140,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
         <div className="flex justify-end mt-8 gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-gray-400 text-gray-600 hover:bg-gray-100 transition"
+            className="px-4 py-2 rounded-lg border border-gray-400 text-text-muted hover:bg-gray-100 transition"
           >
             Cancel
           </button>

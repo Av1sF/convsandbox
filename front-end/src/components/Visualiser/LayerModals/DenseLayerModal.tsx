@@ -24,16 +24,16 @@ const DenseLayerModal: React.FC<DenseLayerModalProps> = ({
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-fadeIn">
 
         {/* === Header === */}
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">
-          Add Dense (Fully Connected) Layer
+        <h2 className="text-xl font-semibold text-text-muted mb-2">
+          Add Fully-Connected (Dense) Layer
         </h2>
-        <p className="text-sm text-gray-500 mb-6">
+        <p className="text-sm text-text-muted mb-6">
           Specify the number of neurons for this dense layer.
         </p>
 
         {/* === Form === */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="flex flex-col text-sm text-gray-700">
+          <label className="flex flex-col text-sm text-text-muted">
             Number of Neurons
             <input
               type="number"
@@ -45,14 +45,14 @@ const DenseLayerModal: React.FC<DenseLayerModalProps> = ({
               }
               className="mt-1 border border-gray-300 rounded-md px-3 py-2 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none"
             />
-            <span className="text-xs text-gray-500 mt-1">
+            <span className="text-xs text-text-muted mt-1">
               Max allowed neurons: {MAX_NEURONS}
             </span>
           </label>
 
           {/* === Error Message === */}
           {neurons > MAX_NEURONS && (
-            <p className="text-red-600 text-sm">
+            <p className="text-accent-warm text-sm">
               You cannot exceed {MAX_NEURONS} neurons.
             </p>
           )}
@@ -62,7 +62,7 @@ const DenseLayerModal: React.FC<DenseLayerModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+              className="px-4 py-2 text-text-muted rounded-lg border border-gray-300 hover:bg-gray-100 transition"
             >
               Cancel
             </button>
@@ -72,7 +72,7 @@ const DenseLayerModal: React.FC<DenseLayerModalProps> = ({
               className={`px-4 py-2 rounded-lg text-white transition ${
                 neurons < 1 || neurons > MAX_NEURONS
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  : "bg-accent hover:bg-blue-700"
               }`}
             >
               Confirm

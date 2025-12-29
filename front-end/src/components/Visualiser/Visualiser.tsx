@@ -50,7 +50,7 @@ import binSearchInterval from "@/utils/binSearchInterval";
 import ConvAnimationModal from "./AnimationModals/ConvAnimationModal";
 import DenseAnimationModal from "./AnimationModals/DenseAnimationModal";
 import DownsampleAnimationModal from "./AnimationModals/DownsampleAnimationModal";
-import { ParameterCount } from "./AnimationModals/CalculationModals/ParameterCount";
+import { ParameterCount } from "./CalculationModals/ParameterCount";
 
 const W = 1183;
 const H = 500;
@@ -741,12 +741,12 @@ export default function Visualiser() {
           neurons: latestLayer.params,
         });
 
-        if (layers[layers.length - 2].type == "add-downsampling") {
+        if (layers[layers.length - 2].type == "add-downsampling" || layers[layers.length - 3].type == "add-conv-layer") {
           setAnimationTriggers((prev) => [
             ...prev,
             {
               // dense  input layer
-              layerNumber: [layers.length - 1, layers.length - 2],
+              layerNumber: layers[layers.length - 2].type == "add-downsampling"? [layers.length - 1, layers.length - 2] : [layers.length - 1, layers.length - 3],
               triggerArea: [
                 allLayerConnections[allLayerConnections.length - 2][1][0].x,
                 allLayerConnections[allLayerConnections.length - 1][0][0].x,
@@ -754,6 +754,7 @@ export default function Visualiser() {
               animationType: "dense",
             },
           ]);
+          console.log("meow")
         }
       }
 
@@ -774,7 +775,7 @@ export default function Visualiser() {
         id="canvas"
         ref={svgRef}
         onClick={handleVisualiserClick}
-        className={`w-[1183px] h-[500px] d3-root `}
+        className={`w-[1183px] h-[500px] d3-root select-none`}
       >
         {/* Only render the button if fewer than max layers exist */}
         {numLayers < MAXLAYERS && (
