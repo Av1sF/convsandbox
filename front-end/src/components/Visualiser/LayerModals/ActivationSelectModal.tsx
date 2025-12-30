@@ -101,14 +101,14 @@ const ActivationSelectModal: React.FC<ActivationSelectModalProps> = ({
   return (
     <div  className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-6 ">
       <div className="bg-bg rounded-2xl shadow-xl w-full max-w-5xl p-8 animate-fadeIn relative max-h-[95vh] overflow-y-auto">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+        <h2 className="text-2xl font-semibold text-text">
           Select Activation Function
         </h2>
-        <p className="text-sm text-gray-500 mb-6">
+        <p className="text-sm text-text-muted mb-6">
           Choose the activation function for this layer.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 text-text-muted md:grid-cols-2 lg:grid-cols-4 gap-6">
           {ACTIVATIONS.map((act) => (
             <button
               key={act.type}
@@ -120,7 +120,7 @@ const ActivationSelectModal: React.FC<ActivationSelectModalProps> = ({
                 {act.title}
               </h3>
               <div className="text-sm text-gray-700 my-1">{act.formula}</div>
-              <p className="text-xs text-gray-600 text-center mt-1">
+              <p className="text-xs text-text-muted text-center mt-1">
                 {act.description}
               </p>
             </button>
@@ -130,7 +130,7 @@ const ActivationSelectModal: React.FC<ActivationSelectModalProps> = ({
         <div className="flex justify-end mt-8">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-gray-400 text-gray-600 hover:bg-gray-100 transition"
+            className="px-4 py-2 rounded-lg border border-gray-400 text-text-muted hover:bg-gray-100 transition"
           >
             Cancel
           </button>

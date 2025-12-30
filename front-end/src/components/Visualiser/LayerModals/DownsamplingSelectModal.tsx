@@ -25,12 +25,12 @@ const POOLING_OPTIONS: {
   {
     type: "Global Max Pooling",
     description:
-      "Reduces each feature map to a single value (used before fully connected layers).",
+      "Reduces each channel to a single value (used before fully connected layers) by finding the max value in each channel.",
   },
   {
     type: "Global Average Pooling",
     description:
-      "Reduces each feature map to a single value (used before fully connected layers).",
+      "Reduces each feature map to a single value (used before fully connected layers) by averaging all values in each channel.",
   },
 ];
 
@@ -45,7 +45,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
   const [filterSize, setFilterSize] = useState<number>(2);
   const [stride, setStride] = useState<number>(2);
 
-  const maxSize = Math.max(prevDims.height, prevDims.width)
+  const maxSize = Math.max(prevDims.height, prevDims.width);
 
   const computeOutputDims = () => {
     // if (!selectedType) return null;
@@ -80,93 +80,94 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-4">
       <div className="bg-bg rounded-2xl shadow-xl w-full max-w-5xl p-5 animate-fadeIn relative max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-          Select Downsampling Method
+        <h2 className="text-2xl font-semibold text-text mb-2">
+          Select a Pooling Method
         </h2>
-        <p className="text-sm text-gray-500 mb-6">
-          Choose the downsampling technique and adjust parameters. The output
+        <p className="text-sm text-text-muted mb-6">
+          Choose the Pooling (downsampling) technique and adjust parameters. The output
           dimensions update dynamically.
         </p>
 
         {/* === Main layout === */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className={`grid grid-cols-1 md:grid-cols-${selectedType? 2 :1} gap-8`}>
           {/* === LEFT SIDE: Formula + Inputs === */}
           <div className="flex flex-col space-y-6">
             {/* === Formula Section === */}
-            <div className="rounded-xl px-4">
-              {!selectedType && <h3>Select a pooling method!</h3>}
 
-              {selectedType && outputDims && prevDims && (
-                <>
-                  <h3 className="text-text-muted font-semibold">
-                    Previous Layer Dimensions
-                  </h3>
-                  <p className="text-xs text-gray-700">
-                    <MathJax dynamic className="opacity-60">
-                      {"\\(H_{in} \\times W_{in} \\times D_{in}\\)"}
-                    </MathJax>
-                  </p>
-                  <p className="text-sm text-text-muted">
-                    <MathJax
-                      dynamic
-                    >{` \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
-                  </p>
+            {selectedType && (
+              <div className="rounded-xl px-4">
 
-                  <h3 className="mt-2 text-text-muted font-semibold">
-                    Output Dimensions
-                  </h3>
-                  <p className="text-sm text-gray-700">
-                    <MathJax dynamic className="opacity-60">
-                      {"\\(H_{out} \\times W_{out} \\times D_{out}\\)"}
-                    </MathJax>
-                    {selectedType.includes("Global") ? (
-                      <>
-                        <MathJax
-                          dynamic
-                        >{`\\(1 \\times 1 \\times ${outputDims?.depth}\\)`}</MathJax>
-                      </>
-                    ) : (
-                      <>
-                        <strong>
+                {outputDims && prevDims && (
+                  <>
+                    <h3 className="text-text-muted font-semibold">
+                      Previous Layer Dimensions
+                    </h3>
+                    <p className="text-xs text-gray-700">
+                      <MathJax dynamic className="opacity-60">
+                        {"\\(H_{in} \\times W_{in} \\times D_{in}\\)"}
+                      </MathJax>
+                    </p>
+                    <p className="text-sm text-text-muted">
+                      <MathJax
+                        dynamic
+                      >{` \\(${prevDims.height} \\times ${prevDims.width} \\times ${prevDims.depth}\\)`}</MathJax>
+                    </p>
+
+                    <h3 className="mt-2 text-text-muted font-semibold">
+                      Output Dimensions
+                    </h3>
+                    <p className="text-sm text-gray-700">
+                      <MathJax dynamic className="opacity-60">
+                        {"\\(H_{out} \\times W_{out} \\times D_{out}\\)"}
+                      </MathJax>
+                      {selectedType.includes("Global") ? (
+                        <>
                           <MathJax
                             dynamic
-                          >{`\\(${outputDims?.height} \\times ${outputDims?.width} \\times ${outputDims?.depth}\\)`}</MathJax>
-                        </strong>
-                      </>
-                    )}
-                  </p>
+                          >{`\\(1 \\times 1 \\times ${outputDims?.depth}\\)`}</MathJax>
+                        </>
+                      ) : (
+                        <>
+                          <strong>
+                            <MathJax
+                              dynamic
+                            >{`\\(${outputDims?.height} \\times ${outputDims?.width} \\times ${outputDims?.depth}\\)`}</MathJax>
+                          </strong>
+                        </>
+                      )}
+                    </p>
 
-                  {!selectedType.includes("Global") && (
-                    <div className="mt-4">
-                      <h3 className="text-text mb-1 font-semibold">
-                        Computed With...
-                      </h3>
-                      <div className="text-text space-y-2">
-                        <MathJax dynamic>
-                          {`\\(H_{out} = \\lfloor \\frac{H_{in} - \\color{#00BFA6}{F}}{\\color{#5073B3}{S}} \\rfloor + 1 = 
+                    {!selectedType.includes("Global") && (
+                      <div className="mt-4">
+                        <h3 className="text-text mb-1 font-semibold">
+                          Computed With...
+                        </h3>
+                        <div className="text-text-muted space-y-2">
+                          <MathJax dynamic>
+                            {`\\(H_{out} = \\lfloor \\frac{H_{in} - \\color{#00BFA6}{F}}{\\color{#5073B3}{S}} \\rfloor + 1 = 
                         \\lfloor \\frac{${prevDims.height} - \\color{#00BFA6}{${filterSize}}}{\\color{#5073B3}{${stride}}} \\rfloor  + 1
                         = ${outputDims.height}\\)`}
-                        </MathJax>
-                        <MathJax dynamic>
-                          {`\\(W_{out} = \\lfloor \\frac{W_{in} - \\color{#00BFA6}{F}}{\\color{#5073B3}{S}}  \\rfloor + 1 = 
+                          </MathJax>
+                          <MathJax dynamic>
+                            {`\\(W_{out} = \\lfloor \\frac{W_{in} - \\color{#00BFA6}{F}}{\\color{#5073B3}{S}}  \\rfloor + 1 = 
                         \\lfloor \\frac{${prevDims.width} - \\color{#00BFA6}{${filterSize}}}{\\color{#5073B3}{${stride}}} \\rfloor + 1
                         = ${outputDims.width}\\)`}
-                        </MathJax>
-                        <MathJax dynamic>
-                          {`\\(D_{out} = D_{in} = ${outputDims.depth}\\)`}
-                        </MathJax>
+                          </MathJax>
+                          <MathJax dynamic>
+                            {`\\(D_{out} = D_{in} = ${outputDims.depth}\\)`}
+                          </MathJax>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-
+                    )}
+                  </>
+                )}
+              </div>
+            )}
             {/* === Inputs: Filter + Stride side-by-side BELOW the formula === */}
             {selectedType && !selectedType.includes("Global") && (
               <div className="flex flex-row space-x-6 px-4">
                 <div className="flex flex-col">
-                  <label className="text-sm text-gray-600 font-medium mb-1">
+                  <label className="text-sm text-text-muted font-medium mb-1">
                     <MathJax dynamic>
                       {
                         " Filter Size (\\(\\color{#00BFA6}{F}\\)) & Stride (\\(\\color{#5073B3}{S}\\)): "
@@ -209,14 +210,14 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
                 onClick={() => setSelectedType(opt.type)}
                 className={`flex flex-col border rounded-xl p-4 text-left transition ${
                   selectedType === opt.type
-                    ? "border-blue-500 bg-blue-50"
+                    ? "border-accent bg-blue-50"
                     : "border-gray-300 bg-gray-50 hover:bg-gray-100"
                 }`}
               >
                 <h3 className="text-l font-semibold text-gray-800 mb-1">
                   {opt.type}
                 </h3>
-                <p className="text-xs text-gray-600">{opt.description}</p>
+                <p className="text-xs text-text-muted">{opt.description}</p>
               </button>
             ))}
           </div>
@@ -226,7 +227,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-gray-400 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+            className="px-4 py-2 border border-gray-400 rounded-lg text-text-muted hover:bg-gray-100 transition"
           >
             Cancel
           </button>
@@ -235,7 +236,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
             disabled={!selectedType}
             className={`px-4 py-2 rounded-lg text-white transition ${
               selectedType
-                ? "bg-blue-600 hover:bg-blue-700"
+                ? "bg-accent hover:bg-blue-700"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
           >

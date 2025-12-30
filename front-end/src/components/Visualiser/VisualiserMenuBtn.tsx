@@ -91,10 +91,31 @@ export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
       </text>
 
       {visibleButtons.map((btn, i) => (
-        <g key={btn.key} transform={`translate(0, ${svgYstart + i * buttonYoffset})`}>
+        <g
+          key={btn.key}
+          transform={`translate(0, ${svgYstart + i * buttonYoffset})`}
+        >
           {btn.component}
         </g>
       ))}
+
+      {props.annotation && 
+        <g
+          key={"annotation"}
+          transform={`translate(10, ${
+            svgYstart + visibleButtons.length * buttonYoffset + 10
+          })`}
+        >
+          {/* {btn.component} */}
+          <foreignObject width="200" height="200">
+            <div
+              className="text-text-muted italic text-xs font-main whitespace-normal break-words max-w-[250px] leading-tight fixed"
+            >
+              {props.annotation}
+            </div>
+          </foreignObject>
+        </g>
+      }
     </g>
   );
 }

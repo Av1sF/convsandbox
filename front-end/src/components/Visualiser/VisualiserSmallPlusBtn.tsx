@@ -9,7 +9,7 @@ export default function VisualiserSmallPlusBtn(props: LayerSelectionBtnProps) {
         <circle
           cx={props.x + 25}
           cy={props.y + 25}
-          r={15}
+          r={13}
           className="fill-bg-alt hover:fill-stroke"
         />
         <text

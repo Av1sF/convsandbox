@@ -13,7 +13,7 @@ export function addLayerLabel(
     .append("text")
     .attr("x", x)
     .attr("y", y)
-    .attr("id", (d, i) => `${text}`)
+    .attr("id",   `${text.replaceAll(' ', '-')}`)
     .attr("text-anchor", "middle")
     .attr("font-size", font_size || 14)
     .attr("opacity", 0.8)

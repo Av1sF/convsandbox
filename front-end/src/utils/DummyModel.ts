@@ -4,137 +4,163 @@ import {
   convLayerDims,
   ConvParams,
   DownsamplingParams,
+  dummyModelActivation,
+  dummyModelConv,
+  dummyModelDense,
+  dummyModelDownsample,
+  dummyModelInput,
+  dummyModelUpsample,
   UpsamplingParams,
 } from "./types";
 
 const DATAFORMAT = "channelsLast";
 
-export function setInputLayer(params: convLayerDims): tf.Tensor {
-  const inputVector: tf.Tensor =
-    params.depth == 0
-      ? tf.randomUniform([params.height, params.width, 1, 1], 0, 1)
-      : tf.randomUniform([1, params.height, params.width, params.depth], 0, 1);
+export function setInputLayer(params: convLayerDims): dummyModelInput {
+  return {
+    output: random3DTensor(params.height, params.width, params.depth),
+    dims: { height: params.height, width: params.width, depth: params.depth },
+  };
+}
 
-  return inputVector;
+function random3DTensor(
+  height: number,
+  width: number,
+  depth: number
+): tf.Tensor {
+  return tf.randomUniform([1, height, width, depth], -1.25, 1.25);
 }
 
 export function setConvLayer(
   params: ConvParams,
   prevTensor: tf.Tensor
-): tf.Tensor | undefined {
-  let output;
-  let layer;
-  let padding = undefined;
-  if (params.filterSize && params.numFilters && params.stride) {
-    if (params.padding && params.padding > 0) {
-      padding = tf.layers.zeroPadding2d({
-        padding: params.padding,
-      });
+): dummyModelConv {
+  let padded = prevTensor;
 
-      output = padding.apply(prevTensor);
-    }
-
-    layer = tf.layers.conv2d({
-      filters: params.numFilters,
-      kernelSize: params.filterSize,
-      strides: params.stride,
-      padding: "valid",
-      dataFormat: DATAFORMAT,
-      biasInitializer: "randomNormal",
-      kernelInitializer: "randomNormal",
+  if (params.padding && params.padding > 0) {
+    const paddingLayer = tf.layers.zeroPadding2d({
+      padding: params.padding,
     });
-    output = layer.apply(padding ? padding.apply(prevTensor) : prevTensor);
-
-    if (output instanceof tf.Tensor) {
-      //   // get conv layer Shape/Dimensions WRITE ASSERTION THIS IS SAME AS PARAMS
-      // console.log(JSON.stringify(output.shape));
-      //   // this.layers.push(output)
-      //   // print output conv layer values
-      //   // console.log(this.layers)
-      //   // output.print();
-
-      //   // // print and show kernel values
-      //   // console.log(layer.getWeights()[0].print());
-
-      //   // // print and show bias value
-      //   // console.log(layer.getWeights()[1].print());
-      // }
-      //     }
-      return output;
-    }
+    padded = paddingLayer.apply(prevTensor) as tf.Tensor;
   }
+
+  const conv = tf.layers.conv2d({
+    filters: params.numFilters,
+    kernelSize: params.filterSize,
+    strides: params.stride,
+    padding: "valid",
+    dataFormat: DATAFORMAT,
+    biasInitializer: "heNormal",
+    kernelInitializer: "heNormal",
+  });
+
+  const output = conv.apply(padded) as tf.Tensor;
+
+  return {
+    stride: params.stride,
+    filterSize: params.filterSize,
+    output: output,
+    padSize: params.padding,
+    padded: padded,
+    kernel: conv.getWeights()[0],
+    bias: conv.getWeights()[1],
+    dims: {
+      height: params.height,
+      width: params.width,
+      depth: params.depth,
+    },
+  };
+
+  // return output instanceof tf.Tensor ? output : random3DTensor(params.height, params.width, params.depth);
 }
 
 export function setDenseLayer(
   params: number,
   prevLayer: tf.Tensor
-): tf.Tensor | undefined {
-  if (prevLayer as tf.Tensor) {
-    const flatten =
-      prevLayer.shape.length == 2
-        ? prevLayer
-        : tf.layers.flatten().apply(prevLayer);
-    const dense = tf.layers.dense({
-      units: params,
-      biasInitializer: "randomNormal",
-      kernelInitializer: "randomNormal",
-    });
+): dummyModelDense {
+  const flatten =
+    prevLayer.shape.length == 2
+      ? prevLayer
+      : (tf.layers.flatten().apply(prevLayer) as tf.Tensor);
+  const dense = tf.layers.dense({
+    units: params,
+    biasInitializer: "heNormal",
+    kernelInitializer: "heNormal",
+  });
+  const denseOutput = dense.apply(flatten) as tf.Tensor;
 
-    const denseOutput = dense.apply(flatten);
+  return {
+    output: denseOutput,
+    flatten: flatten,
+    neurons: params,
+    weights: dense.getWeights()[0],
+    bias: dense.getWeights()[1],
+  };
 
-    if (denseOutput instanceof tf.Tensor) {
-      // console.log(denseOutput.arraySync())
-      // console.log(dense.getWeights()[0].print());
-      return denseOutput;
-    }
-  }
-
-  // if prev is convLayerdims => flatten
-  // else chain the dense layers
 }
 
 export function setActivationLayer(
   params: ActivationType,
-  prevLayer: tf.Tensor
-): tf.Tensor | undefined {
-  // tanh sigmoid relu leakyrelu
+  prevLayer: tf.Tensor,
+  neurons?: number,
+  dims?: { height: number; width: number; depth: number }
+): dummyModelActivation {
   switch (params) {
     case "Sigmoid":
-      return prevLayer.logSigmoid();
+      return {
+        output: prevLayer.sigmoid(),
+        type: params,
+        neurons: neurons,
+        dims: dims,
+      };
 
     case "Tanh":
-      return prevLayer.tanh();
-
+      return {
+        output: prevLayer.tanh(),
+        type: params,
+        neurons: neurons,
+        dims: dims,
+      };
     case "Leaky ReLU":
-      return prevLayer.leakyRelu(0.1);
+      return {
+        output: prevLayer.leakyRelu(0.1),
+        type: params,
+        neurons: neurons,
+        dims: dims,
+      };
 
     case "ReLU":
-      return prevLayer.relu();
+      return {
+        output: prevLayer.relu(),
+        type: params,
+        neurons: neurons,
+        dims: dims,
+      };
   }
 }
 
 export function setUpsamplingLayer(
   params: UpsamplingParams,
   prevLayer: tf.Tensor
-): tf.Tensor | undefined {
-  // param have upsampling and method
+): dummyModelUpsample {
   const upsamplingLayer = tf.layers.upSampling2d({
     dataFormat: DATAFORMAT,
     size: [params.scaleFactor, params.scaleFactor],
     interpolation: params.method == "Nearest Neighbor" ? "nearest" : "bilinear",
   });
+  const upsamplingLayerOutput = upsamplingLayer.apply(prevLayer) as tf.Tensor;
 
-  const upsamplingLayerOutput = upsamplingLayer.apply(prevLayer);
-
-  if (upsamplingLayerOutput instanceof tf.Tensor) {
-    return upsamplingLayerOutput;
-  }
+  return {
+    output: upsamplingLayerOutput,
+    type: params.method,
+    scaleFactor: params.scaleFactor,
+    dims: params.outputDims,
+  };
 }
 
 export function setDownsamplingLayer(
   params: DownsamplingParams,
   prevLayer: tf.Tensor
-): tf.Tensor | undefined {
+): dummyModelDownsample {
   switch (params.type) {
     case "Average Pooling":
       const averagePooling2DLayer = tf.layers.averagePooling2d({
@@ -143,11 +169,15 @@ export function setDownsamplingLayer(
         poolSize: params.filterSize,
       });
 
-      const avgPoolOutput = averagePooling2DLayer.apply(prevLayer);
+      const avgPoolOutput = averagePooling2DLayer.apply(prevLayer) as tf.Tensor;
 
-      if (avgPoolOutput instanceof tf.Tensor) {
-        return avgPoolOutput;
-      }
+      return {
+        output: avgPoolOutput,
+        type: params.type,
+        stride: params.stride,
+        filterSize: params.filterSize,
+        dims: params.outputDims,
+      };
 
     case "Max Pooling":
       const maxPooling2DLayer = tf.layers.maxPooling2d({
@@ -156,32 +186,44 @@ export function setDownsamplingLayer(
         poolSize: params.filterSize,
       });
 
-      const maxPoolOutput = maxPooling2DLayer.apply(prevLayer);
+      const maxPoolOutput = maxPooling2DLayer.apply(prevLayer) as tf.Tensor;
 
-      if (maxPoolOutput instanceof tf.Tensor) {
-        return maxPoolOutput;
-      }
+      return {
+        output: maxPoolOutput,
+        type: params.type,
+        stride: params.stride,
+        filterSize: params.filterSize,
+        dims: params.outputDims,
+      };
 
     case "Global Average Pooling":
       const globalAvgPoolLayer = tf.layers.globalAveragePooling2d({
         dataFormat: DATAFORMAT,
       });
 
-      const globalAvgPoolOutput = globalAvgPoolLayer.apply(prevLayer);
+      const globalAvgPoolOutput = globalAvgPoolLayer.apply(
+        prevLayer
+      ) as tf.Tensor;
 
-      if (globalAvgPoolOutput instanceof tf.Tensor) {
-        return globalAvgPoolOutput;
-      }
+      return {
+        output: globalAvgPoolOutput,
+        type: params.type,
+        dims: params.outputDims,
+      };
 
     case "Global Max Pooling":
       const globalMaxPoolLayer = tf.layers.globalMaxPool2d({
         dataFormat: DATAFORMAT,
       });
 
-      const globalMaxPoolOutput = globalMaxPoolLayer.apply(prevLayer);
+      const globalMaxPoolOutput = globalMaxPoolLayer.apply(
+        prevLayer
+      ) as tf.Tensor;
 
-      if (globalMaxPoolOutput instanceof tf.Tensor) {
-        return globalMaxPoolOutput;
-      }
+      return {
+        output: globalMaxPoolOutput,
+        type: params.type,
+        dims: params.outputDims,
+      };
   }
 }
