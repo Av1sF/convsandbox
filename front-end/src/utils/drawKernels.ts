@@ -13,7 +13,7 @@
 import { BaseType } from "d3";
 import { isNumberParam } from "./typeGuards";
 import { is3DTensor } from "./is3DTensor";
-import { LayerConnections, MidPoint } from "./types";
+import { LayerConnections } from "./types";
 
 const MAX_WEIGHT = 1;
 const MIN_WEIGHT = -1;
@@ -89,7 +89,7 @@ export const drawKernels = (
     for (let j = 0; j < inChannels; j++) {
       layerGroup
       .append("rect")
-      .attr("id", (d, i) => `k-${f}-${j}`)
+      .attr("id",   `k-${f}-${j}`)
       .attr("x", startX + f * xOffset)
       .attr("y", startY + j * yOffset)
       .attr("width", rectWidth)
@@ -141,7 +141,7 @@ export const drawKernels = (
                 .attr("y", y)
                 .attr("width", cellWidth)
                 .attr("height", cellHeight)
-                .attr("id", (d, i) => `square-${row}-${col}-${j}-${f}`)
+                .attr("id",   `square-${row}-${col}-${j}-${f}`)
                 .attr("fill", "#5f6c7b")
                 .style("opacity", 0)
                 .transition()

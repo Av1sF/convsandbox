@@ -191,7 +191,7 @@ export default function Visualiser() {
     pt.y = e.clientY;
 
     const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
-    const { x, y } = svgP;
+    const { x,  } = svgP;
 
     const triggerIndex = binSearchInterval(
       x,

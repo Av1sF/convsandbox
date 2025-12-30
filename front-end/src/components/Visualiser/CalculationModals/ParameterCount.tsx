@@ -35,12 +35,12 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
       },
     ]);
 
-    var totalp = 0;
+     let totalp = 0;
     for (let i = 1; i < layers.length; i++) {
-      var layerType = layers[i].type;
+       const layerType = layers[i].type;
 
       if (layerType == "add-conv-layer") {
-        var convParams = layers[i].params as ConvParams;
+         const convParams = layers[i].params as ConvParams;
 
         const filterSize = convParams.filterSize;
         const numFilters = convParams.numFilters;
@@ -63,7 +63,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
         const outputNeurons = layers[i].params as number;
 
         // number of input units
-        var denseTensorLayer = tensorLayers[i] as dummyModelDense;
+         const denseTensorLayer = tensorLayers[i] as dummyModelDense;
         const inputNeurons = denseTensorLayer.flatten.shape[1];
 
         if (inputNeurons) {

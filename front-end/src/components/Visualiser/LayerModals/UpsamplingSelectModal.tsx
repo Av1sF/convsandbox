@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  ConvParams,
   MAX_DEPTH,
   MAX_HEIGHT,
   MAX_WIDTH,

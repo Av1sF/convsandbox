@@ -85,7 +85,7 @@ export const drawConvLayer = (
   for (let j = 0; j < numDepth; j++) {
     layerGroup
       .append("rect")
-      .attr("id", (d, i) => `rect-${j}`)
+      .attr("id",   `rect-${j}`)
       .attr("x", startX + j * xOffset)
       .attr("y", rectStartYs[j])
       .attr("width", rectWidth)
@@ -148,7 +148,7 @@ export const drawConvLayer = (
           .attr("y", y)
           .attr("width", cellWidth)
           .attr("height", cellHeight)
-          .attr("id", (d, i) => `square-${row}-${col}-${j}`)
+          .attr("id",   `square-${row}-${col}-${j}`)
           .attr("fill", "#5f6c7b")
           .style("opacity", 0)
           .transition()

@@ -1,5 +1,4 @@
 import {
-  ActivationType,
   DownsamplingType,
   dummyModelDownsample,
   dummyModelOutputs,
@@ -40,7 +39,9 @@ const DownsampleAnimationModal: React.FC<Props> = ({
       const root = d3.select(modalSvgRef.current);
       root.selectAll("*").remove();
 
-      setPoolingType((tensorLayers[layerIndex[0]] as dummyModelDownsample).type);
+      setPoolingType(
+        (tensorLayers[layerIndex[0]] as dummyModelDownsample).type
+      );
       const poolingFunction = (
         tensorLayers[layerIndex[0]] as dummyModelDownsample
       ).type
@@ -147,9 +148,9 @@ const DownsampleAnimationModal: React.FC<Props> = ({
 
         // for each channel
 
-        var currOutputi = 0;
-        var batchWindowDelay = 0;
-        var currOutputj = 0;
+        let currOutputi = 0;
+        let batchWindowDelay = 0;
+        let currOutputj = 0;
 
         const stride = poolingConv.stride ? poolingConv.stride : 1;
         const filterSize = poolingConv.filterSize ? poolingConv.filterSize : 1;
@@ -210,8 +211,7 @@ const DownsampleAnimationModal: React.FC<Props> = ({
                 );
 
                 const inputChannel = inputGroup.select(`#rect-${c}`);
-                const outputChannel = outputGroup.select(`#rect-${c}`);
-
+          
                 const startY = +inputChannel.attr("y");
 
                 const outputCellx = +outputCell.attr("x");
@@ -289,13 +289,13 @@ const DownsampleAnimationModal: React.FC<Props> = ({
                 }
 
                 // animate filter window
-                var filteredInput: number[][] = [];
+                const filteredInput: number[][] = [];
                 for (let dy = 0; dy < filterSize; dy++) {
                   filteredInput[dy] = [];
                   for (let dx = 0; dx < filterSize; dx++) {
-                    var filterInputX = dx + j;
-                    var filterInputY = dy + i;
-                    var tensor = inputConv.output.arraySync();
+                    const filterInputX = dx + j;
+                    const filterInputY = dy + i;
+                    const tensor = inputConv.output.arraySync();
                     if (is3DTensor(tensor)) {
                       if (
                         isNumberParam(tensor[0][filterInputY][filterInputX][c])
@@ -314,7 +314,7 @@ const DownsampleAnimationModal: React.FC<Props> = ({
                     .attr("y", startY + 40 + c * 10)
                     .attr("width", 30)
                     .attr("height", 30)
-                    .attr("id", (d, i) => `diagramatic-right-bracket`)
+                    .attr("id",  `diagramatic-right-bracket`)
                     .append("tspan")
                     .attr("font-size", 20)
                     .attr("class", `font-main`)
@@ -327,7 +327,7 @@ const DownsampleAnimationModal: React.FC<Props> = ({
                 }
 
                 // create group
-                var filterInput = drawConvNotation(
+                drawConvNotation(
                   convColourScheme[c],
                   700,
                   280,
@@ -355,9 +355,7 @@ const DownsampleAnimationModal: React.FC<Props> = ({
           }
         }
       } else if (poolingType && poolingType.includes("Global")) {
-        var currOutputi = 0;
-        var batchWindowDelay = 0;
-        var currOutputj = 0;
+        const batchWindowDelay = 0;
 
         const inputGroup = root
           .append("g")
@@ -371,11 +369,11 @@ const DownsampleAnimationModal: React.FC<Props> = ({
 
         for (let c = 0; c < inputConvShape[3]; c++) {
           // animate filter window
-          var filteredInput: number[][] = [];
+          const filteredInput: number[][] = [];
           for (let dy = 0; dy < inputConvShape[1]; dy++) {
             filteredInput[dy] = [];
             for (let dx = 0; dx < inputConvShape[2]; dx++) {
-              var tensor = inputConv.output.arraySync();
+              const tensor = inputConv.output.arraySync();
               if (is3DTensor(tensor)) {
                 if (isNumberParam(tensor[0][dy][dx][c])) {
                   filteredInput[dy][dx] = tensor[0][dy][dx][c];
@@ -384,11 +382,7 @@ const DownsampleAnimationModal: React.FC<Props> = ({
             }
           }
 
-          var pooledOutput = [
-            [(poolingConv.output.arraySync() as number[][])[0][c]],
-          ];
-
-          var outputConv = drawConvNotation(
+          drawConvNotation(
             convColourScheme[c],
             700,
             280,
@@ -400,17 +394,17 @@ const DownsampleAnimationModal: React.FC<Props> = ({
             c,
             outputGroup,
             1000 + batchWindowDelay * 2000,
-            pooledOutput,
+            [[(poolingConv.output.arraySync() as number[][])[0][c]]],
             true
           );
 
           inputGroup
             .append("text")
             .attr("x", -65)
-            .attr("y", 220 + 40 + c * 100 )
+            .attr("y", 220 + 40 + c * 100)
             .attr("width", 30)
             .attr("height", 30)
-            .attr("id", (d, i) => `diagramatic-right-bracket`)
+            .attr("id",  `diagramatic-right-bracket`)
             .append("tspan")
             .attr("font-size", 20)
             .attr("class", `font-main`)
@@ -422,7 +416,7 @@ const DownsampleAnimationModal: React.FC<Props> = ({
             .style("opacity", 1);
 
           // create group
-          var filterInput = drawConvNotation(
+          drawConvNotation(
             convColourScheme[c],
             700,
             280,
@@ -462,7 +456,7 @@ const DownsampleAnimationModal: React.FC<Props> = ({
 
         inputGroup
           .append("text")
-          .attr("x", inputLabelX )
+          .attr("x", inputLabelX)
           .attr("y", 500 * 0.05 + 80)
           .attr("text-anchor", "middle")
           .attr("font-size", 14)
@@ -547,27 +541,49 @@ const DownsampleAnimationModal: React.FC<Props> = ({
             {(tensorLayers[layerIndex[0]] as dummyModelDownsample).type}
           </h1>
 
-          {poolingType && !poolingType.includes("Global") && (<p className="text-base text-text-muted px-2 pb-5">
-            Using a{" "}
-            {(tensorLayers[layerIndex[0]] as dummyModelDownsample).filterSize}x
-            {(tensorLayers[layerIndex[0]] as dummyModelDownsample).filterSize}{" "}
-            filter and a stride of{" "}
-            {(tensorLayers[layerIndex[0]] as dummyModelDownsample).stride} .
-            This scales everything down by a factor of{" "}
-            {(tensorLayers[layerIndex[0]] as dummyModelDownsample).stride}!
-          </p>)}
+          {poolingType && !poolingType.includes("Global") && (
+            <p className="text-base text-text-muted px-2 pb-5">
+              Using a{" "}
+              {(tensorLayers[layerIndex[0]] as dummyModelDownsample).filterSize}
+              x
+              {(tensorLayers[layerIndex[0]] as dummyModelDownsample).filterSize}{" "}
+              filter and a stride of{" "}
+              {(tensorLayers[layerIndex[0]] as dummyModelDownsample).stride} .
+              This scales everything down by a factor of{" "}
+              {(tensorLayers[layerIndex[0]] as dummyModelDownsample).stride}!
+            </p>
+          )}
 
-          {poolingType && poolingType.includes("Global") && (<p className="text-base text-text-muted px-2 pb-5">
-            The pooling function is applied to each channel to reduce each channel to a single value. 
-          </p>)}
+          {poolingType && poolingType.includes("Global") && (
+            <p className="text-base text-text-muted px-2 pb-5">
+              The pooling function is applied to each channel to reduce each
+              channel to a single value.
+            </p>
+          )}
 
-          {poolingType && (<div className={`relative max-h-[${poolingType.includes("Global")? "800px" : "650px"}] max-w-[900px] overflow-auto`}>
-            <MathJax>
-              {!poolingType.includes("Global") && (<svg ref={modalSvgRef} className={`w-[900px] h-[650px]`}></svg>)}
+          {poolingType && (
+            <div
+              className={`relative max-h-[${
+                poolingType.includes("Global") ? "800px" : "650px"
+              }] max-w-[900px] overflow-auto`}
+            >
+              <MathJax>
+                {!poolingType.includes("Global") && (
+                  <svg
+                    ref={modalSvgRef}
+                    className={`w-[900px] h-[650px]`}
+                  ></svg>
+                )}
 
-              {poolingType.includes("Global") && (<svg ref={modalSvgRef} className={`w-[700px] h-[650px]`}></svg>)}
-            </MathJax>
-          </div>)}
+                {poolingType.includes("Global") && (
+                  <svg
+                    ref={modalSvgRef}
+                    className={`w-[700px] h-[650px]`}
+                  ></svg>
+                )}
+              </MathJax>
+            </div>
+          )}
         </div>
       </div>
     </div>

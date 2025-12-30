@@ -603,7 +603,7 @@ const ConvAnimationModal: React.FC<Props> = ({
         .attr("class", `formula`)
         .attr("transform", `translate(1000, 10)`);
 
-      var formulaText = [
+      const formulaText = [
         "Let \\(H_1\\) contain \\(H_{ij1}\\) outputs (All values of output channel \\(H_1\\))",
         `Let \\(K\\) be a kernel in Filter \\(F_{1}\\) and \\(K \\in \\mathbb{R}^{p \\times p}\\) `,
         `Let \\(D\\) denote the number of kernels in filter \\(F_{1}\\)`,
@@ -655,7 +655,7 @@ const ConvAnimationModal: React.FC<Props> = ({
       formulaGroup
         .append("g")
         .attr("class", "visual")
-        .attr("id", (d, i) => `formula-visual`)
+        .attr("id", `formula-visual`)
         .attr("transform", `translate(0, 370)`)
         .attr("width", 700)
         .attr("height", 280);
@@ -768,7 +768,7 @@ const ConvAnimationModal: React.FC<Props> = ({
       }
 
       // extra current filter values TODO
-      var currFilterValues: number[][][][] = [];
+      const currFilterValues: number[][][][] = [];
       const filterTensor = (
         tensorLayers[layerIndex[1]] as dummyModelConv
       ).kernel.arraySync() as number[][][][];
@@ -784,7 +784,7 @@ const ConvAnimationModal: React.FC<Props> = ({
         }
       }
 
-      const formulaKernels = drawKernelsNotations(
+      drawKernelsNotations(
         700,
         280,
         10,
@@ -801,8 +801,8 @@ const ConvAnimationModal: React.FC<Props> = ({
         0
       );
 
-      var currOutputi = 0;
-      var currOutputj = 0;
+      let currOutputi = 0;
+      let currOutputj = 0;
       for (let i = 0; i < inputConvShape[1]; i += inputConv.stride) {
         currOutputj -= currOutputj;
         for (let j = 0; j < inputConvShape[2]; j += inputConv.stride) {
@@ -909,13 +909,13 @@ const ConvAnimationModal: React.FC<Props> = ({
                 .delay(1000)
                 .remove();
 
-              var filteredInput: number[][] = [];
+              const filteredInput: number[][] = [];
               for (let dy = 0; dy < inputConv.filterSize; dy++) {
                 filteredInput[dy] = [];
                 for (let dx = 0; dx < inputConv.filterSize; dx++) {
-                  var filterInputX = dx + j;
-                  var filterInputY = dy + i;
-                  var tensor = (
+                  const filterInputX = dx + j;
+                  const filterInputY = dy + i;
+                  const tensor = (
                     tensorLayers[layerIndex[1]] as dummyModelConv
                   ).padded.arraySync();
                   if (is3DTensor(tensor)) {
@@ -933,7 +933,7 @@ const ConvAnimationModal: React.FC<Props> = ({
               const equationVisualiserGroup =
                 formulaGroup.select(`#formula-visual`);
 
-              var filterInput = drawConvNotation(
+              drawConvNotation(
                 schemeColor,
                 700,
                 280,
@@ -959,7 +959,7 @@ const ConvAnimationModal: React.FC<Props> = ({
                 currOutputj == outputConvShape[2] - 1
               )
             ) {
-              var lastKernel = formulaGroup
+              const lastKernel = formulaGroup
                 .select(`#formula-visual`)
                 .select(`#diagramatic-right-bracket`);
               const lastKernelx = +lastKernel.attr("x");
@@ -1112,7 +1112,7 @@ const ConvAnimationModal: React.FC<Props> = ({
               formulaGroup
                 .select(`#formula-visual`)
                 .append("text")
-                .attr("id", (d, _) => `text-output-index`)
+                .attr("id", `text-output-index`)
                 .attr("x", lastKernelx + 330 + 13)
                 .attr("y", lastKernely + 3)
                 .attr("width", 60)
@@ -1133,7 +1133,7 @@ const ConvAnimationModal: React.FC<Props> = ({
               formulaGroup
                 .select(`#formula-visual`)
                 .append("text")
-                .attr("id", (d, _) => `text-output-index`)
+                .attr("id", `text-output-index`)
                 .attr("x", lastKernelx + 330 + 24)
                 .attr("y", lastKernely + 5)
                 .attr("width", 60)
@@ -1151,7 +1151,7 @@ const ConvAnimationModal: React.FC<Props> = ({
                 .delay(1000)
                 .remove();
             } else {
-              var lastKernel = formulaGroup
+              const lastKernel = formulaGroup
                 .select(`#formula-visual`)
                 .select(`#diagramatic-right-bracket`);
               const lastKernelx = +lastKernel.attr("x");
@@ -1292,7 +1292,7 @@ const ConvAnimationModal: React.FC<Props> = ({
               formulaGroup
                 .select(`#formula-visual`)
                 .append("text")
-                .attr("id", (d, _) => `text-output-index`)
+                .attr("id", `text-output-index`)
                 .attr("x", lastKernelx + 330 + 13)
                 .attr("y", lastKernely + 3)
                 .attr("width", 60)
@@ -1310,7 +1310,7 @@ const ConvAnimationModal: React.FC<Props> = ({
               formulaGroup
                 .select(`#formula-visual`)
                 .append("text")
-                .attr("id", (d, _) => `text-output-index`)
+                .attr("id", `text-output-index`)
                 .attr("x", lastKernelx + 330 + 24)
                 .attr("y", lastKernely + 5)
                 .attr("width", 60)

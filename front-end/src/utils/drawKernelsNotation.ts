@@ -13,7 +13,7 @@
 import { BaseType } from "d3";
 import { isNumberParam } from "./typeGuards";
 import { is3DTensor } from "./is3DTensor";
-import { LayerConnections, MidPoint } from "./types";
+import { LayerConnections } from "./types";
 
 const MAX_WEIGHT = 1;
 const MIN_WEIGHT = -1;
@@ -73,8 +73,6 @@ export const drawKernelsNotations = (
 
 
   const result: LayerConnections[] = [];
-  
-  const totalConvHeight = rectHeight + (numFilter - 1) * yOffset; 
   const totalConvWidth = rectWidth + (inChannels - 1) * xOffset; 
 
   const match = /translate\(([^,]+),\s*([^)]+)\)/.exec(
@@ -102,7 +100,7 @@ export const drawKernelsNotations = (
   .attr("width", 30)
   .attr("height", 30)
   .attr("font-size", 60)
-  .attr("id", (d, i) => `diagramatic-right-bracket`)
+  .attr("id",   `diagramatic-right-bracket`)
   .text("] = ")
   .append("tspan")
   .attr("class", `font-mono`)
@@ -156,7 +154,7 @@ export const drawKernelsNotations = (
     for (let j = 0; j < numFilter; j++) {
       layerGroup
       .append("rect")
-      .attr("id", (d, i) => `k-${f}-${j}`)
+      .attr("id",   `k-${f}-${j}`)
       .attr("x", startX + f * xOffset)
       .attr("y", startY + j * yOffset)
       .attr("width", rectWidth)
@@ -230,7 +228,7 @@ export const drawKernelsNotations = (
 
               const cell = layerGroup
               .append("g")
-              .attr("id", (d, i) => `square-${row}-${col}-${f}-${j}`)
+              .attr("id",   `square-${row}-${col}-${f}-${j}`)
             
               cell
                 .append("rect")

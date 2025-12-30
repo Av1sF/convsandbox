@@ -82,7 +82,7 @@ export const drawBiases = (
 
       layerGroup
         .append("circle")
-        .attr("id", (d, _) => `neuron-${i}`)
+        .attr("id",   `neuron-${i}`)
         .attr("cx", cx)
         .attr("cy", cy)
         .attr("r", circleRadius)

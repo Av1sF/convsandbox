@@ -51,33 +51,15 @@ export const drawConvNotation = (
 
   const cellWidth = rectWidth / filterSize;
   const cellHeight = rectHeight / filterSize;
-
-  let yOffset;
-  if (filterSize <= 5) {
-    yOffset = rectHeight * 1.15;
-  } else if (filterSize <= 10) {
-    yOffset = Math.trunc(rectHeight * 1.15);
-  } else {
-    yOffset = Math.trunc(rectHeight * 1.15);
-  }
-
-  let xOffset;
-  if (filterSize <= 5) {
-    xOffset = rectWidth * 1.6;
-  } else if (5 < filterSize && filterSize <= 10) {
-    xOffset = Math.trunc(rectWidth * 1.6);
-  } else {
-    xOffset = Math.trunc(rectWidth * 1.6);
-  }
-
-  var rect = layerGroup.append("g");
+  
+  const rect = layerGroup.append("g");
 
   const haschildren = !layerGroup.select(`#k-${l}`).empty();
 
   if (!haschildren) {
     rect
       .append("rect")
-      .attr("id", (d, _) => `k-${l}`)
+      .attr("id",   `k-${l}`)
       .attr("x", startX)
       .attr("y", startY)
       .attr("width", rectWidth)
@@ -112,7 +94,7 @@ export const drawConvNotation = (
       if (!last) {
         const cell = layerGroup
           .append("g")
-          .attr("id", (d, _) => `square-${row}-${col}`);
+          .attr("id",   `square-${row}-${col}`);
 
         cell
           .append("rect")
@@ -149,7 +131,7 @@ export const drawConvNotation = (
 
           cell
             .append("text")
-            .attr("id", (d, _) => `text-${row}-${col}`)
+            .attr("id",   `text-${row}-${col}`)
             .attr("x", x + 0.25 * cellWidth + 3)
             .attr("y", y + 0.5 * cellHeight + 7)
             .attr("width", cellWidth)
@@ -177,7 +159,7 @@ export const drawConvNotation = (
       } else {
         const cell = layerGroup
           .append("g")
-          .attr("id", (d, _) => `square-${row}-${col}`);
+          .attr("id",   `square-${row}-${col}`);
 
         cell
           .append("rect")
@@ -208,7 +190,7 @@ export const drawConvNotation = (
 
           cell
             .append("text")
-            .attr("id", (d, _) => `text-${row}-${col}`)
+            .attr("id",   `text-${row}-${col}`)
             .attr("x", x + 0.25 * cellWidth + 3)
             .attr("y", y + 0.5 * cellHeight + 7)
             .attr("width", cellWidth)
@@ -238,7 +220,7 @@ export const drawConvNotation = (
   if (!last) {
   rect
     .append("rect")
-    .attr("id", (d, _) => `k-${l}-color`)
+    .attr("id",   `k-${l}-color`)
     .attr("x", startX)
     .attr("y", startY)
     .attr("width", rectWidth)
@@ -257,7 +239,7 @@ export const drawConvNotation = (
   } else {
     rect
     .append("rect")
-    .attr("id", (d, _) => `k-${l}-color`)
+    .attr("id",   `k-${l}-color`)
     .attr("x", startX)
     .attr("y", startY)
     .attr("width", rectWidth)

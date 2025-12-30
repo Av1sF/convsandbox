@@ -1,6 +1,5 @@
 import {
   dummyModelDense,
-  dummyModelDownsample,
   dummyModelOutputs,
   LayerConnections,
   MAXLAYERS,
@@ -20,25 +19,6 @@ interface Props {
   tensorLayers: dummyModelOutputs[];
 }
 
-type VectorType = "1D" | "3D";
-
-function getVectorType(values: number[]): VectorType {
-  if (values.length == 2) {
-    return "1D"
-  }
-
-  if (values.length == 4 && 
-    values[0] == 1 &&
-    values[1] == 1 &&
-    values[2] == 1
-  ) {
-    return "1D"
-  }
-
-  return "3D"
-}
-
-
 const DenseAnimationModal: React.FC<Props> = ({
   tensorLayers,
   layerIndex,
@@ -46,8 +26,6 @@ const DenseAnimationModal: React.FC<Props> = ({
 }) => {
   const initialRef = null;
   const modalSvgRef = useRef<SVGSVGElement | null>(initialRef);
-
-  const convColourScheme = d3.schemeObservable10.slice(0, 5);
 
   let didInit = false;
   useEffect(() => {
@@ -58,11 +36,7 @@ const DenseAnimationModal: React.FC<Props> = ({
 
       const denseTensor = tensorLayers[layerIndex[0]] as dummyModelDense;
       const inputConv = tensorLayers[layerIndex[1]];
-      const denseTensorShape = inputConv.output.shape as [
-        number, // batch = 1
-        number, // neurons num 
-      ];
-
+     
       // Draw Input 
       const inputGroup = root
           .append("g")

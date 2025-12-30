@@ -10,8 +10,6 @@ import {
   dummyModelDownsample,
   dummyModelInput,
   dummyModelUpsample,
-  MAX_HEIGHT,
-  MAX_WIDTH,
   UpsamplingParams,
 } from "./types";
 

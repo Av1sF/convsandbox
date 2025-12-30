@@ -18,8 +18,6 @@ import {
   MAX_WIDTH,
   MidPoint,
 } from "./types";
-import { isNumberParam } from "./typeGuards";
-import { is3DTensor } from "./is3DTensor";
 import { is2DTensor } from "./is2DTensor";
 
 const MAX_WEIGHT = 2;
