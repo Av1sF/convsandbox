@@ -183,9 +183,9 @@ const DenseAnimationModal: React.FC<Props> = ({
 
         if (flattenLines && inputLines) {
           const shortFlattenedLines = [[flattenLines[0][0]], [flattenLines[1][0]]] as LayerConnections
-  
-          drawLayerConnections(root, [inputLines, shortFlattenedLines])
-          drawLayerConnections(root, [inputLines, shortFlattenedLines])
+          const shortInputLines =  [[inputLines[0][0]], [inputLines[1][0]]] as LayerConnections
+          drawLayerConnections(root, [shortInputLines, shortFlattenedLines])
+          drawLayerConnections(root, [shortInputLines, shortFlattenedLines])
 
           drawLayerConnections(root, [shortFlattenedLines, outputLines])
           drawLayerConnections(root, [shortFlattenedLines, outputLines])
