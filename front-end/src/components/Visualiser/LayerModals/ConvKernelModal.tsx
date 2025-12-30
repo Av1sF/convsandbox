@@ -147,7 +147,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
                 />
               </label>
 
-              {/* Filter Size  9CEADF */}
+              {/* Filter Size */}
               <label className="flex flex-col text-sm text-text-muted">
                 <span>{"Filter Size (\\(\\color{#00BFA6}{F}\\))"}</span>
                 <p className="text-xs text-stroke opacity-60">

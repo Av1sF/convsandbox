@@ -51,6 +51,7 @@ import ConvAnimationModal from "./AnimationModals/ConvAnimationModal";
 import DenseAnimationModal from "./AnimationModals/DenseAnimationModal";
 import DownsampleAnimationModal from "./AnimationModals/DownsampleAnimationModal";
 import { ParameterCount } from "./CalculationModals/ParameterCount";
+import { drawClickMe } from "@/utils/drawClickMe";
 
 const W = 1183;
 const H = 500;
@@ -454,6 +455,14 @@ export default function Visualiser() {
                 animationType: "conv",
               },
             ]);
+
+            drawClickMe(
+              0.5 *
+                (allLayerConnections[allLayerConnections.length - 2][1][0].x +
+                  allLayerConnections[allLayerConnections.length - 1][0][0].x),
+              H / 2,
+              svg
+            );
           }
         } else if (prevLayerDims && isDenseLayerDims(prevLayerDims)) {
           tensorLayers.push(
@@ -731,6 +740,14 @@ export default function Visualiser() {
             animationType: "downsample",
           },
         ]);
+
+        drawClickMe(
+              0.5 *
+                (allLayerConnections[allLayerConnections.length - 2][1][0].x +
+                  allLayerConnections[allLayerConnections.length - 1][0][0].x),
+              H / 2,
+              svg
+            );
       } else if (
         latestLayer.type === "add-dense-layer" &&
         isNumberParam(latestLayer.params) // change param so it can draw
@@ -796,7 +813,14 @@ export default function Visualiser() {
               animationType: "dense",
             },
           ]);
-          console.log("meow");
+          drawClickMe(
+              0.5 *
+                (allLayerConnections[allLayerConnections.length - 2][1][0].x +
+                  allLayerConnections[allLayerConnections.length - 1][0][0].x),
+              H / 2,
+              svg
+            );
+
         }
       }
 

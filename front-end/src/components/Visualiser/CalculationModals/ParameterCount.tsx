@@ -122,7 +122,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4"
           onClick={() => setIsModalOpen(false)}
         >
-          <div className="bg-bg rounded-2xl p-7 w-full max-w-[80vh] md:max-w-1/2 max-h-3/4 text-text overflow-auto">
+          <div className="bg-bg rounded-2xl p-7 w-full max-w-[80vh] md:max-w-7/12 max-h-3/4 text-text overflow-auto">
             <h1 className="text-text text-2xl font-bold pb-3 ">
               Calculating the number of trainable Parameters...
             </h1>
