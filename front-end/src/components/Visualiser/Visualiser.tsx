@@ -741,13 +741,9 @@ export default function Visualiser() {
           },
         ]);
 
-        drawClickMe(
-              0.5 *
-                (allLayerConnections[allLayerConnections.length - 2][1][0].x +
-                  allLayerConnections[allLayerConnections.length - 1][0][0].x),
-              H / 2,
-              svg
-            );
+        try {
+          drawClickMe(((numLayers - 1) / MAXLAYERS) * W, H / 2, svg);
+        } catch (error) {}
       } else if (
         latestLayer.type === "add-dense-layer" &&
         isNumberParam(latestLayer.params) // change param so it can draw
@@ -813,14 +809,7 @@ export default function Visualiser() {
               animationType: "dense",
             },
           ]);
-          drawClickMe(
-              0.5 *
-                (allLayerConnections[allLayerConnections.length - 2][1][0].x +
-                  allLayerConnections[allLayerConnections.length - 1][0][0].x),
-              H / 2,
-              svg
-            );
-
+          drawClickMe(((numLayers - 1) / MAXLAYERS) * W, H / 2, svg);
         }
       }
 

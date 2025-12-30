@@ -10,11 +10,12 @@ export function drawClickMe(
 ) {
   const startX = x;
   const startY = y - 25;
+  const seed = Math.floor(Math.random() * 1000) + 1
 
   svg
     .append("defs")
     .append("marker")
-    .attr("id", "dot-arrow")
+    .attr("id", `dot-arrow-${seed}`)
     .attr("viewBox", "-3 -3 6 6") 
     .attr("refX", 0) 
     .attr("refY", 0)
@@ -40,7 +41,7 @@ export function drawClickMe(
     .attr("y2", 25)
     .attr("stroke", "#ef4565")
     .attr("stroke-width", 1)
-    .attr("marker-end", "url(#dot-arrow)");
+    .attr("marker-end", `url(#dot-arrow-${seed})`);
 
   arrowGroup
     .append("text")
