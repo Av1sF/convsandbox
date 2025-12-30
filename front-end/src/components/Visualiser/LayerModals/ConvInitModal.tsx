@@ -1,4 +1,3 @@
-// ConvInitModal.tsx
 import { useState } from "react";
 import { MAX_WIDTH, MAX_HEIGHT, MAX_DEPTH, ConvParams } from "@/utils/types";
 
@@ -24,17 +23,22 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
     onConfirm({
       width: size,
       height: size,
-      depth,
+      depth: depth,
+      stride: 0,
+      numFilters: 0, 
+      padding: 0, 
+      filterSize: 0,
+      inChannels: 0, 
     });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
       <div className="bg-bg rounded-2xl p-6 w-full max-w-md">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-xl font-semibold">Set Input Dimensions</h2>
-          <p>Pick the dimensions of your input layer!</p>
-          <p className="text-xs">
+        <form onSubmit={handleSubmit} className="space-y-1">
+          <h2 className="text-xl text-text font-semibold">Set Input Dimensions</h2>
+          <p className="text-text-muted">Pick the dimensions of your input layer!</p>
+          <p className="text-xs text-text-muted pb-5">
             In practice, this could be the size of an image and each
             channel/depth would correspond to a colour channel.{" "}
           </p>
@@ -46,7 +50,7 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
               min={1}
               max={Math.min(MAX_WIDTH, MAX_HEIGHT)}
               onChange={(e) => setSize(Number(e.target.value))}
-              className="mt-1 border px-3 py-1 rounded-md"
+              className="mt-1 border border-gray-300 rounded-md px-3 py-1 bg-gray-50"
             />
           </label>
 
@@ -58,11 +62,11 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
               min={1}
               max={MAX_DEPTH}
               onChange={(e) => setDepth(Number(e.target.value))}
-              className="mt-1 border px-3 py-1 rounded-md"
+              className="mt-1 border border-gray-300 rounded-md px-3 py-1 bg-gray-50"
             />
           </label>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-8">
             <button
               type="button"
               onClick={onClose}
