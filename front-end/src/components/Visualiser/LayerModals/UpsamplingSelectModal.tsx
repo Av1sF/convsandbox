@@ -73,7 +73,9 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
     outputDims.depth > 0 &&
     outputDims.width <= MAX_WIDTH &&
     outputDims.height <= MAX_HEIGHT &&
-    outputDims.depth <= MAX_DEPTH;
+    outputDims.depth <= MAX_DEPTH &&
+    1 < scale && 
+    scale < MAX_SCALE_FACTOR;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-6">
@@ -114,7 +116,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
             <input
               type="number"
               value={scale}
-              onChange={(e) => setScale(Math.max(2, Number(e.target.value)))}
+              onChange={(e) => setScale(Number(e.target.value))}
               min={2}
               max={MAX_SCALE_FACTOR}
               className="ml-2 border border-gray-300 rounded-md px-3 py-1 w-20 text-center"

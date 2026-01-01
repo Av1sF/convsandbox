@@ -68,7 +68,7 @@ export default function Visualiser() {
     LayerConnections[]
   >([]);
 
-  const [menuAnnotation, setMenuAnnotation] = useState<string>("");
+  const [menuAnnotation, setMenuAnnotation] = useState<string>("Convolutional Neural Networks (CNNs) are mainly used to process image data. We will create a random input, so it will appear noisy rather than like a natural picture.");
 
   const initialLayers: Layer[] = [];
   const initialAction = "";
