@@ -48,11 +48,9 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
     outD <= MAX_DEPTH &&
     outH <= MAX_HEIGHT &&
     numFilters <= MAX_FILTERS &&
-    filterSize <= MAX_FILTER_SIZE && 
-    stride <= MAX_STRIDE && 
-    padding <= MAX_PADDING 
-
-    ;
+    filterSize <= MAX_FILTER_SIZE &&
+    stride <= MAX_STRIDE &&
+    padding <= MAX_PADDING;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,13 +75,18 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
           <p className="text-sm text-text-muted px-2 pt-2 pb-5">
             A convolution transforms an input vector into an output vector such
             that each output element is a weighted sum of nearby input elements.
-            Each weighted sum is determined by a convolutional filter. The
-            filter size, number of filters, stride, and padding around the input
-            vector determine the size of our output vector. This is how we
-            compute our output dimensions.
+            Each weighted sum is determined by a convolutional filter. Each
+            filter has a number of kernels. The kernel size, number of filters,
+            stride, and padding around the input vector determine the size of
+            our output vector. This is how we compute our output dimensions.
           </p>
 
-          <h3 className="text-lg font-bold mb-2">Output Dimensions     <span className="text-xs font-normal text-stroke opacity-60">Max {MAX_HEIGHT}×{MAX_WIDTH}×{MAX_DEPTH}</span></h3>
+          <h3 className="text-lg font-bold mb-2">
+            Output Dimensions{" "}
+            <span className="text-xs font-normal text-stroke opacity-60">
+              Max {MAX_HEIGHT}×{MAX_WIDTH}×{MAX_DEPTH}
+            </span>
+          </h3>
           <p>
             <strong>
               <MathJax className="opacity-60" dynamic>
@@ -142,14 +145,13 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
                   {"Number of Filters (\\(\\textcolor{#BB85FC}{K}\\))"}
                 </span>
                 <p className="text-xs text-stroke opacity-60">
-                  Max({MAX_FILTERS}).
+                  Determines the number of output depth/channels (Max{" "}
+                  {MAX_FILTERS})
                 </p>
                 <input
                   type="number"
                   value={numFilters}
-                  onChange={(e) =>
-                    setNumFilters(Number(e.target.value))
-                  }
+                  onChange={(e) => setNumFilters(Number(e.target.value))}
                   min={1}
                   max={MAX_FILTERS}
                   className="mt-1 border border-gray-300 rounded-md px-3 py-1 bg-gray-50"
@@ -158,18 +160,15 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
 
               {/* Filter Size */}
               <label className="flex flex-col text-sm text-text-muted">
-                <span>{"Filter Size (\\(\\color{#00BFA6}{F}\\))"}</span>
+                <span>{"Kernel Size (\\(\\color{#00BFA6}{F}\\))"}</span>
                 <p className="text-xs text-stroke opacity-60">
-                  Kernel size is currently {filterSize}×{filterSize}. Max({MAX_FILTER_SIZE}).
+                  Kernel size is currently {filterSize}×{filterSize}. (Max
+                  {MAX_FILTER_SIZE}).
                 </p>
                 <input
                   type="number"
                   value={filterSize}
-                  onChange={(e) =>
-                    setFilterSize(
-                      Number(e.target.value)
-                    )
-                  }
+                  onChange={(e) => setFilterSize(Number(e.target.value))}
                   min={1}
                   max={MAX_FILTER_SIZE}
                   className="mt-1 border border-gray-300 rounded-md px-3 py-1 bg-gray-50"
@@ -180,14 +179,12 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
               <label className="flex flex-col text-sm text-text-muted">
                 <span>{"Stride (\\(\\color{#5073B3}{S}\\))"}</span>
                 <p className="text-xs text-stroke opacity-60">
-                  The stride with which we slide the filter. Max({MAX_STRIDE}).
+                  The stride with which we slide the kernel. (Max {MAX_STRIDE}).
                 </p>
                 <input
                   type="number"
                   value={stride}
-                  onChange={(e) =>
-                    setStride(Number(e.target.value))
-                  }
+                  onChange={(e) => setStride(Number(e.target.value))}
                   min={1}
                   max={MAX_STRIDE}
                   className="mt-1 border border-gray-300 rounded-md px-3 py-1 bg-gray-50"
@@ -201,15 +198,14 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
                   <span>{"(\\(\\color{#FC3E00}{P}\\))"}</span>
                 </p>
                 <p className="text-xs text-stroke opacity-60">
-                  Specify the amount of zeros we pad around the input volume
-                  border. Max({MAX_PADDING}). 
+                  The amount of zeros to add around our input like a border.
+                  Prevent information loss at the edges and can ensure filters
+                  cover the entire image. (Max {MAX_PADDING}).
                 </p>
                 <input
                   type="number"
                   value={padding}
-                  onChange={(e) =>
-                    setPadding(Number(e.target.value))
-                  }
+                  onChange={(e) => setPadding(Number(e.target.value))}
                   min={0}
                   max={MAX_PADDING}
                   className="mt-1 border border-gray-300 rounded-md px-3 py-1 bg-gray-50"
