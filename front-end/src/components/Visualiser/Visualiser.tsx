@@ -860,7 +860,14 @@ export default function Visualiser() {
       </VisualiserCanvas>
 
       {numLayers > 0 && (
-        <ParameterCount layers={layers} tensorLayers={tensorLayers} />
+        <>
+          <div>
+            <ParameterCount layers={layers} tensorLayers={tensorLayers} />
+          </div>
+          
+          <p className="pl-4 font-light opacity-60 text-xs"><sub>| </sub><sub className="font-light text-xs italic">Wonder how it's all calculated — Click on it!</sub></p>
+        </>
+        
       )}
 
       {Object.entries(layerModals).map(([key, open]) =>
