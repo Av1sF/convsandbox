@@ -55,7 +55,7 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
           </label>
 
           <label className="flex flex-col text-sm text-text-muted">
-            Depth (max {MAX_DEPTH}):
+            Depth/Channels (max {MAX_DEPTH}):
             <input
               type="number"
               value={depth}

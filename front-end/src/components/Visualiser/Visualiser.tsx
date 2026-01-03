@@ -68,7 +68,9 @@ export default function Visualiser() {
     LayerConnections[]
   >([]);
 
-  const [menuAnnotation, setMenuAnnotation] = useState<string>("Convolutional Neural Networks (CNNs) are mainly used to process image data. We will create a random input, so it will appear noisy rather than like a natural picture.");
+  const [menuAnnotation, setMenuAnnotation] = useState<string>(
+    "Convolutional Neural Networks (CNNs) are mainly used to process image data. We will create a random input, so it will appear noisy rather than like a natural picture."
+  );
 
   const initialLayers: Layer[] = [];
   const initialAction = "";
@@ -191,7 +193,7 @@ export default function Visualiser() {
     pt.y = e.clientY;
 
     const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
-    const { x,  } = svgP;
+    const { x } = svgP;
 
     const triggerIndex = binSearchInterval(
       x,
@@ -860,7 +862,16 @@ export default function Visualiser() {
       </VisualiserCanvas>
 
       {numLayers > 0 && (
-        <ParameterCount layers={layers} tensorLayers={tensorLayers} />
+        <>
+          <ParameterCount layers={layers} tensorLayers={tensorLayers} />
+
+          <p className="pl-4 font-light opacity-60 text-xs">
+            <sub>| </sub>
+            <sub className="font-light text-xs italic">
+              Wonder how it&apos;s all calculated — Click on it!
+            </sub>
+          </p>
+        </>
       )}
 
       {Object.entries(layerModals).map(([key, open]) =>
