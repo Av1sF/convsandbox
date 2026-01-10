@@ -23,8 +23,8 @@ export const ReceptiveFieldCount: React.FC<Props> = ({
   const [kernelSize, setKernelSize] = useState<number[]>([]);
 
   useEffect(() => {
-    let s = [];
-    let k = [];
+    const s = [];
+    const k = [];
     setStrides([]);
     setKernelSize([]);
 
