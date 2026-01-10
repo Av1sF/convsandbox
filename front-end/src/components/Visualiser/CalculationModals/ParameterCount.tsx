@@ -15,7 +15,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
     {
       type: string;
       variables: string;
-      calculation: string; // Maxjax?
+      calculation: string; 
     }[]
   >([
     {
