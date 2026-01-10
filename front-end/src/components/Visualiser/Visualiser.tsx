@@ -52,6 +52,7 @@ import DenseAnimationModal from "./AnimationModals/DenseAnimationModal";
 import DownsampleAnimationModal from "./AnimationModals/DownsampleAnimationModal";
 import { ParameterCount } from "./CalculationModals/ParameterCount";
 import { drawClickMe } from "@/utils/drawClickMe";
+import { ReceptiveFieldCount } from "./CalculationModals/ReceptiveFieldCount";
 
 const W = 1183;
 const H = 500;
@@ -864,7 +865,7 @@ export default function Visualiser() {
       {numLayers > 0 && (
         <>
           <ParameterCount layers={layers} tensorLayers={tensorLayers} />
-
+          <ReceptiveFieldCount layers={layers} tensorLayers={tensorLayers} />
           <p className="pl-4 font-light opacity-60 text-xs">
             <sub>| </sub>
             <sub className="font-light text-xs italic">

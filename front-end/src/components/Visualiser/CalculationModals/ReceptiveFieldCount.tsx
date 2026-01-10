@@ -8,14 +8,17 @@ interface Props {
   tensorLayers: dummyModelOutputs[];
 }
 
-export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
+export const ReceptiveFieldCount: React.FC<Props> = ({
+  layers,
+  tensorLayers,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [totalParams, setTotalParams] = useState<number>(0);
   const [paramCalculation, setParamCalculation] = useState<
     {
       type: string;
       variables: string;
-      calculation: string; 
+      calculation: string;
     }[]
   >([
     {
@@ -35,74 +38,61 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
       },
     ]);
 
-     let totalp = 0;
-    for (let i = 1; i < layers.length; i++) {
-       const layerType = layers[i].type;
+    let valid = true;
+    let strides = [];
+    let kernelSize = [];
 
-      if (layerType == "add-conv-layer") {
-         const convParams = layers[i].params as ConvParams;
-
+    for (let l = 1; l < layers.length; l++) {
+      const layerType = layers[l].type;
+      if (layerType != "add-conv-layer" && layerType != "add-activation") {
+        valid = false;
+        break;
+      } else if (layerType == "add-conv-layer") {
+        const convParams = layers[l].params as ConvParams;
         const filterSize = convParams.filterSize;
-        const numFilters = convParams.numFilters;
-        const inChannels = convParams.inChannels;
+        const stride = convParams.stride;
 
-        const convNumParams =
-          (filterSize * filterSize * inChannels + 1) * numFilters;
-        setParamCalculation((prev) => [
-          ...prev,
-          {
-            type: `Convolutional Layer`,
-            variables: `${numFilters} Filters, ${filterSize}×${filterSize} Filter Size and ${inChannels} input channels`,
-            calculation: `\\( (${filterSize}\\times ${filterSize} \\times ${inChannels} + 1) \\times ${numFilters} = ${convNumParams}\\)`,
-          },
-        ]);
-        // setTotalParams(totalParams + convNumParams);
-        totalp += convNumParams;
-      } else if (layerType == "add-dense-layer") {
-        // number of output units
-        const outputNeurons = layers[i].params as number;
-
-        // number of input units
-         const denseTensorLayer = tensorLayers[i] as dummyModelDense;
-        const inputNeurons = denseTensorLayer.flatten.shape[1];
-
-        if (inputNeurons) {
-          const denseNumParams = outputNeurons * inputNeurons + outputNeurons;
-          const neuronWording =
-            Math.max(outputNeurons, inputNeurons) > 1 ? "Neurons" : "Neuron";
-          setParamCalculation((prev) => [
-            ...prev,
-            {
-              type: `Fully-Connected Dense Layer`,
-              variables: `${inputNeurons} Inputs and ${outputNeurons} Output ${neuronWording}`,
-              calculation: `\\( (${inputNeurons} \\times ${outputNeurons}) + ${outputNeurons} = ${denseNumParams}\\)`,
-            },
-          ]);
-
-          totalp += denseNumParams;
-        }
-      } else if (layerType == "add-downsampling") {
-        setParamCalculation((prev) => [
-          ...prev,
-          {
-            type: `Pooling`,
-            variables: `No trainable parameters`,
-            calculation: `\\( = 0 \\)`,
-          },
-        ]);
-      } else if (layerType == "add-upsampling") {
-        setParamCalculation((prev) => [
-          ...prev,
-          {
-            type: `Upsampling`,
-            variables: `No trainable parameters`,
-            calculation: `\\( = 0 \\)`,
-          },
-        ]);
+        strides.push(stride);
+        kernelSize.push(filterSize);
       }
-
-      setTotalParams(totalp);
     }
+
+    if (valid) {
+      let totalR = 0; 
+      // let totalS = 0;
+      console.log("kernelsizes", kernelSize)
+      console.log("strides", strides)
+      for (let l = 0; l < kernelSize.length; l++) {
+        let totalS = 1;
+        for (let i = 0; i < l; i++) {
+          totalS *= strides[i]
+          console.log("meow", i)
+        }
+        totalR += (kernelSize[l]-1)*totalS 
+      }
+      totalR += 1 
+
+      console.log("receptive field = " , totalR)
+    }
+    //  let totalr = 1;
+    //  let totals = 1;
+    // for (let l = 1; l < layers.length; l++) {
+    //    const layerType = layers[l].type;
+
+    //   if (layerType == "add-conv-layer") {
+    //      const convParams = layers[l].params as ConvParams;
+
+    //     const filterSize = convParams.filterSize;
+    //     const stride = convParams.stride;
+
+    //     for (let i = 1; i < l; i++) {
+    //       totals = totals *
+    //     }
+
+    //     break;
+    //   }
+    //   setTotalParams(totalr);
+    // }
   }, [layers, tensorLayers]);
 
   return (
@@ -113,7 +103,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           // style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
           onClick={() => setIsModalOpen(true)}
         >
-          Number of parameters: {totalParams}
+          Receptive Field: {totalParams}
         </span>
       </p>
 
@@ -198,7 +188,10 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
             </MathJax>
             <div className="flex justify-end mt-8">
               <br />
-              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg border border-gray-400 text-text-muted hover:bg-gray-100 transition">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 rounded-lg border border-gray-400 text-text-muted hover:bg-gray-100 transition"
+              >
                 Close
               </button>
             </div>
