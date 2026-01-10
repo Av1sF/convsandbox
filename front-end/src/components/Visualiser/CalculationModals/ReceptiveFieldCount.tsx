@@ -2,6 +2,7 @@ import { ConvParams, dummyModelOutputs, Layer } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import React, { useEffect, useState } from "react";
 import { dummyModelDense } from "../../../utils/types";
+import { ordinal } from "@/utils/ordinal";
 
 interface Props {
   layers: Layer[];
@@ -14,178 +15,200 @@ export const ReceptiveFieldCount: React.FC<Props> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [totalParams, setTotalParams] = useState<number>(0);
-  const [paramCalculation, setParamCalculation] = useState<
-    {
-      type: string;
-      variables: string;
-      calculation: string;
-    }[]
-  >([
-    {
-      type: "Input",
-      variables: "",
-      calculation: "0",
-    },
-  ]);
+  const [valid, setValid] = useState<boolean>(true);
+
+  const [showExample, setShowExample] = useState(false);
+
+  const [strides, setStrides] = useState<number[]>([]);
+  const [kernelSize, setKernelSize] = useState<number[]>([]);
+
+  // const [paramCalculation, setParamCalculation] = useState<
+  //   {
+  //     type: string;
+  //     variables: string;
+  //     calculation: string;
+  //   }[]
+  // >([
+  //   {
+  //     type: "Input",
+  //     variables: "",
+  //     calculation: "0",
+  //   },
+  // ]);
 
   useEffect(() => {
-    setTotalParams(0);
-    setParamCalculation([
-      {
-        type: "Input",
-        variables: "No trainable parameters.",
-        calculation: "\\( = 0 \\)",
-      },
-    ]);
-
-    let valid = true;
-    let strides = [];
-    let kernelSize = [];
+    // setParamCalculation([
+    //   {
+    //     type: "Input",
+    //     variables: "No trainable parameters.",
+    //     calculation: "\\( = 0 \\)",
+    //   },
+    // ]);
+    let s = [];
+    let k = [];
+    setStrides([]);
+    setKernelSize([]);
 
     for (let l = 1; l < layers.length; l++) {
       const layerType = layers[l].type;
-      if (layerType != "add-conv-layer" && layerType != "add-activation") {
-        valid = false;
+      if (!(layerType == "add-conv-layer" || layerType == "add-activation")) {
+        setValid(false);
         break;
       } else if (layerType == "add-conv-layer") {
         const convParams = layers[l].params as ConvParams;
         const filterSize = convParams.filterSize;
         const stride = convParams.stride;
 
-        strides.push(stride);
-        kernelSize.push(filterSize);
+        s.push(stride);
+        k.push(filterSize);
       }
     }
 
     if (valid) {
-      let totalR = 0; 
-      // let totalS = 0;
-      console.log("kernelsizes", kernelSize)
-      console.log("strides", strides)
-      for (let l = 0; l < kernelSize.length; l++) {
+      setTotalParams(0);
+      let totalR = 0;
+      for (let l = 0; l < k.length; l++) {
         let totalS = 1;
         for (let i = 0; i < l; i++) {
-          totalS *= strides[i]
-          console.log("meow", i)
+          totalS *= s[i];
         }
-        totalR += (kernelSize[l]-1)*totalS 
+        totalR += (k[l] - 1) * totalS;
       }
-      totalR += 1 
-
-      console.log("receptive field = " , totalR)
+      totalR += 1;
+      setTotalParams(totalR);
+      setStrides(s);
+      setKernelSize(k);
     }
-    //  let totalr = 1;
-    //  let totals = 1;
-    // for (let l = 1; l < layers.length; l++) {
-    //    const layerType = layers[l].type;
-
-    //   if (layerType == "add-conv-layer") {
-    //      const convParams = layers[l].params as ConvParams;
-
-    //     const filterSize = convParams.filterSize;
-    //     const stride = convParams.stride;
-
-    //     for (let i = 1; i < l; i++) {
-    //       totals = totals *
-    //     }
-
-    //     break;
-    //   }
-    //   setTotalParams(totalr);
-    // }
   }, [layers, tensorLayers]);
 
   return (
     <>
-      <p className="pl-4">
-        <span
-          className="cursor-pointer text-text hover:text-accent"
-          // style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
-          onClick={() => setIsModalOpen(true)}
-        >
-          Receptive Field: {totalParams}
-        </span>
-      </p>
+      {valid && (
+        <p className="pl-4">
+          <span
+            className="cursor-pointer text-text hover:text-accent"
+            // style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
+            onClick={() => setIsModalOpen(true)}
+          >
+            Receptive Field: {totalParams}
+          </span>
+        </p>
+      )}
 
       {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4"
-          onClick={() => setIsModalOpen(false)}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
           <div className="bg-bg rounded-2xl p-7 w-full max-w-[80vh] md:max-w-7/12 max-h-3/4 text-text overflow-auto">
             <h1 className="text-text text-2xl font-bold pb-3 ">
-              Calculating the number of trainable Parameters...
+              The receptive field of a hidden unit
             </h1>
-            <MathJax>
+            <MathJax dynamic>
               <p className="pb-2 text-text-muted">
-                To calculate the total number of trainable parameters in a 2D
-                Convolutional Neural Network, only the convolutional and
-                fully-connected dense layers need to be considered, as they are
-                the only operations containing trainable weights and parameters.
+                The receptive field of a convolutional neural network (CNN) is
+                the region of the input space that influences a particular
+                feature (or hidden unit) in the network. In other words, it is
+                the part of the input vector that creates the feature after a
+                convolution operation. The receptive field helps us understand
+                which parts of the input image affect a given feature at
+                different layers of the network.
               </p>
-              <p className="font-semibold text-xl pb-1">Parameter formulas:</p>
 
-              <div className="indent-2 pb-3">
-                <span className="font-semibold">
-                  Fully-connected (Dense) Layer
+              <p className="pb-2 text-text-muted">
+                Understanding the receptive field is important for diagnosing a
+                network&apos;s performance. A deep network should be designed so
+                that its receptive field covers the entire relevant region of
+                the input image, since the network is blind to areas outside of
+                it.
+              </p>
+
+              <p className="pb-4 text-text-muted">
+                As more convolutional layers are added, the receptive field
+                grows, allowing deeper layers to capture more global information
+                from the input.
+              </p>
+
+              <div
+                onClick={() => setShowExample((prev) => !prev)}
+                className="pb-2 text-sm text-accent hover:underline"
+              >
+                {showExample ? "Hide example" : "Show example"}
+              </div>
+
+              {showExample && (
+                <p className="pb-2 text-stroke pl-5 pr-8">
+                  For example, consider a first convolutional layer that applies
+                  a kernel of size 3 with a stride of 1. Each output feature is
+                  computed as a weighted sum of three neighboring input values,
+                  so the receptive field has size 3. Now, suppose we add a
+                  second convolutional layer with a kernel size of 2 and a
+                  stride of 1. Each feature in the second layer depends on two
+                  adjacent features from the first layer. Since each of those
+                  first-layer features already depends on three input values,
+                  and because the stride is 1, their receptive fields overlap.
+                  As a result, the receptive field of the second layer becomes
+                  size 4 rather than 6, which would occur if there were no
+                  overlap (for example, with a stride of 3).
+                </p>
+              )}
+
+              <p className="font-semibold text-xl pb-1  pt-5">Formula</p>
+
+              <p className="pb-2 text-text-muted">
+                To compute the receptive field of a hidden unit, we account for
+                the kernel size and stride at each convolutional layer in the
+                network. This can be done using a simple recursive formula:
+              </p>
+
+              <p className="pl-2 pt-4 text-text-muted ">
+                Let <span>{"\\( L \\)"}</span> denote the number of layers
+              </p>
+              <p className="pl-2 text-text-muted ">
+                Let <span>{"\\( s_i \\)"}</span> denote the stride at the{" "}
+                <span>{"\\( i^{th} \\)"}</span> layer
+              </p>
+              <p className="pl-2 text-text-muted ">
+                Let <span>{"\\( k_i \\)"}</span> denote the kernel size at the{" "}
+                <span>{"\\( i^{th} \\)"}</span> layer
+              </p>
+              <p className="pl-2 text-text-muted ">
+                <span>{"\\( S = (s_1, s_2, ..., s_i) \\)"}</span>
+              </p>
+              <p className="pl-2 text-text-muted ">
+                <span>{"\\( K = (k_1, k_2, ..., k_i) \\)"}</span>
+              </p>
+              <p className="text-text-muted text-center pt-3 pb-3">
+                <span>
+                  {
+                    "\\( r_0 = \\sum\\limits_{l=1}^L \\left((k_{l} - 1) \\prod\\limits_{i=1}^{l-1} s_i \\right) + 1 \\)"
+                  }
                 </span>
-                <ul className="list-inside indent-6 pb-1 text-text-muted">
-                  <li>• Number of Input neurons ({`\\(I\\)`})</li>
-                  <li>• Number of Output neurons ({`\\(C_{in} \\)`})</li>
-                  <li>• Number of Filters (Output Channels) ({`\\(O \\)`})</li>
-                </ul>
-                <p className=" indent-4 pb-2 text-text-muted">
-                  If the previous layer is a 3D layer, then a flatten operation
-                  is applied. Hence, the number of input neurons will be{" "}
-                  <span>{`\\(H \\times W \\times D\\)`}</span>.
-                </p>
-                <p className=" indent-4 text-black">
-                  <span>{`\\( Parameters = (I \\times O) + O\\)`}</span>
-                </p>
-              </div>
+              </p>
 
-              <div className="indent-2 pb-2 ">
-                <span className="font-semibold">Convolutional Layer</span>
-                <ul className="list-inside indent-6 pb-2 text-text-muted">
-                  <li>• Filter Size ({`\\(k \\)`})</li>
-                  <li>
-                    • Number of Input Channels (Depth of previous layer) (
-                    {`\\(C_{in} \\)`})
-                  </li>
-                  <li>
-                    • Number of Filters (Output Channels) ({`\\(C_{out} \\)`})
-                  </li>
-                  <li>• Bias (1 Bias per Filter)</li>
-                </ul>
+              <p className="pl-2 pt-4 text-text-muted ">
+                When{" "}
+                <span>{`\\( K = (${
+                  kernelSize.length > 0 ? kernelSize : "\\emptyset"
+                }) \\)`}</span>{" "}
+                and{" "}
+                <span>{`\\( S = (${
+                  kernelSize.length > 0 ? strides : "\\emptyset"
+                }) \\)`}</span>
+                , the receptive field is{" "}
+                <span>{`\\( r_0 = ${totalParams}\\)`}</span>. This means the{" "}
+                {ordinal(kernelSize.length)} convolutional layer uses a   {" "}
+                <span>{`\\( ${totalParams}\\times${totalParams}\\)`}</span>  area of the input vector.
+              </p>
 
-                <p className=" indent-4 text-black">
-                  <span>{`\\( Parameters = (k \\times k \\times C_{in} + 1) \\times C_{out}\\)`}</span>
-                </p>
-              </div>
+              <p className="pl-2 pt-4 italic text-sm text-text-muted ">
+                Formula the work of{" "}
+                <span className="text-stroke">
+                  <a href="https://distill.pub/2019/computing-receptive-fields/#solving-receptive-field-region">
+                    Araujo et. al.
+                  </a>
+                </span>
+              </p>
             </MathJax>
             <br />
 
-            <p className="font-semibold text-xl pb-1">
-              Traininable parameters for each layer...
-            </p>
-            <MathJax>
-              <div>
-                {paramCalculation.map((p, i) => (
-                  <div key={i} className="pb-2 indent-6">
-                    <div className="font-bold">
-                      {i + 1}. {p.type}
-                    </div>
-
-                    <div className="indent-11 text-text-muted">
-                      <p>{p.variables}</p>
-                      <p className="text-black">
-                        <span>{p.calculation}</span>
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </MathJax>
             <div className="flex justify-end mt-8">
               <br />
               <button

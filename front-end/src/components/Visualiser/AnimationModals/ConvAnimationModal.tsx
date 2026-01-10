@@ -623,7 +623,7 @@ const ConvAnimationModal: React.FC<Props> = ({
 
       if (inputConv.stride == 1) {
         formulaText.push(
-          `\\( H_{ij1} =  \\alpha \\Bigl[\\sum_{l=1}^{D} \\sum_{m=1}^{p} \\sum_{n=1}^{p} (w_{mnl} \\times x_{i+m+p+1, j+n-p+1, l}) + \\beta_{${1}} \\Bigr] \\)`
+          `\\( H_{ij1} =  \\alpha \\Bigl[\\sum\\limits_{l=1}^{D} \\sum\\limits_{m=1}^{p} \\sum\\limits_{n=1}^{p} (w_{mnl} \\times x_{i+m+p+1, j+n-p+1, l}) + \\beta_{${1}} \\Bigr] \\)`
         );
       }
 

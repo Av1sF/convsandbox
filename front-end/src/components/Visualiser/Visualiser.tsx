@@ -864,12 +864,14 @@ export default function Visualiser() {
 
       {numLayers > 0 && (
         <>
-          <ParameterCount layers={layers} tensorLayers={tensorLayers} />
-          <ReceptiveFieldCount layers={layers} tensorLayers={tensorLayers} />
+          <div className="flex gap-1.5">
+            <ParameterCount layers={layers} tensorLayers={tensorLayers} />
+            <ReceptiveFieldCount layers={layers} tensorLayers={tensorLayers} />
+          </div>
+
           <p className="pl-4 font-light opacity-60 text-xs">
-            <sub>| </sub>
             <sub className="font-light text-xs italic">
-              Wonder how it&apos;s all calculated — Click on it!
+              Wonder how it&apos;s all calculated? — Click on it!
             </sub>
           </p>
         </>
