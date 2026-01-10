@@ -871,7 +871,8 @@ export default function Visualiser() {
 
           <p className="pl-4 font-light opacity-60 text-xs">
             <sub className="font-light text-xs italic">
-              Wonder how it&apos;s all calculated? — Click on it!
+              Wonder how it&apos;s all calculated? — Click on it! &nbsp;&nbsp;
+              (receptive field only works with convolutional layers)
             </sub>
           </p>
         </>

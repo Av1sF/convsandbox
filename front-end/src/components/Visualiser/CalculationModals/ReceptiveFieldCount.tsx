@@ -22,28 +22,7 @@ export const ReceptiveFieldCount: React.FC<Props> = ({
   const [strides, setStrides] = useState<number[]>([]);
   const [kernelSize, setKernelSize] = useState<number[]>([]);
 
-  // const [paramCalculation, setParamCalculation] = useState<
-  //   {
-  //     type: string;
-  //     variables: string;
-  //     calculation: string;
-  //   }[]
-  // >([
-  //   {
-  //     type: "Input",
-  //     variables: "",
-  //     calculation: "0",
-  //   },
-  // ]);
-
   useEffect(() => {
-    // setParamCalculation([
-    //   {
-    //     type: "Input",
-    //     variables: "No trainable parameters.",
-    //     calculation: "\\( = 0 \\)",
-    //   },
-    // ]);
     let s = [];
     let k = [];
     setStrides([]);
@@ -90,7 +69,7 @@ export const ReceptiveFieldCount: React.FC<Props> = ({
             // style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
             onClick={() => setIsModalOpen(true)}
           >
-            Receptive Field: {totalParams}
+            Receptive field: {totalParams}
           </span>
         </p>
       )}
