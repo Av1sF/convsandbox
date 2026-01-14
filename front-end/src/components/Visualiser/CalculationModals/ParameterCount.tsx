@@ -15,7 +15,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
     {
       type: string;
       variables: string;
-      calculation: string; 
+      calculation: string;
     }[]
   >([
     {
@@ -35,12 +35,12 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
       },
     ]);
 
-     let totalp = 0;
+    let totalp = 0;
     for (let i = 1; i < layers.length; i++) {
-       const layerType = layers[i].type;
+      const layerType = layers[i].type;
 
       if (layerType == "add-conv-layer") {
-         const convParams = layers[i].params as ConvParams;
+        const convParams = layers[i].params as ConvParams;
 
         const filterSize = convParams.filterSize;
         const numFilters = convParams.numFilters;
@@ -56,14 +56,13 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
             calculation: `\\( (${filterSize}\\times ${filterSize} \\times ${inChannels} + 1) \\times ${numFilters} = ${convNumParams}\\)`,
           },
         ]);
-        // setTotalParams(totalParams + convNumParams);
         totalp += convNumParams;
       } else if (layerType == "add-dense-layer") {
         // number of output units
         const outputNeurons = layers[i].params as number;
 
         // number of input units
-         const denseTensorLayer = tensorLayers[i] as dummyModelDense;
+        const denseTensorLayer = tensorLayers[i] as dummyModelDense;
         const inputNeurons = denseTensorLayer.flatten.shape[1];
 
         if (inputNeurons) {
@@ -110,7 +109,6 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
       <p className="pl-4">
         <span
           className="cursor-pointer text-text hover:text-accent"
-          // style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
           onClick={() => setIsModalOpen(true)}
         >
           Number of parameters: {totalParams}
@@ -118,10 +116,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
       </p>
 
       {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4"
-          onClick={() => setIsModalOpen(false)}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
           <div className="bg-bg rounded-2xl p-7 w-full max-w-[80vh] md:max-w-7/12 max-h-3/4 text-text overflow-auto">
             <h1 className="text-text text-2xl font-bold pb-3 ">
               Calculating the number of trainable Parameters...
@@ -198,7 +193,10 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
             </MathJax>
             <div className="flex justify-end mt-8">
               <br />
-              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg border border-gray-400 text-text-muted hover:bg-gray-100 transition">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 rounded-lg border border-gray-400 text-text-muted hover:bg-gray-100 transition"
+              >
                 Close
               </button>
             </div>
