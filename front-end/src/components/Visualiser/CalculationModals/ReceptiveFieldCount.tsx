@@ -1,7 +1,6 @@
 import { ConvParams, dummyModelOutputs, Layer } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import React, { useEffect, useState } from "react";
-import { dummyModelDense } from "../../../utils/types";
 import { ordinal } from "@/utils/ordinal";
 
 interface Props {
