@@ -52,7 +52,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           ...prev,
           {
             type: `Convolutional Layer`,
-            variables: `${numFilters} Filters, ${filterSize}×${filterSize} Filter Size and ${inChannels} input channels`,
+            variables: `${numFilters} Filters, ${filterSize}×${filterSize} Kernel Size and ${inChannels} input channels`,
             calculation: `\\( (${filterSize}\\times ${filterSize} \\times ${inChannels} + 1) \\times ${numFilters} = ${convNumParams}\\)`,
           },
         ]);
