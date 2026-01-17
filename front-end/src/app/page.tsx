@@ -19,27 +19,59 @@ export default function Home() {
       <p className="text-text p-1 text-2xl font-bold">
         Conv<span className="text-accent-warm">Sandbox</span>.
       </p>
+
+
       <p className="text-text-muted px-10 py-4 pb-10">
-        Create your own mini 2D Convolutional Neural Network! As the model will
-        be untrained, all inputs and parameters are randomly initialised. This
-        application aims to connect mathematical CNN concepts with
-        interactivity, creativity and visualisation! 
+        <span className="font-bold">
+          Create your own mini 2D Convolutional Neural Network!{" "}
+        </span>
+        This interactive visualiser allows you to explore the core mathematics
+        behind CNNs through creativity and hands-on experimentation. As the
+        model is untrained, all inputs and parameters are randomly initialised.
+        <br className="block lg:hidden" />
+        <br className="block lg:hidden" />
+        Designed for students learning fundamental CNN concepts, with a
+        background in foundational linear algebra and neural networks, the
+        application helps reinforce key equations and ideas through visual and
+        interactive exploration.
+        <br className="block lg:hidden" />
+        <br className="block lg:hidden" />
+        Its theory is based on{" "}
+        <a
+          href="https://udlbook.github.io/udlbook/"
+          className="transition hover:[-webkit-text-stroke:1px_currentColor]"
+        >
+          &quot;Understanding Deep Learning&quot;
+        </a>{" "}
+        by Simon J. D. Prince. As you build your network, a real CNN is created
+        in the background using{" "}
+        <a
+          href="https://www.tensorflow.org/js"
+          className="transition hover:[-webkit-text-stroke:1px_currentColor]"
+        >
+          TensorFlow.js
+        </a>
+        , with dynamic animations bringing each stage of the model to life.
       </p>
+
       <MathJaxContext config={config}>
         <div className="flex flex-col p-1 justify-center items-center text-stroke">
           {/* Simulator */}
-            <Visualiser key={seed} />
-            <div onClick={reset} className="text-right pt-2 pr-0.5">
-              <span className=" cursor-pointer hover:text-accent-warm select-none">
-                Reset
-              </span>
-            </div>
+          <Visualiser key={seed} />
+          <div onClick={reset} className="text-right pt-2 pr-0.5">
+            <span className=" cursor-pointer hover:text-accent-warm select-none">
+              Reset
+            </span>
+          </div>
 
-            <p className="text-xs text-text-muted italic pt-80 bg-center">If you have any questions or feedback about the <span className="text-text">Conv</span><span className="text-accent-warm">Sandbox</span>, please feel free to contact us at avis.cl.fung@kcl.ac.uk</p>
+          <p className="text-xs text-text-muted italic pt-80 bg-center">
+            If you have any questions or feedback about the{" "}
+            <span className="text-text">Conv</span>
+            <span className="text-accent-warm">Sandbox</span>, please feel free
+            to contact us at avis.cl.fung@kcl.ac.uk
+          </p>
         </div>
       </MathJaxContext>
-      
-      
     </>
   );
 }
