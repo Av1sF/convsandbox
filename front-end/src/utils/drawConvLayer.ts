@@ -36,7 +36,6 @@ export const drawConvLayer = (
     | number[][][][][]
     | number[][][][][][]
 ) => {
-  console.log(!(is3DTensor(tensor) && is2DTensor(tensor)))
   if (!(is3DTensor(tensor) || is2DTensor(tensor))) return;
   const numColumns = is3DTensor(tensor)? tensor[0].length: 1;
   const numRows = is3DTensor(tensor)? tensor[0][0].length: 1;
@@ -133,7 +132,6 @@ export const drawConvLayer = (
 
         } else if (is2DTensor(tensor)) {
           randomOpacity = tensor[row][j];
-          console.log(randomOpacity)
           randomOpacity += Math.abs(MIN_WEIGHT);
           randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT;
           if (randomOpacity > 1) {

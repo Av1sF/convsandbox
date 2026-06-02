@@ -64,6 +64,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
 
         // number of input units
          const denseTensorLayer = tensorLayers[i] as dummyModelDense;
+        if (!denseTensorLayer?.flatten) continue;
         const inputNeurons = denseTensorLayer.flatten.shape[1];
 
         if (inputNeurons) {

@@ -112,6 +112,14 @@ export interface DownsamplingParams {
   outputDims: { width: number; height: number; depth: number };
 }
 
+export type AnimationModalKey = "conv" | "downsample" | "dense";
+
+export interface AnimationTrigger {
+  layerNumber: number[];
+  triggerArea: number[];
+  animationType: AnimationModalKey;
+}
+
 // dummy model
 interface baseDummyModelParam {
   output: Tensor; 
