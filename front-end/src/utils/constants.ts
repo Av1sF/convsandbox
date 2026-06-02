@@ -1,0 +1,11 @@
+export const MAXLAYERS = 6;
+export const MAX_WIDTH = 15;
+export const MAX_HEIGHT = 15;
+export const MAX_DEPTH = 5;
+export const MAX_FILTERS = MAX_DEPTH;
+export const MAX_FILTER_SIZE = 11;
+export const MAX_PADDING = 10;
+export const MAX_STRIDE = 8;
+export const MAX_SCALE_FACTOR = 25;
+export const W = 1183;
+export const H = 500;

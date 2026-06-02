@@ -12,6 +12,7 @@ import {
   MAX_WIDTH,
 } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
+import Modal from "@/components/Modal";
 
 interface Props {
   onClose: () => void;
@@ -69,8 +70,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
-      <div className="bg-bg rounded-2xl p-6 w-full max-w-3xl flex flex-col md:flex-row gap-8 max-h-[95vh] overflow-y-auto">
+    <Modal onClose={onClose} className="p-6 w-full max-w-3xl flex flex-col md:flex-row gap-8 max-h-[95vh] overflow-y-auto">
         <div className="flex-1 text-sm text-text-muted">
           <p className="text-sm text-text-muted px-2 pt-2 pb-5">
             A convolution transforms an input vector into an output vector such
@@ -231,8 +231,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

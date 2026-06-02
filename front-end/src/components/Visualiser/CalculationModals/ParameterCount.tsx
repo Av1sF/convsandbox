@@ -2,6 +2,7 @@ import { ConvParams, dummyModelOutputs, Layer } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import React, { useEffect, useState } from "react";
 import { dummyModelDense } from "../../../utils/types";
+import Modal from "@/components/Modal";
 
 interface Props {
   layers: Layer[];
@@ -119,11 +120,11 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
       </p>
 
       {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4"
-          onClick={() => setIsModalOpen(false)}
+        <Modal
+          onClose={() => setIsModalOpen(false)}
+          closeOnBackdropClick
+          className="p-7 w-full max-w-[80vh] md:max-w-7/12 max-h-3/4 text-text overflow-auto"
         >
-          <div className="bg-bg rounded-2xl p-7 w-full max-w-[80vh] md:max-w-7/12 max-h-3/4 text-text overflow-auto">
             <h1 className="text-text text-2xl font-bold pb-3 ">
               Calculating the number of trainable Parameters...
             </h1>
@@ -203,8 +204,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
                 Close
               </button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
     </>
   );

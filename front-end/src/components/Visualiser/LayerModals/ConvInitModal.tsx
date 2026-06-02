@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MAX_WIDTH, MAX_HEIGHT, MAX_DEPTH, ConvParams } from "@/utils/types";
+import Modal from "@/components/Modal";
 
 interface Props {
   onClose: () => void;
@@ -33,8 +34,7 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
-      <div className="bg-bg rounded-2xl p-6 w-full max-w-md">
+    <Modal onClose={onClose} className="p-6 w-full max-w-md">
         <form onSubmit={handleSubmit} className="space-y-1">
           <h2 className="text-xl text-text font-semibold">Set Input Dimensions</h2>
           <p className="text-text-muted">Pick the dimensions of your input layer!</p>
@@ -83,8 +83,7 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

@@ -3,6 +3,7 @@ import { useRef } from "react";
 import * as d3 from "d3";
 import { MathJax } from "better-react-mathjax";
 import { useConvAnimation } from "./hooks/useConvAnimation";
+import Modal from "@/components/Modal";
 
 interface Props {
   onClose: () => void;
@@ -14,19 +15,18 @@ const ConvAnimationModal: React.FC<Props> = ({ tensorLayers, layerIndex, onClose
   const modalSvgRef = useRef<SVGSVGElement | null>(null);
   useConvAnimation(modalSvgRef, tensorLayers, layerIndex);
 
+  const handleClose = () => {
+    d3.select(modalSvgRef.current).selectAll("*").remove();
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4 sm:p-6">
-      <div className="bg-bg rounded-2xl w-full max-w-[80hh] max-h-[90vh] sm:max-h-[95vh] overflow-y-auto p-4 sm:p-6 relative">
-        <button
-          onClick={() => {
-            d3.select(modalSvgRef.current).selectAll("*").remove();
-            onClose();
-          }}
-          className="absolute top-3 right-4 text-2xl sm:text-xl text-foreground/70 hover:text-foreground transition"
-          aria-label="Close"
-        >
-          ✕
-        </button>
+    <Modal
+      onClose={handleClose}
+      showCloseButton
+      overlayClassName="p-4 sm:p-6"
+      className="w-full max-w-[80hh] max-h-[90vh] sm:max-h-[95vh] overflow-y-auto p-4 sm:p-6"
+    >
         <div className="mt-6 sm:mt-0">
           <h1 className="text-text text-2xl pb-3 font-semibold">Applying Convolutions...</h1>
           <p className="text-base text-text-muted px-2 pb-5">
@@ -42,8 +42,7 @@ const ConvAnimationModal: React.FC<Props> = ({ tensorLayers, layerIndex, onClose
             </MathJax>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

@@ -17,6 +17,7 @@ const DATAFORMAT = "channelsLast";
 
 export function setInputLayer(params: convLayerDims): dummyModelInput {
   return {
+    kind: "input",
     output: random3DTensor(params.height, params.width, params.depth),
     dims: { height: params.height, width: params.width, depth: params.depth },
   };
@@ -56,6 +57,7 @@ export function setConvLayer(
   const output = conv.apply(padded) as tf.Tensor;
 
   return {
+    kind: "conv",
     stride: params.stride,
     filterSize: params.filterSize,
     output: output,
@@ -89,6 +91,7 @@ export function setDenseLayer(
   const denseOutput = dense.apply(flatten) as tf.Tensor;
 
   return {
+    kind: "dense",
     output: denseOutput,
     flatten: flatten,
     neurons: params,
@@ -107,6 +110,7 @@ export function setActivationLayer(
   switch (params) {
     case "Sigmoid":
       return {
+        kind: "activation",
         output: prevLayer.sigmoid(),
         type: params,
         neurons: neurons,
@@ -115,6 +119,7 @@ export function setActivationLayer(
 
     case "Tanh":
       return {
+        kind: "activation",
         output: prevLayer.tanh(),
         type: params,
         neurons: neurons,
@@ -122,6 +127,7 @@ export function setActivationLayer(
       };
     case "Leaky ReLU":
       return {
+        kind: "activation",
         output: prevLayer.leakyRelu(0.1),
         type: params,
         neurons: neurons,
@@ -130,6 +136,7 @@ export function setActivationLayer(
 
     case "ReLU":
       return {
+        kind: "activation",
         output: prevLayer.relu(),
         type: params,
         neurons: neurons,
@@ -150,6 +157,7 @@ export function setUpsamplingLayer(
   const upsamplingLayerOutput = upsamplingLayer.apply(prevLayer) as tf.Tensor;
 
   return {
+    kind: "upsample",
     output: upsamplingLayerOutput,
     type: params.method,
     scaleFactor: params.scaleFactor,
@@ -172,6 +180,7 @@ export function setDownsamplingLayer(
       const avgPoolOutput = averagePooling2DLayer.apply(prevLayer) as tf.Tensor;
 
       return {
+        kind: "downsample",
         output: avgPoolOutput,
         type: params.type,
         stride: params.stride,
@@ -189,6 +198,7 @@ export function setDownsamplingLayer(
       const maxPoolOutput = maxPooling2DLayer.apply(prevLayer) as tf.Tensor;
 
       return {
+        kind: "downsample",
         output: maxPoolOutput,
         type: params.type,
         stride: params.stride,
@@ -206,6 +216,7 @@ export function setDownsamplingLayer(
       ) as tf.Tensor;
 
       return {
+        kind: "downsample",
         output: globalAvgPoolOutput,
         type: params.type,
         dims: params.outputDims,
@@ -221,6 +232,7 @@ export function setDownsamplingLayer(
       ) as tf.Tensor;
 
       return {
+        kind: "downsample",
         output: globalMaxPoolOutput,
         type: params.type,
         dims: params.outputDims,

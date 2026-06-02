@@ -8,6 +8,7 @@ import {
   UpsamplingParams,
   convLayerDims,
 } from "@/utils/types";
+import Modal from "@/components/Modal";
 
 export interface UpsamplingSelectModalProps {
   onClose: () => void;
@@ -78,8 +79,11 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
     scale < MAX_SCALE_FACTOR;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-6">
-      <div className="bg-bg rounded-2xl shadow-xl w-full max-w-3xl p-8 animate-fadeIn relative max-h-[95vh] overflow-y-auto">
+    <Modal
+      onClose={onClose}
+      overlayClassName="bg-black/40 backdrop-blur-[1px] p-6"
+      className="shadow-xl w-full max-w-3xl p-8 animate-fadeIn max-h-[95vh] overflow-y-auto"
+    >
         <h2 className="text-2xl font-semibold text-text mb-3">
           Select Upsampling Method
         </h2>
@@ -164,8 +168,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
             Confirm
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { MathJax } from "better-react-mathjax";
 import { DownsamplingParams, DownsamplingType } from "@/utils/types";
+import Modal from "@/components/Modal";
 
 interface DownsamplingSelectModalProps {
   onClose: () => void;
@@ -78,8 +79,11 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-4">
-      <div className="bg-bg rounded-2xl shadow-xl w-full max-w-5xl p-5 animate-fadeIn relative max-h-[90vh] overflow-y-auto">
+    <Modal
+      onClose={onClose}
+      overlayClassName="bg-black/40 backdrop-blur-[1px]"
+      className="shadow-xl w-full max-w-5xl p-5 animate-fadeIn max-h-[90vh] overflow-y-auto"
+    >
         <h2 className="text-2xl font-semibold text-text mb-2">
           Select a Pooling Method
         </h2>
@@ -243,8 +247,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
             Confirm
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 
