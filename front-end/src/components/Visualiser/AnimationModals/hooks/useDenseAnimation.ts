@@ -11,6 +11,7 @@ import { formatDimsFromTensorShape } from "@/utils/formatDimsFromTensorShape";
 import { drawNeurons } from "@/utils/drawNeurons";
 import drawLayerConnections from "@/utils/drawLayerConnection";
 import { drawFlattenedVector } from "@/utils/drawFlattenVector";
+import { clearAnimations } from "@/utils/d3Cleanup";
 
 export function useDenseAnimation(
   svgRef: RefObject<SVGSVGElement | null>,
@@ -19,6 +20,7 @@ export function useDenseAnimation(
 ): void {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    const node = svgRef.current;
     let didInit = false;
     if (!didInit) {
       didInit = true;
@@ -83,6 +85,7 @@ export function useDenseAnimation(
           .text("pooling into a 1D vector to be used as an input for the fully connected (dense) layers.");
       }
     }
+    return () => clearAnimations(node);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [svgRef.current]);
 }

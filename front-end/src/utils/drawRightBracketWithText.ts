@@ -41,8 +41,6 @@ export function drawRightBracketWithText(
              .style("glyph-orientation-vertical", "0")
              .attr("text-anchor", "middle");
       
-      // Alternative: rotate 90° (better cross-browser)
-      // textSel.attr("transform", `rotate(-90 ${x + textXOffset} ${textY})`);
     }
   }
 }

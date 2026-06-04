@@ -12,6 +12,7 @@ import { is3DTensor } from "@/utils/is3DTensor";
 import { isNumberParam } from "@/utils/typeGuards";
 import { drawConvNotation } from "@/utils/drawConvNotation";
 import { formatDimsFromTensorShape } from "@/utils/formatDimsFromTensorShape";
+import { clearAnimations } from "@/utils/d3Cleanup";
 
 export function useDownsampleAnimation(
   svgRef: RefObject<SVGSVGElement | null>,
@@ -24,6 +25,7 @@ export function useDownsampleAnimation(
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    const node = svgRef.current;
     let didInit = false;
     if (!didInit) {
       didInit = true;
@@ -40,9 +42,14 @@ export function useDownsampleAnimation(
       const inputConvShape = inputConv.output.shape as [number, number, number, number];
       const outputConvShape = poolingConv.output.shape as [number, number, number, number];
 
+      // Read each tensor back to a plain array once — these were previously called
+      // inside the per-cell loops, forcing a full backend read-back every iteration.
+      const inputOut = inputConv.output.arraySync();
+      const poolingOut = poolingConv.output.arraySync();
+
       if (poolingType && !poolingType.includes("Global")) {
         const inputGroup = root.append("g").attr("class", "padded-input").attr("transform", "translate(100, 0)");
-        const inputLines = drawConvLayer(550, 650, MAXLAYERS, inputGroup, tensorLayers[layerIndex[1]].output.arraySync());
+        const inputLines = drawConvLayer(550, 650, MAXLAYERS, inputGroup, inputOut);
 
         inputGroup.append("text").attr("x", inputGroup.select(`#rect-0`).attr("x")).attr("y", 500 * 0.05)
           .attr("text-anchor", "left").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333").text("Input Layer");
@@ -51,7 +58,7 @@ export function useDownsampleAnimation(
           .text(`${formatDimsFromTensorShape(tensorLayers[layerIndex[1]].output.shape as number[])}`);
 
         const outputGroup = root.append("g").attr("class", "output").attr("transform", "translate(700, 0)");
-        const outputLines = drawConvLayer(550, 650, MAXLAYERS, outputGroup, poolingConv.output.arraySync());
+        const outputLines = drawConvLayer(550, 650, MAXLAYERS, outputGroup, poolingOut);
 
         const outputLabelX = parseInt(outputGroup.select(`#rect-0`).attr("x")) + parseInt(outputGroup.select(`#rect-0`).attr("width")) * 0.5;
         outputGroup.append("text").attr("x", outputLabelX).attr("y", 500 * 0.05).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333").text("Pooled Output");
@@ -122,7 +129,7 @@ export function useDownsampleAnimation(
                 for (let dy = 0; dy < filterSize; dy++) {
                   filteredInput[dy] = [];
                   for (let dx = 0; dx < filterSize; dx++) {
-                    const tensor = inputConv.output.arraySync();
+                    const tensor = inputOut;
                     if (is3DTensor(tensor)) {
                       if (isNumberParam(tensor[0][dy + i][dx + j][c])) {
                         filteredInput[dy][dx] = tensor[0][dy + i][dx + j][c];
@@ -162,7 +169,7 @@ export function useDownsampleAnimation(
           for (let dy = 0; dy < inputConvShape[1]; dy++) {
             filteredInput[dy] = [];
             for (let dx = 0; dx < inputConvShape[2]; dx++) {
-              const tensor = inputConv.output.arraySync();
+              const tensor = inputOut;
               if (is3DTensor(tensor)) {
                 if (isNumberParam(tensor[0][dy][dx][c])) {
                   filteredInput[dy][dx] = tensor[0][dy][dx][c];
@@ -174,7 +181,7 @@ export function useDownsampleAnimation(
           drawConvNotation(
             convColourScheme[c], 700, 280, 10, 0, 200 + c * 100, 0, 0, c, outputGroup,
             1000 + batchWindowDelay * 2000,
-            [[(poolingConv.output.arraySync() as number[][])[0][c]]],
+            [[(poolingOut as number[][])[0][c]]],
             true
           );
 
@@ -208,6 +215,7 @@ export function useDownsampleAnimation(
           .text(`${formatDimsFromTensorShape(poolingConv.output.shape as number[])}`);
       }
     }
+    return () => clearAnimations(node);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [svgRef.current, poolingType]);
 }

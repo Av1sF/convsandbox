@@ -17,6 +17,7 @@ import { is3DTensor } from "@/utils/is3DTensor";
 import { isNumberParam } from "@/utils/typeGuards";
 import { drawConvNotation } from "@/utils/drawConvNotation";
 import { formatDimsFromTensorShape } from "@/utils/formatDimsFromTensorShape";
+import { clearAnimations } from "@/utils/d3Cleanup";
 
 export function useConvAnimation(
   svgRef: RefObject<SVGSVGElement | null>,
@@ -37,6 +38,7 @@ export function useConvAnimation(
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    const node = svgRef.current;
     let didInit = false;
     if (!didInit) {
       didInit = true;
@@ -265,92 +267,136 @@ export function useConvAnimation(
       formulaGroup.append("g").attr("class", "visual").attr("id", "formula-visual")
         .attr("transform", "translate(0, 370)").attr("width", 700).attr("height", 280);
 
+      const numFilters = inputConv.dims.depth;
+      const posPerFilter = outputConvShape[1] * outputConvShape[2];
+      const biasVals = (tensorLayers[layerIndex[1]] as dummyModelConv).bias.arraySync() as number[];
+      const filterTensor = (tensorLayers[layerIndex[1]] as dummyModelConv).kernel.arraySync() as number[][][][];
+      const preActOut = tensorLayers[layerIndex[1]].output.arraySync() as number[][][][];
+      const actOut = tensorLayers[layerIndex[0]].output.arraySync() as number[][][][];
+      const paddedArr = inputConv.padded.arraySync();
+      const formulaVisual = formulaGroup.select("#formula-visual");
+
       let batchWindowDelay = 0;
 
-      const biasid = `#neuron-${0}`;
-      const bias = biasGroup.select(biasid);
-      const biasx = +bias.attr("cx");
-      const biasy = +bias.attr("cy");
-      const biasr = +bias.attr("r");
+      // Animate the convolution once per output channel — one filter / bias per pass.
+      for (let f = 0; f < numFilters; f++) {
+        const filterStartDelay = batchWindowDelay;
+        const isLastFilter = f === numFilters - 1;
+        const filterColour = outputColourScheme[f];
 
-      const colourBias = biasGroup.append("circle")
-        .attr("cx", biasx).attr("cy", biasy).attr("r", biasr)
-        .attr("fill", outputColourScheme[0]).style("opacity", 0.7);
+        // Highlight the bias neuron used for this filter
+        const bias = biasGroup.select(`#neuron-${f}`);
+        const biasx = +bias.attr("cx");
+        const biasy = +bias.attr("cy");
+        const biasr = +bias.attr("r");
 
-      if (paddedLines && kernelLines) {
-        for (let i = 0; i < (paddedLines[1] as MidPoint[]).length; i++) {
-          const p1 = paddedLines[1][i];
-          const p2 = kernelLines[0][0][i];
-          const p3 = kernelLines[0][1][i];
-          const p4 = biasLines![0][0];
+        const colourBias = biasGroup.append("circle")
+          .attr("cx", biasx).attr("cy", biasy).attr("r", biasr)
+          .attr("fill", filterColour).style("opacity", 0);
+        colourBias
+          .transition().duration(0).delay(1000 + filterStartDelay * 2000).style("opacity", 0.7)
+          .transition().duration(0).delay(posPerFilter * 2000).style("opacity", 0).remove();
+
+        // Each filter draws its notation into its own subgroup so element ids never collide.
+        // The group is shown/hidden with a *named* transition ("reveal"): a default-named
+        // transition on the parent would be inherited by the children's default-named
+        // transitions (d3 transition inheritance), re-timing the per-output value boxes so
+        // they only ever resolved for the final filter.
+        const filterNotationGroup = formulaVisual
+          .append("g")
+          .attr("id", `filter-notation-${f}`)
+          .style("opacity", 0);
+        const reveal = filterNotationGroup
+          .transition("reveal")
+          .duration(0)
+          .delay(1000 + filterStartDelay * 2000)
+          .style("opacity", 1);
+        if (!isLastFilter) {
+          reveal
+            .transition()
+            .duration(0)
+            .delay(posPerFilter * 2000)
+            .style("opacity", 0)
+            .remove();
+        }
+
+        // Connecting lines: padded input -> kernel(f) -> bias(f)
+        if (paddedLines && kernelLines) {
+          for (let i = 0; i < (paddedLines[1] as MidPoint[]).length; i++) {
+            const p1 = paddedLines[1][i];
+            const p2 = kernelLines[f][0][i];
+            const p3 = kernelLines[f][1][i];
+            const p4 = biasLines![0][f];
+
+            const pathIn = d3.path();
+            const midXin = (p1.x + p2.x) / 2;
+            pathIn.moveTo(p1.x, p1.y);
+            pathIn.bezierCurveTo(midXin, p1.y, midXin, p2.y, p2.x, p2.y);
+            root.append("path").attr("class", "padded-kernel-connection").attr("d", pathIn.toString())
+              .attr("fill", "none").attr("stroke", filterColour).attr("stroke-width", 2).attr("opacity", 0)
+              .transition().delay(1000 + filterStartDelay * 2000).attr("opacity", 0.5)
+              .transition().delay(posPerFilter * 2000).attr("opacity", 0).remove();
+
+            const pathOut = d3.path();
+            const midXOut = (p3.x + p4.x) / 2;
+            pathOut.moveTo(p3.x, p3.y);
+            pathOut.bezierCurveTo(midXOut, p3.y, midXOut, p4.y, p4.x, p4.y);
+            root.append("path").attr("class", "kernel-output-connection").attr("d", pathOut.toString())
+              .attr("fill", "none").attr("stroke", filterColour).attr("stroke-width", 2).attr("opacity", 0)
+              .transition().delay(1000 + filterStartDelay * 2000).attr("opacity", 0.5)
+              .transition().delay(posPerFilter * 2000).attr("opacity", 0).remove();
+          }
+        }
+
+        // Connecting lines: bias(f) -> pre-activation(f) -> activation(f)
+        if (biasLines && outputLines && activationLines) {
+          const p1 = biasLines[1][f];
+          const p2 = outputLines[0][f];
+          const p3 = outputLines[1][f];
+          const p4 = activationLines[0][f];
 
           const pathIn = d3.path();
           const midXin = (p1.x + p2.x) / 2;
           pathIn.moveTo(p1.x, p1.y);
           pathIn.bezierCurveTo(midXin, p1.y, midXin, p2.y, p2.x, p2.y);
           root.append("path").attr("class", "padded-kernel-connection").attr("d", pathIn.toString())
-            .attr("fill", "none").attr("stroke", outputColourScheme[0]).attr("stroke-width", 2).attr("opacity", 0)
-            .transition().delay(1000).attr("opacity", 0.5);
+            .attr("fill", "none").attr("stroke", filterColour).attr("stroke-width", 2).attr("opacity", 0)
+            .transition().delay(1000 + filterStartDelay * 2000).attr("opacity", 0.5)
+            .transition().delay(posPerFilter * 2000).attr("opacity", 0).remove();
 
           const pathOut = d3.path();
           const midXOut = (p3.x + p4.x) / 2;
           pathOut.moveTo(p3.x, p3.y);
           pathOut.bezierCurveTo(midXOut, p3.y, midXOut, p4.y, p4.x, p4.y);
           root.append("path").attr("class", "kernel-output-connection").attr("d", pathOut.toString())
-            .attr("fill", "none").attr("stroke", outputColourScheme[0]).attr("stroke-width", 2).attr("opacity", 0)
-            .transition().delay(1000).attr("opacity", 0.5);
+            .attr("fill", "none").attr("stroke", filterColour).attr("stroke-width", 2).attr("opacity", 0)
+            .transition().delay(1000 + filterStartDelay * 2000).attr("opacity", 0.5)
+            .transition().delay(posPerFilter * 2000).attr("opacity", 0).remove();
         }
-      }
 
-      if (biasLines && outputLines && activationLines) {
-        const f = 0;
-        const p1 = biasLines[1][f];
-        const p2 = outputLines[0][f];
-        const p3 = outputLines[1][f];
-        const p4 = activationLines[0][f];
-
-        const pathIn = d3.path();
-        const midXin = (p1.x + p2.x) / 2;
-        pathIn.moveTo(p1.x, p1.y);
-        pathIn.bezierCurveTo(midXin, p1.y, midXin, p2.y, p2.x, p2.y);
-        root.append("path").attr("class", "padded-kernel-connection").attr("d", pathIn.toString())
-          .attr("fill", "none").attr("stroke", outputColourScheme[0]).attr("stroke-width", 2).attr("opacity", 0)
-          .transition().delay(1000).attr("opacity", 0.5);
-
-        const pathOut = d3.path();
-        const midXOut = (p3.x + p4.x) / 2;
-        pathOut.moveTo(p3.x, p3.y);
-        pathOut.bezierCurveTo(midXOut, p3.y, midXOut, p4.y, p4.x, p4.y);
-        root.append("path").attr("class", "kernel-output-connection").attr("d", pathOut.toString())
-          .attr("fill", "none").attr("stroke", outputColourScheme[0]).attr("stroke-width", 2).attr("opacity", 0)
-          .transition().delay(1000).attr("opacity", 0.5);
-      }
-
-      const currFilterValues: number[][][][] = [];
-      const filterTensor = (tensorLayers[layerIndex[1]] as dummyModelConv).kernel.arraySync() as number[][][][];
-
-      for (let row = 0; row < inputConv.filterSize; row++) {
-        currFilterValues[row] = [];
-        for (let col = 0; col < inputConv.filterSize; col++) {
-          currFilterValues[row][col] = [];
-          for (let k = 0; k < (inputConv.padded.shape[3] as number); k++) {
-            currFilterValues[row][col][k] = [];
-            currFilterValues[row][col][k][0] = filterTensor[row][col][k][0];
+        const currFilterValues: number[][][][] = [];
+        for (let row = 0; row < inputConv.filterSize; row++) {
+          currFilterValues[row] = [];
+          for (let col = 0; col < inputConv.filterSize; col++) {
+            currFilterValues[row][col] = [];
+            for (let k = 0; k < (inputConv.padded.shape[3] as number); k++) {
+              currFilterValues[row][col][k] = [];
+              currFilterValues[row][col][k][0] = filterTensor[row][col][k][f];
+            }
           }
         }
-      }
 
-      drawKernelsNotations(
-        700, 280, 10, 20, 120,
-        formulaGroup.select("#formula-visual"),
-        currFilterValues,
-        outputColourScheme[0],
-        ((tensorLayers[layerIndex[1]] as dummyModelConv).bias.arraySync() as number[])[0],
-        0
-      );
+        drawKernelsNotations(
+          700, 280, 10, 20, 120,
+          filterNotationGroup,
+          currFilterValues,
+          filterColour,
+          biasVals[f],
+          f
+        );
 
-      let currOutputi = 0;
-      let currOutputj = 0;
+        let currOutputi = 0;
+        let currOutputj = 0;
 
       for (let i = 0; i < inputConvShape[1]; i += inputConv.stride) {
         currOutputj = 0;
@@ -358,8 +404,8 @@ export function useConvAnimation(
           if (i + inputConv.filterSize - 1 < inputConvShape[1] && j + inputConv.filterSize - 1 < inputConvShape[2]) {
             for (let k = 0; k < inputConvShape[3]; k++) {
               const id = `#square-${i}-${j}-${k}`;
-              const outputid = `#square-${currOutputi}-${currOutputj}-${0}`;
-              const kernelid = `#k-${0}-${k}`;
+              const outputid = `#square-${currOutputi}-${currOutputj}-${f}`;
+              const kernelid = `#k-${f}-${k}`;
 
               const kernel = kernelGroup.select(kernelid);
               const rect = paddedGroup.select(id);
@@ -384,12 +430,12 @@ export function useConvAnimation(
                 .transition().delay(1000).remove();
 
               outputGroup.append("rect").attr("x", outputCellx).attr("y", outputCelly).attr("width", outputCellw).attr("height", outputCellh)
-                .attr("fill", outputColourScheme[0]).style("opacity", 0)
+                .attr("fill", filterColour).style("opacity", 0)
                 .transition().duration(0).delay(1000 + batchWindowDelay * 2000).style("opacity", 0.4)
                 .transition().delay(1000).remove();
 
               activationGroup.append("rect").attr("x", actiCellx).attr("y", actiCelly).attr("width", actiCellw).attr("height", actiCellh)
-                .attr("fill", outputColourScheme[0]).style("opacity", 0)
+                .attr("fill", filterColour).style("opacity", 0)
                 .transition().duration(0).delay(1000 + batchWindowDelay * 2000).style("opacity", 0.4)
                 .transition().delay(1000).remove();
 
@@ -405,7 +451,7 @@ export function useConvAnimation(
                 for (let dx = 0; dx < inputConv.filterSize; dx++) {
                   const filterInputX = dx + j;
                   const filterInputY = dy + i;
-                  const tensor = (tensorLayers[layerIndex[1]] as dummyModelConv).padded.arraySync();
+                  const tensor = paddedArr;
                   if (is3DTensor(tensor)) {
                     if (isNumberParam(tensor[0][filterInputY][filterInputX][k])) {
                       filteredInput[dy][dx] = tensor[0][filterInputY][filterInputX][k];
@@ -414,7 +460,7 @@ export function useConvAnimation(
                 }
               }
 
-              const equationVisualiserGroup = formulaGroup.select(`#formula-visual`);
+              const equationVisualiserGroup = filterNotationGroup;
               const isLast = currOutputi === outputConvShape[1] - 1 && currOutputj === outputConvShape[2] - 1;
 
               drawConvNotation(
@@ -427,98 +473,98 @@ export function useConvAnimation(
             }
 
             if (!(currOutputi === outputConvShape[1] - 1 && currOutputj === outputConvShape[2] - 1)) {
-              const lastKernel = formulaGroup.select(`#formula-visual`).select(`#diagramatic-right-bracket`);
+              const lastKernel = filterNotationGroup.select(`#diagramatic-right-bracket`);
               const lastKernelx = +lastKernel.attr("x");
               const lastKernely = +lastKernel.attr("y");
 
-              let randomOpacity = (tensorLayers[layerIndex[1]].output.arraySync() as number[][][][])[0][currOutputi][currOutputj][0];
+              let randomOpacity = preActOut[0][currOutputi][currOutputj][f];
               randomOpacity += Math.abs(-100);
               randomOpacity /= Math.abs(-100) + 100;
               randomOpacity = Math.max(0, Math.min(1, randomOpacity));
 
-              formulaGroup.select(`#formula-visual`).append("rect")
+              filterNotationGroup.append("rect")
                 .attr("x", lastKernelx + 157).attr("y", lastKernely - 50).attr("width", 60).attr("height", 60)
                 .attr("fill", "#5f6c7b").attr("stroke", "#094067").attr("stroke-opacity", 0).attr("stroke-width", 1).style("fill-opacity", 0)
                 .transition().duration(0).delay(1000 + batchWindowDelay * 2000).style("fill-opacity", randomOpacity).attr("stroke-opacity", 1)
                 .transition().delay(1000).remove();
 
-              formulaGroup.select(`#formula-visual`).append("text")
+              filterNotationGroup.append("text")
                 .attr("x", lastKernelx + 157 + 4).attr("y", lastKernely - 15).attr("width", 60).attr("height", 60).attr("font-size", 20)
-                .text(`${(tensorLayers[layerIndex[1]].output.arraySync() as number[][][][])[0][currOutputi][currOutputj][0].toFixed(1)}`)
+                .text(`${preActOut[0][currOutputi][currOutputj][f].toFixed(1)}`)
                 .attr("opacity", 0).transition().duration(0).delay(1000 + batchWindowDelay * 2000).attr("opacity", 1)
                 .transition().delay(1000).remove();
 
-              let outputRandomOpacity = (tensorLayers[layerIndex[0]].output.arraySync() as number[][][][])[0][currOutputi][currOutputj][0];
+              let outputRandomOpacity = actOut[0][currOutputi][currOutputj][f];
               outputRandomOpacity += Math.abs(-100);
               outputRandomOpacity /= Math.abs(-100) + 100;
               outputRandomOpacity = Math.max(0, Math.min(1, outputRandomOpacity));
 
-              formulaGroup.select(`#formula-visual`).append("rect")
+              filterNotationGroup.append("rect")
                 .attr("x", lastKernelx + 330).attr("y", lastKernely - 50).attr("width", 60).attr("height", 60)
                 .attr("fill", "#5f6c7b").attr("stroke", "#094067").attr("stroke-opacity", 0).attr("stroke-width", 1).style("fill-opacity", 0)
                 .transition().duration(0).delay(1000 + batchWindowDelay * 2000).style("fill-opacity", outputRandomOpacity).attr("stroke-opacity", 1)
                 .transition().delay(1000).remove();
 
-              formulaGroup.select(`#formula-visual`).append("text")
+              filterNotationGroup.append("text")
                 .attr("x", lastKernelx + 330 + 10).attr("y", lastKernely - 15).attr("width", 60).attr("height", 60).attr("font-size", 20)
-                .text(`${(tensorLayers[layerIndex[0]].output.arraySync() as number[][][][])[0][currOutputi][currOutputj][0].toFixed(1)}`)
+                .text(`${actOut[0][currOutputi][currOutputj][f].toFixed(1)}`)
                 .attr("opacity", 0).transition().duration(0).delay(1000 + batchWindowDelay * 2000).attr("opacity", 1)
                 .transition().delay(1000).remove();
 
-              formulaGroup.select(`#formula-visual`).append("text").attr("id", "text-output-index")
+              filterNotationGroup.append("text").attr("id", "text-output-index")
                 .attr("x", lastKernelx + 330 + 13).attr("y", lastKernely + 3).attr("width", 60).attr("height", 60).attr("text-anchor", "left")
                 .append("tspan").attr("font-size", 14).text("h")
                 .attr("opacity", 0).transition().duration(0).delay(1000 + batchWindowDelay * 2000).attr("opacity", 1)
                 .transition().delay(1000).remove();
 
-              formulaGroup.select(`#formula-visual`).append("text").attr("id", "text-output-index")
+              filterNotationGroup.append("text").attr("id", "text-output-index")
                 .attr("x", lastKernelx + 330 + 24).attr("y", lastKernely + 5).attr("width", 60).attr("height", 60).attr("text-anchor", "left")
-                .append("tspan").attr("font-size", 10).text(`${currOutputi + 1},${currOutputj + 1},${1}`)
+                .append("tspan").attr("font-size", 10).text(`${currOutputi + 1},${currOutputj + 1},${f + 1}`)
                 .attr("opacity", 0).transition().duration(0).delay(1000 + batchWindowDelay * 2000).attr("opacity", 1)
                 .transition().delay(1000).remove();
             } else {
-              const lastKernel = formulaGroup.select(`#formula-visual`).select(`#diagramatic-right-bracket`);
+              const lastKernel = filterNotationGroup.select(`#diagramatic-right-bracket`);
               const lastKernelx = +lastKernel.attr("x");
               const lastKernely = +lastKernel.attr("y");
 
-              let randomOpacity = (tensorLayers[layerIndex[1]].output.arraySync() as number[][][][])[0][currOutputi][currOutputj][0];
+              let randomOpacity = preActOut[0][currOutputi][currOutputj][f];
               randomOpacity += Math.abs(-100);
               randomOpacity /= Math.abs(-100) + 100;
               randomOpacity = Math.max(0, Math.min(1, randomOpacity));
 
-              formulaGroup.select(`#formula-visual`).append("rect")
+              filterNotationGroup.append("rect")
                 .attr("x", lastKernelx + 157).attr("y", lastKernely - 50).attr("width", 60).attr("height", 60)
                 .attr("fill", "#5f6c7b").attr("stroke", "#094067").attr("stroke-opacity", 0).attr("stroke-width", 1).style("fill-opacity", 0)
                 .transition().duration(0).delay(1000 + batchWindowDelay * 2000).style("fill-opacity", randomOpacity).attr("stroke-opacity", 1);
 
-              formulaGroup.select(`#formula-visual`).append("text")
+              filterNotationGroup.append("text")
                 .attr("x", lastKernelx + 157 + 4).attr("y", lastKernely - 15).attr("width", 60).attr("height", 60).attr("font-size", 20)
-                .text(`${(tensorLayers[layerIndex[1]].output.arraySync() as number[][][][])[0][currOutputi][currOutputj][0].toFixed(1)}`)
+                .text(`${preActOut[0][currOutputi][currOutputj][f].toFixed(1)}`)
                 .attr("opacity", 0).transition().duration(0).delay(1000 + batchWindowDelay * 2000).attr("opacity", 1);
 
-              let outputRandomOpacity = (tensorLayers[layerIndex[0]].output.arraySync() as number[][][][])[0][currOutputi][currOutputj][0];
+              let outputRandomOpacity = actOut[0][currOutputi][currOutputj][f];
               outputRandomOpacity += Math.abs(-100);
               outputRandomOpacity /= Math.abs(-100) + 100;
               outputRandomOpacity = Math.max(0, Math.min(1, outputRandomOpacity));
 
-              formulaGroup.select(`#formula-visual`).append("rect")
+              filterNotationGroup.append("rect")
                 .attr("x", lastKernelx + 330).attr("y", lastKernely - 50).attr("width", 60).attr("height", 60)
                 .attr("fill", "#5f6c7b").attr("stroke", "#094067").attr("stroke-opacity", 0).attr("stroke-width", 1).style("fill-opacity", 0)
                 .transition().duration(0).delay(1000 + batchWindowDelay * 2000).style("fill-opacity", outputRandomOpacity).attr("stroke-opacity", 1);
 
-              formulaGroup.select(`#formula-visual`).append("text")
+              filterNotationGroup.append("text")
                 .attr("x", lastKernelx + 330 + 10).attr("y", lastKernely - 15).attr("width", 60).attr("height", 60).attr("font-size", 20)
-                .text(`${(tensorLayers[layerIndex[0]].output.arraySync() as number[][][][])[0][currOutputi][currOutputj][0].toFixed(1)}`)
+                .text(`${actOut[0][currOutputi][currOutputj][f].toFixed(1)}`)
                 .attr("opacity", 0).transition().duration(0).delay(1000 + batchWindowDelay * 2000).attr("opacity", 1);
 
-              formulaGroup.select(`#formula-visual`).append("text").attr("id", "text-output-index")
+              filterNotationGroup.append("text").attr("id", "text-output-index")
                 .attr("x", lastKernelx + 330 + 13).attr("y", lastKernely + 3).attr("width", 60).attr("height", 60).attr("text-anchor", "left")
                 .append("tspan").attr("font-size", 14).text("h")
                 .attr("opacity", 0).transition().duration(0).delay(1000 + batchWindowDelay * 2000).attr("opacity", 1);
 
-              formulaGroup.select(`#formula-visual`).append("text").attr("id", "text-output-index")
+              filterNotationGroup.append("text").attr("id", "text-output-index")
                 .attr("x", lastKernelx + 330 + 24).attr("y", lastKernely + 5).attr("width", 60).attr("height", 60).attr("text-anchor", "left")
-                .append("tspan").attr("font-size", 10).text(`${currOutputi + 1},${currOutputj + 1},${1}`)
+                .append("tspan").attr("font-size", 10).text(`${currOutputi + 1},${currOutputj + 1},${f + 1}`)
                 .attr("opacity", 0).transition().duration(0).delay(1000 + batchWindowDelay * 2000).attr("opacity", 1);
             }
 
@@ -530,9 +576,9 @@ export function useConvAnimation(
           currOutputi++;
         }
       }
-
-      colourBias.transition().delay(batchWindowDelay * 2000).remove();
+      }
     }
+    return () => clearAnimations(node);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [svgRef.current]);
 }

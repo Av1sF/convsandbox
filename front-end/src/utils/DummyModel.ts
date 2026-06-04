@@ -15,6 +15,16 @@ import {
 
 const DATAFORMAT = "channelsLast";
 
+// These models are tiny and untrained, so WebGL buys nothing and makes every
+// tensor read-back (arraySync) slow because of GPU texture upload + GPU→CPU sync.
+// On the CPU backend the tensors live in JS memory, so read-backs are ~free —
+// which matters because the animation hooks read tensors back to arrays heavily.
+// Fire-and-forget at module load (client only); the switch resolves long before
+// the user can build their first layer.
+if (typeof window !== "undefined") {
+  void tf.setBackend("cpu");
+}
+
 export function setInputLayer(params: convLayerDims): dummyModelInput {
   return {
     kind: "input",

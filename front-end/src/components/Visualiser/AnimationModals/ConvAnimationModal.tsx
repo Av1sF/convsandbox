@@ -1,9 +1,9 @@
 import { dummyModelOutputs } from "@/utils/types";
 import { useRef } from "react";
-import * as d3 from "d3";
 import { MathJax } from "better-react-mathjax";
 import { useConvAnimation } from "./hooks/useConvAnimation";
 import Modal from "@/components/Modal";
+import { clearAnimations } from "@/utils/d3Cleanup";
 
 interface Props {
   onClose: () => void;
@@ -16,7 +16,7 @@ const ConvAnimationModal: React.FC<Props> = ({ tensorLayers, layerIndex, onClose
   useConvAnimation(modalSvgRef, tensorLayers, layerIndex);
 
   const handleClose = () => {
-    d3.select(modalSvgRef.current).selectAll("*").remove();
+    clearAnimations(modalSvgRef.current);
     onClose();
   };
 
