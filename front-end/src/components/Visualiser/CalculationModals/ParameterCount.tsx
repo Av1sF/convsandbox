@@ -23,7 +23,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
     {
       type: string;
       variables: string;
-      calculation: string; 
+      calculation: string;
     }[]
   >([
     {
@@ -43,12 +43,12 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
       },
     ]);
 
-     let totalp = 0;
+    let totalp = 0;
     for (let i = 1; i < layers.length; i++) {
-       const layerType = layers[i].type;
+      const layerType = layers[i].type;
 
       if (layerType == "add-conv-layer") {
-         const convParams = layers[i].params as ConvParams;
+        const convParams = layers[i].params as ConvParams;
 
         const filterSize = convParams.filterSize;
         const numFilters = convParams.numFilters;
@@ -62,7 +62,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           ...prev,
           {
             type: `Convolutional Layer`,
-            variables: `${numFilters} Filters, ${filterSize}×${filterSize} Filter Size and ${inChannels} input channels`,
+            variables: `${numFilters} Filters, ${filterSize}×${filterSize} Kernel Size and ${inChannels} input channels`,
             calculation: `\\( (${filterSize}\\times ${filterSize} \\times ${inChannels} + 1) \\times ${numFilters} = ${convNumParams}\\)`,
           },
         ]);
@@ -213,7 +213,10 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
             </MathJax>
             <div className="flex justify-end mt-8">
               <br />
-              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg border border-gray-400 text-text-muted hover:bg-gray-100 transition">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 rounded-lg border border-gray-400 text-text-muted hover:bg-gray-100 transition"
+              >
                 Close
               </button>
             </div>
