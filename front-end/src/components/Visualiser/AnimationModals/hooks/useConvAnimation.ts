@@ -171,14 +171,15 @@ export function useConvAnimation(
         thickness: 1, text: "Kernel", textXOffset: 10, verticalText: true,
       });
 
-      // DRAW BIASES 
+      // DRAW BIASES
       const biasGroup = root.append("g").attr("class", "biases").attr("transform", "translate(550, 0)");
       const biasArray = (tensorLayers[layerIndex[1]] as dummyModelConv).bias.arraySync() as number[];
-      const biasLabelx = parseInt(root.select(`#neuron-0`).attr("cx"));
 
       const biasLines = drawBiases(1200, 650, biasArray.length, MAXLAYERS, biasGroup,
         (tensorLayers[layerIndex[1]] as dummyModelConv).bias.arraySync()
       );
+
+      const biasLabelx = parseInt(root.select(`#neuron-0`).attr("cx"));
 
       // Numbers of biases text 
       biasGroup.append("text").attr("x", biasLabelx).attr("y", 500 * 0.05).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333").text("Bias");
