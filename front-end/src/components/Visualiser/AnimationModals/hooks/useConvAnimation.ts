@@ -175,7 +175,6 @@ export function useConvAnimation(
       const biasGroup = root.append("g").attr("class", "biases").attr("transform", "translate(550, 0)");
       const biasArray = (tensorLayers[layerIndex[1]] as dummyModelConv).bias.arraySync() as number[];
 
-      // drawBiases must run before reading #neuron-0's cx — the element doesn't exist until then.
       const biasLines = drawBiases(1200, 650, biasArray.length, MAXLAYERS, biasGroup,
         (tensorLayers[layerIndex[1]] as dummyModelConv).bias.arraySync()
       );
