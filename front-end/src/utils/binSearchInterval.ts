@@ -1,3 +1,8 @@
+/**
+ * Binary-searches a sorted array of `[lb, ub]` intervals for the one that
+ * contains `n`, returning its index. Returns `undefined` if no interval matches.
+ * Called with `high = intervals.length - 1, low = 0`.
+ */
 function binSearchInterval(
   n: number,
   intervals: number[][],
@@ -10,7 +15,6 @@ function binSearchInterval(
 
   if (high >= low) {
     const mid = low + Math.floor((high - low) / 2);
-    console.log(mid);
     if (intervals[mid]) {
       const [lb, ub] = intervals[mid];
 

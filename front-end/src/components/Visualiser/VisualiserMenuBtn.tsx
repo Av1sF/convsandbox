@@ -3,7 +3,7 @@ import ActivationLayerBtn from "./LayersMenu/ActivationLayerBtn";
 import UpsamplingLayerBtn from "./LayersMenu/UpsamplingLayerBtn";
 import { LayerActionType, VisualiserMenuBtnProps } from "@/utils/types";
 import DownsamplingLayerBtn from "./LayersMenu/DownsamplingLayerBtn";
-import DneseLayerBtn from "./LayersMenu/DenseLayerBtn";
+import DenseLayerBtn from "./LayersMenu/DenseLayerBtn";
 
 export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
   const label = props.showLabel ? "Get Started!" : "Add...";
@@ -67,7 +67,7 @@ export default function VisualiserMenuBtn(props: VisualiserMenuBtnProps) {
       key: "dense",
       visible: props.validLayerTypes.dense && !props.showLabel,
       component: (
-        <DneseLayerBtn
+        <DenseLayerBtn
           onClick={handleAdd("add-dense-layer")}
           x={svgXstart}
           y={0}

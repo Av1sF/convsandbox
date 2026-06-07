@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { MathJax } from "better-react-mathjax";
 import { DownsamplingParams, DownsamplingType } from "@/utils/types";
+import Modal from "@/components/Modal";
 
 interface DownsamplingSelectModalProps {
   onClose: () => void;
@@ -8,6 +9,7 @@ interface DownsamplingSelectModalProps {
   prevDims?: { width: number; height: number; depth: number };
 }
 
+/** Static - defined outside the component so the array is never recreated on re-render. */
 const POOLING_OPTIONS: {
   type: DownsamplingType;
   description: string;
@@ -34,6 +36,12 @@ const POOLING_OPTIONS: {
   },
 ];
 
+/**
+ * Config modal for adding a pooling (downsampling) layer.
+ * Formula panel and filter/stride inputs are hidden until a pooling type is
+ * selected; global variants skip those inputs entirely since they reduce each
+ * channel to a single 1×1 value regardless of filter size.
+ */
 const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
   onClose,
   onConfirm,
@@ -48,14 +56,12 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
   const maxSize = Math.max(prevDims.height, prevDims.width);
 
   const computeOutputDims = () => {
-    // if (!selectedType) return null;
     const { width, height, depth } = prevDims;
 
     if (selectedType?.includes("Global")) {
       return { width: 1, height: 1, depth };
     }
 
-    // const outW = Math.floor((width - filterSize + 1) / stride);
     const outW = Math.floor((width - filterSize) / stride) + 1;
     const outH = Math.floor((height - filterSize) / stride) + 1;
     return {
@@ -78,8 +84,11 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-4">
-      <div className="bg-bg rounded-2xl shadow-xl w-full max-w-5xl p-5 animate-fadeIn relative max-h-[90vh] overflow-y-auto">
+    <Modal
+      onClose={onClose}
+      overlayClassName="bg-black/40 backdrop-blur-[1px]"
+      className="shadow-xl w-full max-w-5xl p-5 animate-fadeIn max-h-[90vh] overflow-y-auto"
+    >
         <h2 className="text-2xl font-semibold text-text mb-2">
           Select a Pooling Method
         </h2>
@@ -88,11 +97,11 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
           dimensions update dynamically.
         </p>
 
-        {/* === Main layout === */}
+        {/*  Main layout  */}
         <div className={`grid grid-cols-1 md:grid-cols-${selectedType? 2 :1} gap-8`}>
-          {/* === LEFT SIDE: Formula + Inputs === */}
+          {/*  LEFT SIDE: Formula + Inputs  */}
           <div className="flex flex-col space-y-6">
-            {/* === Formula Section === */}
+            {/*  Formula Section  */}
 
             {selectedType && (
               <div className="rounded-xl px-4">
@@ -163,7 +172,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
                 )}
               </div>
             )}
-            {/* === Inputs: Filter + Stride side-by-side BELOW the formula === */}
+            {/*  Inputs: Filter + Stride side-by-side BELOW the formula  */}
             {selectedType && !selectedType.includes("Global") && (
               <div className="flex flex-row space-x-6 px-4">
                 <div className="flex flex-col">
@@ -189,6 +198,8 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
                       // Clamp to min/max
                       num = Math.max(2, Math.min(num, maxSize));
 
+                      // Stride is always kept equal to filter size so the
+                      // pooling windows never overlap.
                       setFilterSize(num);
                       setStride(num);
                     }}
@@ -202,7 +213,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
             )}
           </div>
 
-          {/* === RIGHT SIDE: Pooling Type Buttons === */}
+          {/*  RIGHT SIDE: Pooling Type Buttons  */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {POOLING_OPTIONS.map((opt) => (
               <button
@@ -223,7 +234,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
           </div>
         </div>
 
-        {/* === Action Buttons === */}
+        {/*  Action Buttons  */}
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
@@ -243,8 +254,7 @@ const DownsamplingSelectModal: React.FC<DownsamplingSelectModalProps> = ({
             Confirm
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

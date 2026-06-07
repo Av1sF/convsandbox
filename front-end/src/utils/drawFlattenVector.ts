@@ -1,13 +1,12 @@
 /**
- * Draws a convolutional layer into the provided D3 selection.
- * @param canvasW - The width of the canvas in px
- * @param canvasH - The height of the canvas in px
- * @param numDepth - Depth of the conv layer (max 5)
- * @param numColumns - Width of the conv layer (max 25)
- * @param numRows - Height of the conv layer (max 25)
- * @param maxLayers - Max number of layers user can add (max 5)
- * @param layerGroup - The i th layer svg group
- * @param tensor
+ * Draws a 1-D flattened vector as a vertical stack of thin rectangles.
+ * Cell height adapts so the stack fits within `canvasH` even for large tensors,
+ * capping at `MAX_DEPTH * MAX_WIDTH * MAX_HEIGHT * 0.75` rendered rows.
+ * @param canvasW    - Canvas width in px
+ * @param canvasH    - Canvas height in px
+ * @param maxLayers  - Used to scale cell width
+ * @param layerGroup - Target SVG group
+ * @param tensor     - 2-D array `[1][n]` of flattened values
  */
 
 import { BaseType } from "d3";

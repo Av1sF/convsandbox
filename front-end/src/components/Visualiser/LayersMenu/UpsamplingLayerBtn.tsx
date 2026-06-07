@@ -1,12 +1,12 @@
 import { LayerSelectionBtnProps } from "@/utils/types";
 import { BsBoxArrowUpRight } from "react-icons/bs";
 
+/** SVG pill button that opens the upsampling-method selection modal. */
 export default function UpsamplingLayerBtn(props: LayerSelectionBtnProps) {
   const icon_x = props.x + 155;
   const icon_y = props.y + 16;
   return (
     <>
-      {/* Convolutivonal Layer Button */}
       <g style={{ cursor: "pointer" }} onClick={props.onClick}>
         {/* pill background */}
         <rect
@@ -43,7 +43,6 @@ export default function UpsamplingLayerBtn(props: LayerSelectionBtnProps) {
           fontSize="13"
           className="fill-text-muted font-secondary pointer-events-none"
         >
-          {/* add activation layer */}
           upsampling layer
         </text>
 

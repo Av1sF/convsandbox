@@ -1,5 +1,3 @@
-// ConvLayerModal.tsx
-// import ConvKernelModal from "./ConvKernelModal";
 import { ConvParams, LayerDims } from "@/utils/types";
 import ConvInitModal from "./ConvInitModal";
 import ConvKernelModal from "./ConvKernelModal";
@@ -11,6 +9,11 @@ interface ConvModalProps {
   prevDims?: LayerDims;
 }
 
+/**
+ * Router component: shows `ConvInitModal` for the very first layer (input
+ * dimensions only) and `ConvKernelModal` for every subsequent conv layer
+ * (kernel/filter/stride/padding configuration).
+ */
 const ConvLayerModal: React.FC<ConvModalProps> = ({
   onClose,
   onConfirm,

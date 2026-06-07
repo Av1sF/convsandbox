@@ -1,12 +1,14 @@
 import { ActivationType } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import React from "react";
+import Modal from "@/components/Modal";
 
 interface ActivationSelectModalProps {
   onClose: () => void;
   onSelect: (activation: ActivationType) => void;
 }
 
+/** Static — defined outside the component so the array is never recreated on re-render. */
 const ACTIVATIONS: {
   type: ActivationType;
   title: string;
@@ -94,13 +96,17 @@ const ACTIVATIONS: {
   },
 ];
 
+/** Presents a card for each supported activation function; calls `onSelect` with the chosen type. */
 const ActivationSelectModal: React.FC<ActivationSelectModalProps> = ({
   onClose,
   onSelect,
 }) => {
   return (
-    <div  className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-6 ">
-      <div className="bg-bg rounded-2xl shadow-xl w-full max-w-5xl p-8 animate-fadeIn relative max-h-[95vh] overflow-y-auto">
+    <Modal
+      onClose={onClose}
+      overlayClassName="bg-black/40 backdrop-blur-[1px] p-6"
+      className="shadow-xl w-full max-w-5xl p-8 animate-fadeIn max-h-[95vh] overflow-y-auto"
+    >
         <h2 className="text-2xl font-semibold text-text">
           Select Activation Function
         </h2>
@@ -135,8 +141,7 @@ const ActivationSelectModal: React.FC<ActivationSelectModalProps> = ({
             Cancel
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

@@ -1,13 +1,16 @@
 /**
- * Draws a convolutional layer into the provided D3 selection.
- * @param canvasW - The width of the canvas in px
- * @param canvasH - The height of the canvas in px
- * @param numDepth - Depth of the conv layer (max 5)
- * @param numColumns - Width of the conv layer (max 25)
- * @param numRows - Height of the conv layer (max 25)
- * @param maxLayers - Max number of layers user can add (max 5)
- * @param layerGroup - The i th layer svg group
- * @param tensor
+ * Draws a stacked conv/feature-map layer as overlapping depth-slices.
+ * On first render all rects and cell squares are created. On re-render
+ * (e.g. when an activation is overlaid) the group already has children so
+ * only per-cell opacity is updated — no new elements are appended.
+ * @param canvasW    - Canvas width in px
+ * @param canvasH    - Canvas height in px
+ * @param numDepth   - Number of channels / depth slices
+ * @param numColumns - Spatial width of each slice
+ * @param numRows    - Spatial height of each slice
+ * @param maxLayers  - Used to scale rect dimensions
+ * @param layerGroup - Target SVG group
+ * @param tensor     - Optional tensor whose values drive per-cell opacity
  */
 
 import { BaseType } from "d3";
@@ -129,9 +132,7 @@ export const drawStackedConvLayer = (
   
         if (is3DTensor(tensor)) {
           if (isNumberParam(tensor[0][row][col][j])) {
-            // negative opacity shit solution 
-            // what to do -> future map them to a RGB range 
-            // more than 1 -> another shade -> etc... 
+            // Normalise value from [MIN_WEIGHT, MAX_WEIGHT] to [0, 1] for CSS opacity; clamp outliers.
             randomOpacity = tensor[0][row][col][j];
             randomOpacity += Math.abs(MIN_WEIGHT)
             randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT
@@ -175,9 +176,7 @@ export const drawStackedConvLayer = (
           let randomOpacity = 0
           if (is3DTensor(tensor)) {
           if (isNumberParam(tensor[0][row][col][j])) {
-            // negative opacity shit solution 
-            // what to do -> future map them to a RGB range 
-            // more than 1 -> another shade -> etc... 
+            // Normalise value from [MIN_WEIGHT, MAX_WEIGHT] to [0, 1] for CSS opacity; clamp outliers.
             randomOpacity = tensor[0][row][col][j];
             randomOpacity += Math.abs(MIN_WEIGHT)
             randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT

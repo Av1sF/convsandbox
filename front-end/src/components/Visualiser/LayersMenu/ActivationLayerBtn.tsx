@@ -1,12 +1,12 @@
 import { LayerSelectionBtnProps } from "@/utils/types";
 import { LuChartSpline } from "react-icons/lu";
 
+/** SVG pill button that triggers the activation-function selection modal. */
 export default function ActivationLayerBtn(props: LayerSelectionBtnProps) {
   const icon_x = props.x + 144;
   const icon_y = props.y + 16;
   return (
     <>
-      {/* Convolutivonal Layer Button */}
       <g style={{ cursor: "pointer" }} onClick={props.onClick}>
         {/* pill background */}
         <rect

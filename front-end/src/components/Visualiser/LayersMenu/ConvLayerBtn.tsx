@@ -1,13 +1,17 @@
 import { ConvLayerSelectionBtnProps } from "@/utils/types";
 import { TfiLayersAlt } from "react-icons/tfi";
 
+/**
+ * SVG pill button for adding a conv layer.
+ * When `showLabel` is true (first layer only) the button reads "add input layer"
+ * and is slightly wider to fit the longer label; otherwise it shows "convolution layer".
+ */
 export default function ConvLayerBtn(props: ConvLayerSelectionBtnProps) {
   const icon_x = props.x + 197;
   const icon_y = props.y + 16;
   const short_icon_x = icon_x - 40;
   return (
     <>
-      {/* Convolutivonal Layer Button */}
       <g style={{ cursor: "pointer" }} onClick={props.onClick}>
         {/* pill background */}
         <rect
@@ -44,7 +48,6 @@ export default function ConvLayerBtn(props: ConvLayerSelectionBtnProps) {
           fontSize="13"
           className="fill-text-muted font-secondary pointer-events-none"
         >
-          {/* add convolutional layer */}
           {props.showLabel ? "add input layer" : "convolution layer"}
         </text>
 

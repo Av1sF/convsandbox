@@ -1,5 +1,10 @@
 import { ActivationType, ConvParams, UpsamplingParams, UpsamplingType, DownsamplingType, DownsamplingParams, convLayerDims, denseLayerDims} from "@/utils/types";
 
+/**
+ * Runtime type guards used by `useVisualizerD3` to narrow `Layer["params"]`
+ * (stored as a wide union) before passing values to draw/model functions that
+ * expect a concrete type.
+ */
 export function isConvParams(obj: any): obj is ConvParams {
   return (
     obj &&
