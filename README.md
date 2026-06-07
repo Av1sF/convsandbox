@@ -1,4 +1,4 @@
-# ConvSandbox
+# <img src="front-end/src/app/icon.svg" height="36" alt="ConvSandbox icon" style="vertical-align:middle"> ConvSandbox
 
 **An interactive 2D Convolutional Neural Network builder and visualiser for higher-education students.**
 
