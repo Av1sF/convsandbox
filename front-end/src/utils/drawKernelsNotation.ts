@@ -1,13 +1,17 @@
 /**
- * Draws a convolutional layer into the provided D3 selection.
- * @param canvasW - The width of the canvas in px
- * @param canvasH - The height of the canvas in px
- * @param numDepth - Depth of the conv layer (max 5)
- * @param numColumns - Width of the conv layer (max 25)
- * @param numRows - Height of the conv layer (max 25)
- * @param maxLayers - Max number of layers user can add (max 5)
- * @param layerGroup - The i th layer svg group
- * @param tensor
+ * Draws the kernel-notation diagram for the formula panel in the conv animation modal.
+ * Renders one tile per input channel, with `α[...·...+β]` bracket notation, the
+ * bias circle, and `·` / `+` operators between tiles.
+ * @param canvasW    - Formula panel width in px
+ * @param canvasH    - Formula panel height in px
+ * @param maxLayers  - Used to scale tile dimensions
+ * @param startX     - X origin for the first tile
+ * @param startY     - Y origin for the first tile
+ * @param layerGroup - Target SVG group (one per filter, so ids never collide)
+ * @param tensor     - 4-D kernel tensor `[filterSize, filterSize, inChannels, numFilters]`
+ * @param biasColor  - Fill colour for the bias circle
+ * @param biasValue  - Scalar bias value displayed inside the circle
+ * @param filternum  - Zero-based filter index, used for the β subscript label
  */
 
 import { BaseType } from "d3";
@@ -212,9 +216,7 @@ export const drawKernelsNotations = (
         
               if (is3DTensor(tensor)) {
                 if (isNumberParam(tensor[row][col][f][j])) {
-                  // negative opacity shit solution 
-                  // what to do -> future map them to a RGB range 
-                  // more than 1 -> another shade -> etc... 
+                  // Normalise value from [MIN_WEIGHT, MAX_WEIGHT] to [0, 1] for CSS opacity; clamp outliers.
                   randomOpacity = tensor[row][col][f][j];
                   randomOpacity += Math.abs(MIN_WEIGHT)
                   randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT

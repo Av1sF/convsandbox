@@ -16,6 +16,7 @@ export interface UpsamplingSelectModalProps {
   prevDims: convLayerDims; // previous layer dimensions
 }
 
+/** Static — defined outside the component so the array is never recreated on re-render. */
 const UPSAMPLING_METHODS: {
   type: UpsamplingType;
   title: string;
@@ -52,6 +53,11 @@ const UPSAMPLING_METHODS: {
   },
 ];
 
+/**
+ * Config modal for adding an upsampling layer; lets the user pick an
+ * interpolation method and an integer scale factor, then previews the
+ * resulting output dimensions before confirming.
+ */
 const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
   onClose,
   onConfirm,
@@ -75,7 +81,8 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
     outputDims.width <= MAX_WIDTH &&
     outputDims.height <= MAX_HEIGHT &&
     outputDims.depth <= MAX_DEPTH &&
-    1 < scale && 
+    // Scale must be strictly > 1; a factor of 1 would be a no-op.
+    1 < scale &&
     scale < MAX_SCALE_FACTOR;
 
   return (

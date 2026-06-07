@@ -9,6 +9,13 @@ interface Props {
   tensorLayers: dummyModelOutputs[];
 }
 
+/**
+ * Displays a live trainable-parameter count for the current model and,
+ * on click, opens a modal that shows the per-layer breakdown and formulas.
+ *
+ * Only conv and dense layers contribute trainable parameters; pooling and
+ * activation layers are counted as zero and listed for completeness.
+ */
 export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [totalParams, setTotalParams] = useState<number>(0);
@@ -49,6 +56,8 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
 
         const convNumParams =
           (filterSize * filterSize * inChannels + 1) * numFilters;
+
+        // For explaination modal display 
         setParamCalculation((prev) => [
           ...prev,
           {
@@ -57,7 +66,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
             calculation: `\\( (${filterSize}\\times ${filterSize} \\times ${inChannels} + 1) \\times ${numFilters} = ${convNumParams}\\)`,
           },
         ]);
-        // setTotalParams(totalParams + convNumParams);
+      
         totalp += convNumParams;
       } else if (layerType == "add-dense-layer") {
         // number of output units
@@ -67,7 +76,8 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
          const denseTensorLayer = tensorLayers[i] as dummyModelDense;
         if (!denseTensorLayer?.flatten) continue;
         const inputNeurons = denseTensorLayer.flatten.shape[1];
-
+        
+        // For explaination modal 
         if (inputNeurons) {
           const denseNumParams = outputNeurons * inputNeurons + outputNeurons;
           const neuronWording =
@@ -84,6 +94,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           totalp += denseNumParams;
         }
       } else if (layerType == "add-downsampling") {
+        // No parameters in down-sampling 
         setParamCalculation((prev) => [
           ...prev,
           {
@@ -93,6 +104,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           },
         ]);
       } else if (layerType == "add-upsampling") {
+        // No parameters in up-sampling
         setParamCalculation((prev) => [
           ...prev,
           {
@@ -109,16 +121,17 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
 
   return (
     <>
+    {/* Dynamic Parameter Counter */}
       <p className="pl-4">
         <span
           className="cursor-pointer text-text hover:text-accent"
-          // style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
           onClick={() => setIsModalOpen(true)}
         >
           Number of parameters: {totalParams}
         </span>
       </p>
 
+    {/* Explaination Modal */}
       {isModalOpen && (
         <Modal
           onClose={() => setIsModalOpen(false)}

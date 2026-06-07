@@ -1,4 +1,3 @@
-// ConvKernelModal.tsx
 import { useState, useEffect } from "react";
 import {
   ConvParams,
@@ -20,6 +19,11 @@ interface Props {
   prevDims: LayerDims;
 }
 
+/**
+ * Config modal for adding a convolutional layer to an existing model.
+ * Shows the standard output-dimension formula live as the user adjusts
+ * filter count, kernel size, stride, and padding.
+ */
 const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
   const [numFilters, setNumFilters] = useState(1);
   const [filterSize, setFilterSize] = useState(2);

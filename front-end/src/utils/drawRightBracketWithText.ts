@@ -8,6 +8,12 @@ interface BracketOptions {
   verticalText?: boolean;  // New: enable vertical orientation
 }
 
+/**
+ * Draws a right-facing square bracket `]` and an optional label alongside it.
+ * When `verticalText` is true the label is rotated 90° using `writing-mode: tb`
+ * (the SVG `textLength` / `rotate` approach was avoided because it misaligns
+ * in WebKit at small font sizes).
+ */
 export function drawRightBracketWithText(
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined> |  d3.Selection<SVGGElement, unknown, null, undefined>,
   options: BracketOptions

@@ -8,6 +8,7 @@ interface DenseLayerModalProps {
 
 const MAX_NEURONS = 10;
 
+/** Config modal for adding a fully-connected dense layer; collects the neuron count. */
 const DenseLayerModal: React.FC<DenseLayerModalProps> = ({
   onClose,
   onConfirm,
@@ -34,7 +35,7 @@ const DenseLayerModal: React.FC<DenseLayerModalProps> = ({
           Specify the number of neurons for this dense layer.
         </p>
 
-        {/* === Form === */}
+        {/*  Form  */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="flex flex-col text-sm text-text-muted">
             Number of Neurons
@@ -53,14 +54,14 @@ const DenseLayerModal: React.FC<DenseLayerModalProps> = ({
             </span>
           </label>
 
-          {/* === Error Message === */}
+          {/*  Error Message  */}
           {neurons > MAX_NEURONS && (
             <p className="text-accent-warm text-sm">
               You cannot exceed {MAX_NEURONS} neurons.
             </p>
           )}
 
-          {/* === Footer Buttons === */}
+          {/*  Footer Buttons  */}
           <div className="flex justify-end gap-2 pt-4">
             <button
               type="button"

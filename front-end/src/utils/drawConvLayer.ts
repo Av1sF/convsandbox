@@ -1,13 +1,12 @@
 /**
- * Draws a convolutional layer into the provided D3 selection.
- * @param canvasW - The width of the canvas in px
- * @param canvasH - The height of the canvas in px
- * @param numDepth - Depth of the conv layer (max 5)
- * @param numColumns - Width of the conv layer (max 25)
- * @param numRows - Height of the conv layer (max 25)
- * @param maxLayers - Max number of layers user can add (max 5)
- * @param layerGroup - The i th layer svg group
- * @param tensor
+ * Draws a conv/feature-map layer as vertically stacked channel slices for use
+ * in the animation modals (padded input, pre-activation output, activation output).
+ * Slices are stacked vertically with a gap that shrinks as row count grows.
+ * @param canvasW    - Canvas width in px
+ * @param canvasH    - Canvas height in px
+ * @param maxLayers  - Used to scale rect dimensions
+ * @param layerGroup - Target SVG group
+ * @param tensor     - Tensor whose values drive per-cell opacity
  */
 
 import { BaseType } from "d3";
@@ -116,9 +115,7 @@ export const drawConvLayer = (
 
         if (is3DTensor(tensor)) {
           if (isNumberParam(tensor[0][row][col][j])) {
-            // negative opacity shit solution
-            // what to do -> future map them to a RGB range
-            // more than 1 -> another shade -> etc...
+            // Normalise value from [MIN_WEIGHT, MAX_WEIGHT] to [0, 1] for CSS opacity; clamp outliers.
             randomOpacity = tensor[0][row][col][j];
             
             randomOpacity += Math.abs(MIN_WEIGHT);

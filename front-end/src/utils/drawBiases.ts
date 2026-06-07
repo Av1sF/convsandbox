@@ -1,10 +1,13 @@
 /**
- * Draws a dense (fully connected) layer into the provided D3 selection.
- * @param canvasW - Width of the canvas in px
- * @param canvasH - Height of the canvas in px
- * @param numNeurons - Number of neurons in this dense layer (max 10)
- * @param maxLayers - Max number of layers user can add (max 5)
- * @param layerGroup - The i-th layer SVG group
+ * Draws bias values as circles into the provided D3 layer group.
+ * If circles already exist in the group (i.e. an activation is being overlaid)
+ * only the opacity of existing circles is updated — no new elements are created.
+ * @param canvasW    - Canvas width in px
+ * @param canvasH    - Canvas height in px
+ * @param numNeurons - Number of bias neurons (one per filter)
+ * @param maxLayers  - Max structural layers; used to scale circle size
+ * @param layerGroup - The target SVG group
+ * @param tensor     - Bias tensor values used to set per-neuron opacity
  */
 
 import * as d3 from "d3";

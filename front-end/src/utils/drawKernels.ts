@@ -1,13 +1,13 @@
 /**
- * Draws a convolutional layer into the provided D3 selection.
- * @param canvasW - The width of the canvas in px
- * @param canvasH - The height of the canvas in px
- * @param numDepth - Depth of the conv layer (max 5)
- * @param numColumns - Width of the conv layer (max 25)
- * @param numRows - Height of the conv layer (max 25)
- * @param maxLayers - Max number of layers user can add (max 5)
- * @param layerGroup - The i th layer svg group
- * @param tensor
+ * Draws all filter/kernel grids for a convolutional layer.
+ * Returns a `LayerConnections[]` with one entry per filter, each containing
+ * left and right midpoints per input channel — used to draw the bezier
+ * connection lines in the conv animation modal.
+ * @param canvasW    - Canvas width in px
+ * @param canvasH    - Canvas height in px
+ * @param maxLayers  - Used to scale tile dimensions
+ * @param layerGroup - Target SVG group
+ * @param tensor     - 4-D kernel tensor `[filterSize, filterSize, inChannels, numFilters]`
  */
 
 import { BaseType } from "d3";
@@ -121,9 +121,7 @@ export const drawKernels = (
         
               if (is3DTensor(tensor)) {
                 if (isNumberParam(tensor[row][col][j][f])) {
-                  // negative opacity shit solution 
-                  // what to do -> future map them to a RGB range 
-                  // more than 1 -> another shade -> etc... 
+                  // Normalise value from [MIN_WEIGHT, MAX_WEIGHT] to [0, 1] for CSS opacity; clamp outliers.
                   randomOpacity = tensor[row][col][j][f];
                   randomOpacity += Math.abs(MIN_WEIGHT)
                   randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT

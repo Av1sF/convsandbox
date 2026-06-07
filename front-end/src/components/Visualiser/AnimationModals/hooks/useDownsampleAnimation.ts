@@ -14,6 +14,25 @@ import { drawConvNotation } from "@/utils/drawConvNotation";
 import { formatDimsFromTensorShape } from "@/utils/formatDimsFromTensorShape";
 import { clearAnimations } from "@/utils/d3Cleanup";
 
+/**
+ * Renders a downsampling (pooling) animation into the provided SVG ref.
+ *
+ * The animation has two distinct modes selected by `poolingType`:
+ * - **Non-global pooling** — plays a sliding-window animation that highlights
+ *   each filter region in the input and the corresponding pooled output cell.
+ * - **Global pooling** — renders each channel's full grid alongside a single
+ *   pooled scalar, connected by a line, to show channel-wise reduction.
+ *
+ * `poolingType` is resolved from the tensor on first render and surfaced back
+ * to the parent via `setPoolingType` so the modal can adjust its layout before
+ * the SVG dimensions are committed.
+ *
+ * @param svgRef         - Ref to the modal SVG element where the animation is rendered.
+ * @param tensorLayers   - Ordered list of all layer tensors from the dummy model.
+ * @param layerIndex     - Two-element array: [downsample layer index, preceding layer index].
+ * @param poolingType    - Current pooling variant; `undefined` until resolved on first render.
+ * @param setPoolingType - Setter used to surface the resolved pooling type to the parent modal.
+ */
 export function useDownsampleAnimation(
   svgRef: RefObject<SVGSVGElement | null>,
   tensorLayers: dummyModelOutputs[],
@@ -47,6 +66,7 @@ export function useDownsampleAnimation(
       const inputOut = inputConv.output.arraySync();
       const poolingOut = poolingConv.output.arraySync();
 
+      // Non-Global animation 
       if (poolingType && !poolingType.includes("Global")) {
         const inputGroup = root.append("g").attr("class", "padded-input").attr("transform", "translate(100, 0)");
         const inputLines = drawConvLayer(550, 650, MAXLAYERS, inputGroup, inputOut);
@@ -88,6 +108,7 @@ export function useDownsampleAnimation(
           }
         }
 
+        // Sliding window animation
         for (let i = 0; i < inputConvShape[1]; i += stride) {
           currOutputj = 0;
           for (let j = 0; j < inputConvShape[1]; j += stride) {
@@ -159,11 +180,14 @@ export function useDownsampleAnimation(
         }
 
       } else if (poolingType && poolingType.includes("Global")) {
+        // Global animation 
+
         const batchWindowDelay = 0;
 
         const inputGroup = root.append("g").attr("class", "input").attr("transform", "translate(200, -90)");
         const outputGroup = root.append("g").attr("class", "output").attr("transform", "translate(450, -90)");
-
+        
+        // Reformat filter tensor into 2D array 
         for (let c = 0; c < inputConvShape[3]; c++) {
           const filteredInput: number[][] = [];
           for (let dy = 0; dy < inputConvShape[1]; dy++) {

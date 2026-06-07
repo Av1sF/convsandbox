@@ -7,6 +7,10 @@ interface Props {
   onConfirm: (params: ConvParams) => void;
 }
 
+/**
+ * Config modal for the very first layer — sets the raw input dimensions
+ * (width × height × depth) before any convolution is applied.
+ */
 const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
   const [size, setSize] = useState(10);
   const [depth, setDepth] = useState(3);
@@ -21,15 +25,17 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
     e.preventDefault();
     if (!isValid) return;
 
+    // Kernel-related fields are zeroed — the first layer is the raw input,
+    // so no convolution operation is performed on it.
     onConfirm({
       width: size,
       height: size,
       depth: depth,
       stride: 0,
-      numFilters: 0, 
-      padding: 0, 
+      numFilters: 0,
+      padding: 0,
       filterSize: 0,
-      inChannels: 0, 
+      inChannels: 0,
     });
   };
 

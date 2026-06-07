@@ -7,6 +7,7 @@ export interface LayerSelectionBtnProps {
 }
 
 export interface ConvLayerSelectionBtnProps extends LayerSelectionBtnProps {
+  /** When `true` the button shows "add input layer" (first layer); otherwise "convolution layer". */
   showLabel: boolean;
 }
 

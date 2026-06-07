@@ -10,6 +10,14 @@ interface Props {
   tensorLayers: dummyModelOutputs[];
 }
 
+/**
+ * Displays a live receptive-field size for the current model and,
+ * on click, opens a modal with the derivation formula and per-layer breakdown.
+ *
+ * Only rendered when every non-input layer is a conv or activation layer —
+ * pooling or dense layers invalidate the standard RF formula, so the counter
+ * is hidden entirely rather than showing a misleading value.
+ */
 export const ReceptiveFieldCount: React.FC<Props> = ({
   layers,
   tensorLayers,
@@ -63,6 +71,7 @@ export const ReceptiveFieldCount: React.FC<Props> = ({
 
   return (
     <>
+      {/* Live counter */}
       {valid && (
         <p className="pl-4">
           <span
@@ -75,6 +84,7 @@ export const ReceptiveFieldCount: React.FC<Props> = ({
         </p>
       )}
 
+      {/* Explaination Modal */}
       {isModalOpen && (
         <Modal
           onClose={() => setIsModalOpen(false)}

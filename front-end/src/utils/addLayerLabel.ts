@@ -1,5 +1,10 @@
 import * as d3 from "d3";
 
+/**
+ * Appends a centred text label to a D3 layer group.
+ * The element id is derived from the label text (spaces → dashes) so callers
+ * can later select it by id to reposition or remove it.
+ */
 export function addLayerLabel(
   x: number,
   y: number,

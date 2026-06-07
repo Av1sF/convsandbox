@@ -42,7 +42,8 @@ export interface ConvParams {
 
 export type MidPoint = { x: number; y: number };
 
-export type LayerConnections = [MidPoint[], MidPoint[]]; // [leftPoints, rightPoints]
+/** Pair of midpoint arrays `[leftEdge[], rightEdge[]]` used to draw bezier connections between layers. */
+export type LayerConnections = [MidPoint[], MidPoint[]];
 
 export type ActivationType = "Tanh" | "Sigmoid" | "ReLU" | "Leaky ReLU";
 

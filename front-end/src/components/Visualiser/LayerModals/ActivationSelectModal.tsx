@@ -8,6 +8,7 @@ interface ActivationSelectModalProps {
   onSelect: (activation: ActivationType) => void;
 }
 
+/** Static — defined outside the component so the array is never recreated on re-render. */
 const ACTIVATIONS: {
   type: ActivationType;
   title: string;
@@ -95,6 +96,7 @@ const ACTIVATIONS: {
   },
 ];
 
+/** Presents a card for each supported activation function; calls `onSelect` with the chosen type. */
 const ActivationSelectModal: React.FC<ActivationSelectModalProps> = ({
   onClose,
   onSelect,

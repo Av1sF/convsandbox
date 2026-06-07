@@ -22,6 +22,15 @@ import { convLayerDims, MAXLAYERS } from "@/utils/types";
 const W = 1183;
 const H = 500;
 
+/**
+ * Root visualiser component. Composes the four hooks into a single view:
+ * - `useLayerState` / `useModalState` — all state
+ * - `useLayerHandlers` — event callbacks wired to state mutations
+ * - `useVisualizerD3` — imperative D3 rendering, runs as a side-effect
+ *
+ * Renders the SVG canvas, the floating layer-add menu, the parameter/receptive-field
+ * counters, all layer-config modals, and all animation modals.
+ */
 export default function Visualiser() {
   const svgRef = useRef<SVGSVGElement>(null!);
   const layerState = useLayerState();
@@ -66,6 +75,10 @@ export default function Visualiser() {
           />
         )}
 
+        {/* At max structural layers only activation layers can still be added —
+            the full menu is replaced by a compact + button wired directly to that action.
+            The x offset shifts slightly when the last layer already has an activation
+            to avoid overlapping its label. */}
         {numLayers === MAXLAYERS && (
           <VisualiserSmallPlusBtn
             x={

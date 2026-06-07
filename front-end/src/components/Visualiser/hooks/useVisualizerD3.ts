@@ -36,9 +36,34 @@ import {
 import { LayerStateReturn } from "./useLayerState";
 import { ModalStateReturn } from "./useModalState";
 
+/** Fixed SVG viewport dimensions shared by every layer group. */
 const W = 1183;
 const H = 500;
 
+/**
+ * Core D3 rendering hook for the visualiser canvas.
+ *
+ * Runs once per layer addition (keyed on `action` and `layers`). For each new
+ * layer it:
+ * 1. Computes the x-offset for the new layer group based on its position.
+ * 2. Calls the appropriate `draw*` utility to render the layer onto the SVG.
+ * 3. Runs the corresponding dummy-model `set*Layer` function to produce the
+ *    tensor output used by animation modals.
+ * 4. Updates `allowedLayerTypes`, `menuAnnotation`, and `prevLayerDims` so the
+ *    UI stays consistent with what can validly follow the layer just added.
+ * 5. Registers an `AnimationTrigger` for layers that have an animation modal
+ *    (conv+activation, downsample, dense).
+ *
+ * Activation layers are a special case: they don't create a new `<g>` group —
+ * they re-use the existing group of the structural layer they follow and redraw
+ * its content with the activated output values.
+ *
+ * @param layerState  - Full layer state and setters from `useLayerState`.
+ * @param modalState  - Modal state from `useModalState`; the effect is gated on
+ *                      `allLayerModalsClosed` so it never runs while a config
+ *                      modal is open.
+ * @param svgRef      - Ref to the root SVG element that contains `.d3-root`.
+ */
 export function useVisualizerD3(
   layerState: LayerStateReturn,
   modalState: ModalStateReturn,
@@ -69,13 +94,17 @@ export function useVisualizerD3(
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    // Wait until the config modal has been dismissed so the user's choices are
+    // committed to `layers` before we attempt to draw.
     if (!action || !allLayerModalsClosed || !started || layers.length === 0) return;
 
     const svg = d3.select(svgRef.current);
     const root = svg.select<SVGGElement>(".d3-root");
 
     const latestLayer = layers[layers.length - 1];
+    // Each structural layer occupies an equal horizontal slice of the canvas.
     const layerxOffset = (W / MAXLAYERS) * (numLayers - 1);
+    // Label x is centred within a single slice.
     const layerLabelx = W / (2 * MAXLAYERS);
 
     const existingGroup = root.select(`.layer-${Math.min(numLayers, MAXLAYERS) - 1}`);
@@ -85,9 +114,10 @@ export function useVisualizerD3(
     let newTensorLayer: dummyModelOutputs | undefined;
 
     if (!existingGroup.empty()) {
+      // Activation layers don't create a new <g> — they overlay the existing
+      // structural-layer group so the activated output replaces the pre-activation one.
       layerGroup = existingGroup;
 
-      // Activation applied to an existing group
       if (
         latestLayer.type === "add-activation" &&
         isActivationType(latestLayer.params) &&
@@ -113,6 +143,9 @@ export function useVisualizerD3(
           );
 
           if (layers[layers.length - 2].type === "add-conv-layer") {
+            // Conv animation needs indices for [activation, conv, previous-conv/input].
+            // Trigger x-bounds are the right edge of the incoming connection and the
+            // left edge of the outgoing connection for this layer group.
             setAnimationTriggers((prev) => [
               ...prev,
               {
@@ -155,6 +188,8 @@ export function useVisualizerD3(
           setTensorLayers(updatedTensorLayers);
         }
 
+        // Pooling/upsampling labels sit near the bottom of their group; all
+        // other activation labels sit near the top to avoid overlapping the canvas.
         const yText =
           layers[layers.length - 2].type === "add-downsampling" ||
           layers[layers.length - 2].type === "add-upsampling"
@@ -208,6 +243,8 @@ export function useVisualizerD3(
         setPrevLayerDims({ width: p.width, height: p.height, depth: p.depth });
 
         if (numLayers === 1) {
+          // The first conv layer is treated as the input layer — no kernel
+          // operation is applied, just raw pixel values are rendered.
           setAllowedLayerTypes({
             ...allowedLayerTypes,
             conv: true,
@@ -293,6 +330,8 @@ export function useVisualizerD3(
 
         setPrevLayerDims({ width: p.outputDims.width, height: p.outputDims.height, depth: p.outputDims.depth });
 
+        // A 1×1 spatial output means global pooling collapsed all spatial info —
+        // no further convolutions are meaningful, but a dense head still is.
         const isGlobal = p.outputDims.width === 1 && p.outputDims.height === 1;
         setAllowedLayerTypes({
           conv: !isGlobal,
@@ -342,12 +381,15 @@ export function useVisualizerD3(
         const newConnections = [...allLayerConnections, layerConnections];
         setAllLayerConnections(newConnections);
 
+        // First layer has no preceding group to connect to.
         if (newConnections.length > 1) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           drawLayerConnections(root as unknown as d3.Selection<d3.BaseType, unknown, null, undefined>, newConnections);
         }
 
-        // Register animation triggers that need the final connection x-coords
+        // Animation triggers that depend on the new connection's x-coords must
+        // be registered here, after `newConnections` is finalised, rather than
+        // inside the layer-type branches above where `layerConnections` is set.
         if (latestLayer.type === "add-downsampling") {
           const triggerX1 = newConnections[newConnections.length - 2][1][0].x;
           const triggerX2 = layerConnections[0][0].x;
@@ -367,6 +409,9 @@ export function useVisualizerD3(
         if (latestLayer.type === "add-dense-layer") {
           const prevType = layers[layers.length - 2]?.type;
           const prevPrevType = layers[layers.length - 3]?.type;
+          // Only register the dense animation trigger when the layer immediately
+          // before the dense is a pooling layer, or two layers back is a conv —
+          // those are the two topologies the dense animation modal supports.
           if (prevType === "add-downsampling" || prevPrevType === "add-conv-layer") {
             const triggerX1 = newConnections[newConnections.length - 2][1][0].x;
             const triggerX2 = layerConnections[0][0].x;

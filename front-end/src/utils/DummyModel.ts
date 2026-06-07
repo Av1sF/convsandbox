@@ -25,6 +25,7 @@ if (typeof window !== "undefined") {
   void tf.setBackend("cpu");
 }
 
+/** Creates a random input tensor with the given spatial dimensions. */
 export function setInputLayer(params: convLayerDims): dummyModelInput {
   return {
     kind: "input",
@@ -41,6 +42,11 @@ function random3DTensor(
   return tf.randomUniform([1, height, width, depth], -1.25, 1.25);
 }
 
+/**
+ * Applies zero-padding (if any) then a conv2d layer with He-normal initialisation
+ * to `prevTensor`, returning the padded input, kernel weights, bias, and output
+ * all in one object so animation modals can read them without extra forward passes.
+ */
 export function setConvLayer(
   params: ConvParams,
   prevTensor: tf.Tensor
@@ -85,6 +91,11 @@ export function setConvLayer(
   // return output instanceof tf.Tensor ? output : random3DTensor(params.height, params.width, params.depth);
 }
 
+/**
+ * Flattens `prevLayer` if it is not already 1-D, then applies a dense layer.
+ * The flatten tensor is stored so the animation modal can visualise the
+ * flattening step separately from the fully-connected output.
+ */
 export function setDenseLayer(
   params: number,
   prevLayer: tf.Tensor
@@ -111,6 +122,11 @@ export function setDenseLayer(
 
 }
 
+/**
+ * Applies the chosen activation function element-wise to `prevLayer`.
+ * `neurons` / `dims` are passed through so callers that need the original
+ * layer shape (e.g. for label text) don't have to look it up separately.
+ */
 export function setActivationLayer(
   params: ActivationType,
   prevLayer: tf.Tensor,
@@ -155,6 +171,7 @@ export function setActivationLayer(
   }
 }
 
+/** Upsamples `prevLayer` by `params.scaleFactor` using the chosen interpolation method. */
 export function setUpsamplingLayer(
   params: UpsamplingParams,
   prevLayer: tf.Tensor
@@ -175,6 +192,7 @@ export function setUpsamplingLayer(
   };
 }
 
+/** Applies the chosen pooling operation (max, average, global max, global average) to `prevLayer`. */
 export function setDownsamplingLayer(
   params: DownsamplingParams,
   prevLayer: tf.Tensor

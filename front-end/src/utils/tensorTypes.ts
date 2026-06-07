@@ -9,6 +9,11 @@ export type LayerKind =
   | "upsample"
   | "downsample";
 
+/**
+ * Every dummy-model layer stores at minimum its output tensor.
+ * Specialised interfaces add the extra tensors/scalars each layer type exposes
+ * to the animation modals (e.g. `kernel`, `bias`, `padded`, `flatten`).
+ */
 interface baseDummyModelParam {
   output: Tensor;
 }

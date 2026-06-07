@@ -19,6 +19,18 @@ import { drawConvNotation } from "@/utils/drawConvNotation";
 import { formatDimsFromTensorShape } from "@/utils/formatDimsFromTensorShape";
 import { clearAnimations } from "@/utils/d3Cleanup";
 
+/**
+ * Renders and animates a step-by-step convolution operation into the provided SVG ref.
+ *
+ * Draws five visual groups (padded input, filters/kernels, biases, pre-activation
+ * output, activation output) and then plays a sliding-window animation over every
+ * output position, one filter at a time, showing how the dot-product and bias-add
+ * produce each output value.
+ *
+ * @param svgRef       - Ref to the modal SVG element where the animation is rendered.
+ * @param tensorLayers - Ordered list of all layer tensors from the dummy model.
+ * @param layerIndex   - Two-element array: [activation layer index, conv layer index].
+ */
 export function useConvAnimation(
   svgRef: RefObject<SVGSVGElement | null>,
   tensorLayers: dummyModelOutputs[],
@@ -40,12 +52,14 @@ export function useConvAnimation(
   useEffect(() => {
     const node = svgRef.current;
     let didInit = false;
+
+    // Ensure only initalise animation once 
     if (!didInit) {
       didInit = true;
       const root = d3.select(svgRef.current);
       root.selectAll("*").remove();
 
-      // DRAW PADDED INPUT
+      // DRAW PADDED INPUT LAYER (Left most)
       const paddedGroup = root
         .append("g")
         .attr("class", "padded-input")
@@ -62,6 +76,7 @@ export function useConvAnimation(
         .attr("text-anchor", "left").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333")
         .text("Input Layer");
 
+      // Dimensions of input layer 
       paddedGroup.append("text")
         .attr("x", paddedGroup.select(`#rect-0`).attr("x") + 0.5 * +paddedGroup.select(`#rect-0`).attr("width"))
         .attr("y", 600)
@@ -81,6 +96,7 @@ export function useConvAnimation(
         .append("xhtml:div").style("position", "fixed").style("color", "#333").style("opacity", "1")
         .html("<span>\\(X\\)</span>");
 
+      // Add math notation for each layer
       for (let i = 0; i < (inputConv.padded.shape[3] as number); i++) {
         paddedGroup.append("foreignObject")
           .attr("x", parseInt(paddedGroup.select(`#rect-${i}`).attr("x")) - 20)
@@ -90,6 +106,7 @@ export function useConvAnimation(
           .html(`<span>\\(X_{${i + 1}}\\)</span>`);
       }
 
+      // Draw ' ]  Channel ' pointer 
       const bracketX =
         parseInt(paddedGroup.select(`#rect-${(inputConv.padded.shape[3] as number) - 1}`).attr("x")) +
         6 +
@@ -103,7 +120,7 @@ export function useConvAnimation(
         thickness: 1, text: "Channel", textXOffset: 10, verticalText: true,
       });
 
-      // DRAW KERNEL
+      // DRAW FILTER / CHANNELS 
       const kernelGroup = root.append("g").attr("class", "kernel").attr("transform", "translate(20, 0)");
 
       const kernelLines = drawKernels(
@@ -116,6 +133,7 @@ export function useConvAnimation(
         (parseInt(root.select(`#k-${0}-${0}`).attr("x")) +
           parseInt(root.select(`#k-${inputConv.dims.depth - 1}-${0}`).attr("x"))) / 2;
 
+      // Draw kernel titles 
       kernelGroup.append("text").attr("x", kernelLabelX).attr("y", 500 * 0.05).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333").text("Filters");
       kernelGroup.append("text").attr("x", kernelLabelX).attr("y", 600).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333")
         .text(`${formatDimsFromTensorShape((tensorLayers[layerIndex[1]] as dummyModelConv).kernel.shape as number[])}`);
@@ -129,6 +147,7 @@ export function useConvAnimation(
         .append("xhtml:div").style("position", "fixed").style("color", "#333").style("opacity", "1").style("font-weight", "bold")
         .html(`<span>\\(\\Omega\\)</span>`);
 
+      // Draw math notation vertically for each filter 
       for (let i = 0; i < inputConv.dims.depth; i++) {
         kernelGroup.append("foreignObject")
           .attr("x", parseInt(root.select(`#k-${i}-${0}`).attr("x")) + 0.5 * parseInt(root.select(`#k-${i}-${0}`).attr("width")) - 5)
@@ -138,6 +157,7 @@ export function useConvAnimation(
           .html(`<span>\\(F_{${i + 1}}\\)</span>`);
       }
 
+      // Draw ' ] Kernel ' pointer 
       const kernelBracketX =
         parseInt(root.select(`#k-${inputConv.dims.depth - 1}-${(inputConv.padded.shape[3] as number) - 1}`).attr("x")) +
         6 +
@@ -151,20 +171,21 @@ export function useConvAnimation(
         thickness: 1, text: "Kernel", textXOffset: 10, verticalText: true,
       });
 
-      // DRAW BIAS
+      // DRAW BIASES 
       const biasGroup = root.append("g").attr("class", "biases").attr("transform", "translate(550, 0)");
       const biasArray = (tensorLayers[layerIndex[1]] as dummyModelConv).bias.arraySync() as number[];
+      const biasLabelx = parseInt(root.select(`#neuron-0`).attr("cx"));
 
       const biasLines = drawBiases(1200, 650, biasArray.length, MAXLAYERS, biasGroup,
         (tensorLayers[layerIndex[1]] as dummyModelConv).bias.arraySync()
       );
 
-      const biasLabelx = parseInt(root.select(`#neuron-0`).attr("cx"));
-
+      // Numbers of biases text 
       biasGroup.append("text").attr("x", biasLabelx).attr("y", 500 * 0.05).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333").text("Bias");
       biasGroup.append("text").attr("x", biasLabelx).attr("y", 600).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333")
         .text(`${biasArray.length} ${biasArray.length > 1 ? "biases" : "bias"}`);
 
+      // Bias math notation 
       biasGroup.append("foreignObject")
         .attr("x", biasLabelx - 7).attr("y", parseInt(root.select(`#neuron-0`).attr("cy")) - 45)
         .attr("width", 20).attr("height", 20).attr("font-size", 14)
@@ -183,9 +204,9 @@ export function useConvAnimation(
       // DRAW OUTPUT
       const outputGroup = root.append("g").attr("class", "output").attr("transform", "translate(700, 0)");
       const outputLines = drawConvLayer(550, 650, MAXLAYERS, outputGroup, tensorLayers[layerIndex[1]].output.arraySync());
-
       const outputLabelX = parseInt(outputGroup.select(`#rect-0`).attr("x")) + parseInt(outputGroup.select(`#rect-0`).attr("width")) * 0.5;
 
+      // Output heading and equation 
       outputGroup.append("text").attr("x", outputLabelX).attr("y", 500 * 0.05).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333").text("Pre-Activation");
       outputGroup.append("foreignObject")
         .attr("x", outputLabelX - 27).attr("y", parseInt(outputGroup.select(`#rect-0`).attr("y")) - 20)
@@ -195,10 +216,13 @@ export function useConvAnimation(
 
       // DRAW ACTIVATION OUTPUT
       const activationGroup = root.append("g").attr("class", "activation-output").attr("transform", "translate(820, 0)");
+
+      // Draw output layers 
       const activationLines = drawConvLayer(550, 650, MAXLAYERS, activationGroup,
         (tensorLayers[layerIndex[0]] as dummyModelActivation).output.arraySync()
       );
 
+      // Math notation for output layers 
       for (let i = 0; i < inputConv.dims.depth; i++) {
         activationGroup.append("foreignObject")
           .attr("x", parseInt(activationGroup.select(`#rect-${i}`).attr("x")) + parseInt(activationGroup.select(`#rect-${i}`).attr("width")) + 10)
@@ -209,26 +233,28 @@ export function useConvAnimation(
       }
 
       const actiLabelX = parseInt(activationGroup.select(`#rect-0`).attr("x")) + parseInt(outputGroup.select(`#rect-0`).attr("width")) * 0.5;
-
-      activationGroup.append("text").attr("x", actiLabelX).attr("y", 500 * 0.05).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333").text("Activation");
-      activationGroup.append("text").attr("x", actiLabelX).attr("y", 600).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333")
-        .text(`${formatDimsFromTensorShape(outputConvShape)}`);
-      activationGroup.append("text").attr("x", actiLabelX).attr("y", 500 * 0.05 + 20).attr("text-anchor", "middle").attr("font-size", 10).attr("opacity", 0.8).attr("fill", "#333")
-        .text(`${(tensorLayers[layerIndex[0]] as dummyModelActivation).type}`);
-
-      activationGroup.append("foreignObject")
-        .attr("x", actiLabelX - 35).attr("y", parseInt(activationGroup.select(`#rect-0`).attr("y")) - 20)
-        .attr("width", 70).attr("height", 20).attr("font-size", 10)
-        .append("xhtml:div").style("position", "fixed").style("color", "#333").style("opacity", "1")
-        .html(`<span>\\(\\alpha(\\Omega \\cdot X + B\\))</span>`);
-
+      
       activationGroup.append("foreignObject")
         .attr("x", actiLabelX - 7).attr("y", parseInt(activationGroup.select(`#rect-0`).attr("y")) - 45)
         .attr("width", 20).attr("height", 20).attr("font-size", 14)
         .append("xhtml:div").style("position", "fixed").style("color", "#333").style("opacity", "1")
         .html(`<span>\\(H\\)</span>`);
 
-      // FORMULA
+      // Text for output dimensions and activation type 
+      activationGroup.append("text").attr("x", actiLabelX).attr("y", 500 * 0.05).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333").text("Activation");
+      activationGroup.append("text").attr("x", actiLabelX).attr("y", 600).attr("text-anchor", "middle").attr("font-size", 14).attr("opacity", 0.8).attr("fill", "#333")
+        .text(`${formatDimsFromTensorShape(outputConvShape)}`);
+      activationGroup.append("text").attr("x", actiLabelX).attr("y", 500 * 0.05 + 20).attr("text-anchor", "middle").attr("font-size", 10).attr("opacity", 0.8).attr("fill", "#333")
+        .text(`${(tensorLayers[layerIndex[0]] as dummyModelActivation).type}`);
+
+      // Equations 
+      activationGroup.append("foreignObject")
+        .attr("x", actiLabelX - 35).attr("y", parseInt(activationGroup.select(`#rect-0`).attr("y")) - 20)
+        .attr("width", 70).attr("height", 20).attr("font-size", 10)
+        .append("xhtml:div").style("position", "fixed").style("color", "#333").style("opacity", "1")
+        .html(`<span>\\(\\alpha(\\Omega \\cdot X + B\\))</span>`);
+
+      // CONVOLUTION FORMULA EQUATION 
       const formulaGroup = root.append("g").attr("class", "formula").attr("transform", "translate(1000, 10)");
 
       const formulaText = [
@@ -297,11 +323,7 @@ export function useConvAnimation(
           .transition().duration(0).delay(1000 + filterStartDelay * 2000).style("opacity", 0.7)
           .transition().duration(0).delay(posPerFilter * 2000).style("opacity", 0).remove();
 
-        // Each filter draws its notation into its own subgroup so element ids never collide.
-        // The group is shown/hidden with a *named* transition ("reveal"): a default-named
-        // transition on the parent would be inherited by the children's default-named
-        // transitions (d3 transition inheritance), re-timing the per-output value boxes so
-        // they only ever resolved for the final filter.
+        // Each filter draws its notation into its own subgroup so element ids never collide
         const filterNotationGroup = formulaVisual
           .append("g")
           .attr("id", `filter-notation-${f}`)
@@ -397,7 +419,8 @@ export function useConvAnimation(
 
         let currOutputi = 0;
         let currOutputj = 0;
-
+      
+      // Draw sliding window 
       for (let i = 0; i < inputConvShape[1]; i += inputConv.stride) {
         currOutputj = 0;
         for (let j = 0; j < inputConvShape[2]; j += inputConv.stride) {

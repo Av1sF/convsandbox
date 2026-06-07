@@ -7,10 +7,18 @@ import { clearAnimations } from "@/utils/d3Cleanup";
 
 interface Props {
   onClose: () => void;
+  /** Two-element array: [downsample layer index, preceding layer index]. */
   layerIndex: number[];
   tensorLayers: dummyModelOutputs[];
 }
 
+/**
+ * Modal that plays the downsampling animation for a pooling layer.
+ *
+ * Defers the SVG dimensions to `useDownsampleAnimation`, which resolves the
+ * pooling variant and surfaces it back via `poolingType` so the correct canvas
+ * size is rendered before the animation begins.
+ */
 const DownsampleAnimationModal: React.FC<Props> = ({ tensorLayers, layerIndex, onClose }) => {
   const modalSvgRef = useRef<SVGSVGElement | null>(null);
   const [poolingType, setPoolingType] = useState<DownsamplingType | undefined>();
@@ -30,9 +38,11 @@ const DownsampleAnimationModal: React.FC<Props> = ({ tensorLayers, layerIndex, o
     >
         <div className="mt-6 sm:mt-0">
           <h1 className="text-text text-2xl pb-3 font-semibold">
+            {/* Downsample Type - Modal Title */}
             {(tensorLayers[layerIndex[0]] as dummyModelDownsample).type}
           </h1>
 
+          {/*  Non-global method pooling text */}
           {poolingType && !poolingType.includes("Global") && (
             <p className="text-base text-text-muted px-2 pb-5">
               Using a {(tensorLayers[layerIndex[0]] as dummyModelDownsample).filterSize}x
@@ -42,12 +52,14 @@ const DownsampleAnimationModal: React.FC<Props> = ({ tensorLayers, layerIndex, o
             </p>
           )}
 
+          {/* Global Pooling method text */}
           {poolingType && poolingType.includes("Global") && (
             <p className="text-base text-text-muted px-2 pb-5">
               The pooling function is applied to each channel to reduce each channel to a single value.
             </p>
           )}
 
+          {/* Orchastrate to show different types of animations depending global or non-global pooling */}
           {poolingType && (
             <div className={`relative max-h-[${poolingType.includes("Global") ? "800px" : "650px"}] max-w-[900px] overflow-auto`}>
               <MathJax>
