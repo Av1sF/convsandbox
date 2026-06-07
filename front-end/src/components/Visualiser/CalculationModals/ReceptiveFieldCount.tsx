@@ -2,12 +2,21 @@ import { ConvParams, dummyModelOutputs, Layer } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import React, { useEffect, useState } from "react";
 import { ordinal } from "@/utils/ordinal";
+import Modal from "@/components/Modal";
 
 interface Props {
   layers: Layer[];
   tensorLayers: dummyModelOutputs[];
 }
 
+/**
+ * Displays a live receptive-field size for the current model and,
+ * on click, opens a modal with the derivation formula and per-layer breakdown.
+ *
+ * Only rendered when every non-input layer is a conv or activation layer —
+ * pooling or dense layers invalidate the standard RF formula, so the counter
+ * is hidden entirely rather than showing a misleading value.
+ */
 export const ReceptiveFieldCount: React.FC<Props> = ({
   layers,
   tensorLayers,
@@ -61,6 +70,7 @@ export const ReceptiveFieldCount: React.FC<Props> = ({
 
   return (
     <>
+      {/* Live counter */}
       {valid && (
         <p className="pl-4">
           <span
@@ -73,9 +83,12 @@ export const ReceptiveFieldCount: React.FC<Props> = ({
         </p>
       )}
 
+      {/* Explaination Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
-          <div className="bg-bg rounded-2xl p-7 w-full max-w-[80vh] md:max-w-7/12 max-h-3/4 text-text overflow-auto">
+        <Modal
+          onClose={() => setIsModalOpen(false)}
+          className="p-7 w-full max-w-[80vh] md:max-w-7/12 max-h-3/4 text-text overflow-auto"
+        >
             <h1 className="text-text text-2xl font-bold pb-3 ">
               The receptive field of a hidden unit
             </h1>
@@ -196,8 +209,7 @@ export const ReceptiveFieldCount: React.FC<Props> = ({
                 Close
               </button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
     </>
   );

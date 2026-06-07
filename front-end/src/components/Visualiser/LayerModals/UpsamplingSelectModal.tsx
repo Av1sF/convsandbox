@@ -8,6 +8,7 @@ import {
   UpsamplingParams,
   convLayerDims,
 } from "@/utils/types";
+import Modal from "@/components/Modal";
 
 export interface UpsamplingSelectModalProps {
   onClose: () => void;
@@ -15,6 +16,7 @@ export interface UpsamplingSelectModalProps {
   prevDims: convLayerDims; // previous layer dimensions
 }
 
+/** Static — defined outside the component so the array is never recreated on re-render. */
 const UPSAMPLING_METHODS: {
   type: UpsamplingType;
   title: string;
@@ -51,6 +53,11 @@ const UPSAMPLING_METHODS: {
   },
 ];
 
+/**
+ * Config modal for adding an upsampling layer; lets the user pick an
+ * interpolation method and an integer scale factor, then previews the
+ * resulting output dimensions before confirming.
+ */
 const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
   onClose,
   onConfirm,
@@ -74,12 +81,16 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
     outputDims.width <= MAX_WIDTH &&
     outputDims.height <= MAX_HEIGHT &&
     outputDims.depth <= MAX_DEPTH &&
-    1 < scale && 
+    // Scale must be strictly > 1; a factor of 1 would be a no-op.
+    1 < scale &&
     scale < MAX_SCALE_FACTOR;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px] p-6">
-      <div className="bg-bg rounded-2xl shadow-xl w-full max-w-3xl p-8 animate-fadeIn relative max-h-[95vh] overflow-y-auto">
+    <Modal
+      onClose={onClose}
+      overlayClassName="bg-black/40 backdrop-blur-[1px] p-6"
+      className="shadow-xl w-full max-w-3xl p-8 animate-fadeIn max-h-[95vh] overflow-y-auto"
+    >
         <h2 className="text-2xl font-semibold text-text mb-3">
           Select Upsampling Method
         </h2>
@@ -164,8 +175,7 @@ const UpsamplingSelectModal: React.FC<UpsamplingSelectModalProps> = ({
             Confirm
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

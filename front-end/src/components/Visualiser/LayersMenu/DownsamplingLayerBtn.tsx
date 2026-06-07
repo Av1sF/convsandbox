@@ -1,12 +1,12 @@
 import { LayerSelectionBtnProps } from "@/utils/types";
 import { MdCompress } from "react-icons/md";
 
+/** SVG pill button that opens the pooling-method selection modal. */
 export default function DownsamplingLayerBtn(props: LayerSelectionBtnProps) {
   const icon_x = props.x + 130;
   const icon_y = props.y + 16;
   return (
     <>
-      {/* Convolutivonal Layer Button */}
       <g style={{ cursor: "pointer" }} onClick={props.onClick}>
         {/* pill background */}
         <rect
@@ -43,7 +43,6 @@ export default function DownsamplingLayerBtn(props: LayerSelectionBtnProps) {
           fontSize="13"
           className="fill-text-muted font-secondary pointer-events-none"
         >
-          {/* add activation layer */}
           pooling layer
         </text>
 

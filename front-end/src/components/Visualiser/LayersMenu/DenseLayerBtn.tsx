@@ -1,12 +1,12 @@
 import { LayerSelectionBtnProps } from "@/utils/types";
 import { PiShareNetworkDuotone } from "react-icons/pi";
 
+/** SVG pill button that opens the dense-layer neuron-count modal. */
 export default function DneseLayerBtn(props: LayerSelectionBtnProps) {
   const icon_x = props.x + 130;
   const icon_y = props.y + 16;
   return (
     <>
-      {/* Convolutivonal Layer Button */}
       <g style={{ cursor: "pointer" }} onClick={props.onClick}>
         {/* pill background */}
         <rect
@@ -43,7 +43,6 @@ export default function DneseLayerBtn(props: LayerSelectionBtnProps) {
           fontSize="13"
           className="fill-text-muted font-secondary pointer-events-none"
         >
-          {/* add activation layer */}
           dense layer
         </text>
 

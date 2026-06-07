@@ -2,12 +2,20 @@ import { ConvParams, dummyModelOutputs, Layer } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
 import React, { useEffect, useState } from "react";
 import { dummyModelDense } from "../../../utils/types";
+import Modal from "@/components/Modal";
 
 interface Props {
   layers: Layer[];
   tensorLayers: dummyModelOutputs[];
 }
 
+/**
+ * Displays a live trainable-parameter count for the current model and,
+ * on click, opens a modal that shows the per-layer breakdown and formulas.
+ *
+ * Only conv and dense layers contribute trainable parameters; pooling and
+ * activation layers are counted as zero and listed for completeness.
+ */
 export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [totalParams, setTotalParams] = useState<number>(0);
@@ -48,6 +56,8 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
 
         const convNumParams =
           (filterSize * filterSize * inChannels + 1) * numFilters;
+
+        // For explaination modal display 
         setParamCalculation((prev) => [
           ...prev,
           {
@@ -56,15 +66,18 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
             calculation: `\\( (${filterSize}\\times ${filterSize} \\times ${inChannels} + 1) \\times ${numFilters} = ${convNumParams}\\)`,
           },
         ]);
+      
         totalp += convNumParams;
       } else if (layerType == "add-dense-layer") {
         // number of output units
         const outputNeurons = layers[i].params as number;
 
         // number of input units
-        const denseTensorLayer = tensorLayers[i] as dummyModelDense;
+         const denseTensorLayer = tensorLayers[i] as dummyModelDense;
+        if (!denseTensorLayer?.flatten) continue;
         const inputNeurons = denseTensorLayer.flatten.shape[1];
-
+        
+        // For explaination modal 
         if (inputNeurons) {
           const denseNumParams = outputNeurons * inputNeurons + outputNeurons;
           const neuronWording =
@@ -81,6 +94,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           totalp += denseNumParams;
         }
       } else if (layerType == "add-downsampling") {
+        // No parameters in down-sampling 
         setParamCalculation((prev) => [
           ...prev,
           {
@@ -90,6 +104,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
           },
         ]);
       } else if (layerType == "add-upsampling") {
+        // No parameters in up-sampling
         setParamCalculation((prev) => [
           ...prev,
           {
@@ -106,6 +121,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
 
   return (
     <>
+    {/* Dynamic Parameter Counter */}
       <p className="pl-4">
         <span
           className="cursor-pointer text-text hover:text-accent"
@@ -115,9 +131,13 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
         </span>
       </p>
 
+    {/* Explaination Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
-          <div className="bg-bg rounded-2xl p-7 w-full max-w-[80vh] md:max-w-7/12 max-h-3/4 text-text overflow-auto">
+        <Modal
+          onClose={() => setIsModalOpen(false)}
+          closeOnBackdropClick
+          className="p-7 w-full max-w-[80vh] md:max-w-7/12 max-h-3/4 text-text overflow-auto"
+        >
             <h1 className="text-text text-2xl font-bold pb-3 ">
               Calculating the number of trainable Parameters...
             </h1>
@@ -200,8 +220,7 @@ export const ParameterCount: React.FC<Props> = ({ layers, tensorLayers }) => {
                 Close
               </button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
     </>
   );

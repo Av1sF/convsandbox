@@ -1,6 +1,11 @@
 import * as d3 from "d3";
 import {LayerConnections } from "./types";
 
+/**
+ * Draws animated bezier curves connecting the right midpoints of the
+ * second-to-last layer group to the left midpoints of the last layer group
+ * in `allLayerConnections`. No-ops when fewer than two layers exist.
+ */
 function drawLayerConnections(
   svgRoot: | d3.Selection<d3.BaseType, unknown, null, undefined> | d3.Selection<SVGSVGElement | null, unknown, null, undefined>,
   allLayerConnections: LayerConnections[],

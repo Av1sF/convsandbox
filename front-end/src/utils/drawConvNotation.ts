@@ -1,13 +1,20 @@
 /**
- * Draws a convolutional layer into the provided D3 selection.
- * @param canvasW - The width of the canvas in px
- * @param canvasH - The height of the canvas in px
- * @param numDepth - Depth of the conv layer (max 5)
- * @param numColumns - Width of the conv layer (max 25)
- * @param numRows - Height of the conv layer (max 25)
- * @param maxLayers - Max number of layers user can add (max 5)
- * @param layerGroup - The i th layer svg group
- * @param tensor
+ * Draws one kernel-notation tile (a grid of weighted cells) into `layerGroup`
+ * for use in the formula panel of the conv/downsample animation modals.
+ *
+ * @param color      - Highlight colour for this kernel's channel
+ * @param canvasW    - Formula panel width in px
+ * @param canvasH    - Formula panel height in px
+ * @param maxLayers  - Used to scale tile dimensions
+ * @param startX     - X origin within `layerGroup`
+ * @param startY     - Y origin within `layerGroup`
+ * @param i, j       - Row/col position of the current sliding-window step (for subscript labels)
+ * @param l          - Channel index
+ * @param layerGroup - Target SVG group
+ * @param delay      - D3 transition delay in ms
+ * @param tensor     - 2-D slice of input values to display
+ * @param last       - When `true` the tile persists; otherwise it fades and is removed
+ *                     after 1 s so the animation can step to the next window position.
  */
 
 import { BaseType } from "d3";
@@ -77,9 +84,7 @@ export const drawConvNotation = (
 
       if (is2DTensor(tensor)) {
         if (isNumberParam(tensor[row][col])) {
-          // negative opacity shit solution
-          // what to do -> future map them to a RGB range
-          // more than 1 -> another shade -> etc...
+          // Normalise value from [MIN_WEIGHT, MAX_WEIGHT] to [0, 1] for CSS opacity; clamp outliers.
           randomOpacity = tensor[row][col];
           randomOpacity += Math.abs(MIN_WEIGHT);
           randomOpacity /= Math.abs(MIN_WEIGHT) + MAX_WEIGHT;

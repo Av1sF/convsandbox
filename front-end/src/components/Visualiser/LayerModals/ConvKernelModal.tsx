@@ -1,4 +1,3 @@
-// ConvKernelModal.tsx
 import { useState, useEffect } from "react";
 import {
   ConvParams,
@@ -12,6 +11,7 @@ import {
   MAX_WIDTH,
 } from "@/utils/types";
 import { MathJax } from "better-react-mathjax";
+import Modal from "@/components/Modal";
 
 interface Props {
   onClose: () => void;
@@ -19,6 +19,11 @@ interface Props {
   prevDims: LayerDims;
 }
 
+/**
+ * Config modal for adding a convolutional layer to an existing model.
+ * Shows the standard output-dimension formula live as the user adjusts
+ * filter count, kernel size, stride, and padding.
+ */
 const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
   const [numFilters, setNumFilters] = useState(1);
   const [filterSize, setFilterSize] = useState(2);
@@ -69,8 +74,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
-      <div className="bg-bg rounded-2xl p-6 w-full max-w-3xl flex flex-col md:flex-row gap-8 max-h-[95vh] overflow-y-auto">
+    <Modal onClose={onClose} className="p-6 w-full max-w-3xl flex flex-col md:flex-row gap-8 max-h-[95vh] overflow-y-auto">
         <div className="flex-1 text-sm text-text-muted">
           <p className="text-sm text-text-muted px-2 pt-2 pb-5">
             A convolution transforms an input vector into an output vector such
@@ -231,8 +235,7 @@ const ConvKernelModal: React.FC<Props> = ({ onClose, onConfirm, prevDims }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

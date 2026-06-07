@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { MAX_WIDTH, MAX_HEIGHT, MAX_DEPTH, ConvParams } from "@/utils/types";
+import Modal from "@/components/Modal";
 
 interface Props {
   onClose: () => void;
   onConfirm: (params: ConvParams) => void;
 }
 
+/**
+ * Config modal for the very first layer — sets the raw input dimensions
+ * (width × height × depth) before any convolution is applied.
+ */
 const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
   const [size, setSize] = useState(10);
   const [depth, setDepth] = useState(3);
@@ -20,21 +25,22 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
     e.preventDefault();
     if (!isValid) return;
 
+    // Kernel-related fields are zeroed — the first layer is the raw input,
+    // so no convolution operation is performed on it.
     onConfirm({
       width: size,
       height: size,
       depth: depth,
       stride: 0,
-      numFilters: 0, 
-      padding: 0, 
+      numFilters: 0,
+      padding: 0,
       filterSize: 0,
-      inChannels: 0, 
+      inChannels: 0,
     });
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-muted/40 p-4">
-      <div className="bg-bg rounded-2xl p-6 w-full max-w-md">
+    <Modal onClose={onClose} className="p-6 w-full max-w-md">
         <form onSubmit={handleSubmit} className="space-y-1">
           <h2 className="text-xl text-text font-semibold">Set Input Dimensions</h2>
           <p className="text-text-muted">Pick the dimensions of your input layer!</p>
@@ -83,8 +89,7 @@ const ConvInitModal: React.FC<Props> = ({ onClose, onConfirm }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

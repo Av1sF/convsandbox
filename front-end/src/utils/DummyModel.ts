@@ -15,8 +15,20 @@ import {
 
 const DATAFORMAT = "channelsLast";
 
+// These models are tiny and untrained, so WebGL buys nothing and makes every
+// tensor read-back (arraySync) slow because of GPU texture upload + GPU→CPU sync.
+// On the CPU backend the tensors live in JS memory, so read-backs are ~free —
+// which matters because the animation hooks read tensors back to arrays heavily.
+// Fire-and-forget at module load (client only); the switch resolves long before
+// the user can build their first layer.
+if (typeof window !== "undefined") {
+  void tf.setBackend("cpu");
+}
+
+/** Creates a random input tensor with the given spatial dimensions. */
 export function setInputLayer(params: convLayerDims): dummyModelInput {
   return {
+    kind: "input",
     output: random3DTensor(params.height, params.width, params.depth),
     dims: { height: params.height, width: params.width, depth: params.depth },
   };
@@ -30,6 +42,11 @@ function random3DTensor(
   return tf.randomUniform([1, height, width, depth], -1.25, 1.25);
 }
 
+/**
+ * Applies zero-padding (if any) then a conv2d layer with He-normal initialisation
+ * to `prevTensor`, returning the padded input, kernel weights, bias, and output
+ * all in one object so animation modals can read them without extra forward passes.
+ */
 export function setConvLayer(
   params: ConvParams,
   prevTensor: tf.Tensor
@@ -56,6 +73,7 @@ export function setConvLayer(
   const output = conv.apply(padded) as tf.Tensor;
 
   return {
+    kind: "conv",
     stride: params.stride,
     filterSize: params.filterSize,
     output: output,
@@ -73,6 +91,11 @@ export function setConvLayer(
   // return output instanceof tf.Tensor ? output : random3DTensor(params.height, params.width, params.depth);
 }
 
+/**
+ * Flattens `prevLayer` if it is not already 1-D, then applies a dense layer.
+ * The flatten tensor is stored so the animation modal can visualise the
+ * flattening step separately from the fully-connected output.
+ */
 export function setDenseLayer(
   params: number,
   prevLayer: tf.Tensor
@@ -89,6 +112,7 @@ export function setDenseLayer(
   const denseOutput = dense.apply(flatten) as tf.Tensor;
 
   return {
+    kind: "dense",
     output: denseOutput,
     flatten: flatten,
     neurons: params,
@@ -98,6 +122,11 @@ export function setDenseLayer(
 
 }
 
+/**
+ * Applies the chosen activation function element-wise to `prevLayer`.
+ * `neurons` / `dims` are passed through so callers that need the original
+ * layer shape (e.g. for label text) don't have to look it up separately.
+ */
 export function setActivationLayer(
   params: ActivationType,
   prevLayer: tf.Tensor,
@@ -107,6 +136,7 @@ export function setActivationLayer(
   switch (params) {
     case "Sigmoid":
       return {
+        kind: "activation",
         output: prevLayer.sigmoid(),
         type: params,
         neurons: neurons,
@@ -115,6 +145,7 @@ export function setActivationLayer(
 
     case "Tanh":
       return {
+        kind: "activation",
         output: prevLayer.tanh(),
         type: params,
         neurons: neurons,
@@ -122,6 +153,7 @@ export function setActivationLayer(
       };
     case "Leaky ReLU":
       return {
+        kind: "activation",
         output: prevLayer.leakyRelu(0.1),
         type: params,
         neurons: neurons,
@@ -130,6 +162,7 @@ export function setActivationLayer(
 
     case "ReLU":
       return {
+        kind: "activation",
         output: prevLayer.relu(),
         type: params,
         neurons: neurons,
@@ -138,6 +171,7 @@ export function setActivationLayer(
   }
 }
 
+/** Upsamples `prevLayer` by `params.scaleFactor` using the chosen interpolation method. */
 export function setUpsamplingLayer(
   params: UpsamplingParams,
   prevLayer: tf.Tensor
@@ -150,6 +184,7 @@ export function setUpsamplingLayer(
   const upsamplingLayerOutput = upsamplingLayer.apply(prevLayer) as tf.Tensor;
 
   return {
+    kind: "upsample",
     output: upsamplingLayerOutput,
     type: params.method,
     scaleFactor: params.scaleFactor,
@@ -157,6 +192,7 @@ export function setUpsamplingLayer(
   };
 }
 
+/** Applies the chosen pooling operation (max, average, global max, global average) to `prevLayer`. */
 export function setDownsamplingLayer(
   params: DownsamplingParams,
   prevLayer: tf.Tensor
@@ -172,6 +208,7 @@ export function setDownsamplingLayer(
       const avgPoolOutput = averagePooling2DLayer.apply(prevLayer) as tf.Tensor;
 
       return {
+        kind: "downsample",
         output: avgPoolOutput,
         type: params.type,
         stride: params.stride,
@@ -189,6 +226,7 @@ export function setDownsamplingLayer(
       const maxPoolOutput = maxPooling2DLayer.apply(prevLayer) as tf.Tensor;
 
       return {
+        kind: "downsample",
         output: maxPoolOutput,
         type: params.type,
         stride: params.stride,
@@ -206,6 +244,7 @@ export function setDownsamplingLayer(
       ) as tf.Tensor;
 
       return {
+        kind: "downsample",
         output: globalAvgPoolOutput,
         type: params.type,
         dims: params.outputDims,
@@ -221,6 +260,7 @@ export function setDownsamplingLayer(
       ) as tf.Tensor;
 
       return {
+        kind: "downsample",
         output: globalMaxPoolOutput,
         type: params.type,
         dims: params.outputDims,

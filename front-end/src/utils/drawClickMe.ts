@@ -1,5 +1,11 @@
 import * as d3 from "d3";
 
+/**
+ * Appends a temporary "Click to animate!" hint arrow at `(x, y)` that fades
+ * out and removes itself after 3 s.
+ * The marker id includes a random seed to avoid SVG `<defs>` id collisions
+ * when multiple hints are drawn simultaneously.
+ */
 export function drawClickMe(
   x: number,
   y: number,
