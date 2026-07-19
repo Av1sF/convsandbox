@@ -111,6 +111,4 @@ front-end/src/
 
 ---
 
-## Contact
 
-Questions or feedback? Reach out at **avis.cl.fung@kcl.ac.uk**
