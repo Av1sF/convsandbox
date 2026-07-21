@@ -64,12 +64,6 @@ export default function Home() {
             </span>
           </div>
 
-          <p className="text-xs text-text-muted italic pt-80 bg-center">
-            If you have any questions or feedback about the{" "}
-            <span className="text-text">Conv</span>
-            <span className="text-accent-warm">Sandbox</span>, please feel free
-            to contact us at avis.cl.fung@kcl.ac.uk
-          </p>
         </div>
       </MathJaxContext>
     </>
